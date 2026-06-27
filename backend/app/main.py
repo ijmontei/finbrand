@@ -4,9 +4,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
-from app.claims import build_claim_checklist
 from app.ingest.catalog import load_source_catalog
 from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
@@ -41,6 +39,13 @@ class EditorialDecisionRequest(BaseModel):
     decision: str = Field(..., pattern="^(approve|hold|revise|archive)$")
     editor: str = "editor"
     notes: str = ""
+
+
+class EditorialOverrideRequest(BaseModel):
+    override_type: str = Field(..., pattern="^primary_source$")
+    editor: str = Field(..., min_length=1)
+    reason: str = Field(..., min_length=20)
+    evidence_url: str = Field(..., min_length=8)
 
 
 @app.get("/api/health")
@@ -86,11 +91,9 @@ def qa(story_id: str) -> dict[str, object]:
 @app.get("/api/stories/{story_id}/claims")
 def claims(story_id: str) -> dict[str, object]:
     try:
-        story = store.get_story(story_id)
-        package = store.get_or_generate_package(story_id)
+        return store.get_claims(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
-    return build_claim_checklist(story, package)
 
 
 @app.get("/api/stories/{story_id}/rights")
@@ -115,11 +118,33 @@ def platform_readiness(story_id: str) -> dict[str, object]:
 @app.get("/api/stories/{story_id}/approval")
 def approval(story_id: str) -> dict[str, object]:
     try:
-        story = store.get_story(story_id)
-        package = store.get_or_generate_package(story_id)
+        return store.get_approval(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
-    return build_approval_checklist(story, package)
+
+
+@app.get("/api/stories/{story_id}/overrides")
+def overrides(story_id: str) -> list[dict[str, object]]:
+    try:
+        return store.get_overrides(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.post("/api/stories/{story_id}/overrides")
+def record_override(story_id: str, request: EditorialOverrideRequest) -> dict[str, object]:
+    try:
+        return store.record_override(
+            story_id,
+            request.override_type,
+            request.editor,
+            request.reason,
+            request.evidence_url,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/stories/{story_id}/decision")

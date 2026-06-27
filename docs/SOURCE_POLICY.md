@@ -42,6 +42,10 @@ A story should not move to "ready" unless it has:
 - Clear disclosure metadata if paid promotion, sponsorship, affiliate, or referral compensation exists.
 - No blocking approval checks; warning-level approval needs editor notes.
 
+## Human overrides
+
+Primary-source overrides are exceptions, not normal workflow. They require an editor name, a specific reason, and an evidence URL or internal evidence reference. An override may downgrade the primary-source gate from blocked to needs-review, but it does not clear rights, claim, platform, advice-language, or disclosure checks.
+
 ## Sample data
 
 The bundled sample records are synthetic. They demonstrate the schema and workflow, not real-time market claims. Replace them with real source URLs before publishing content.

@@ -21,6 +21,7 @@
 - Editorial format and style-variant metadata for less repetitive recurring packages.
 - Openable HTML review preview for each exported story package.
 - In-dashboard editorial decisions with notes, local append-only JSONL ledger, and export-side decision templates.
+- Audited primary-source override workflow with local append-only JSONL ledger.
 - Claim-level source and editor-verification checklist.
 - Source-rights and redistribution-review report.
 - Platform originality and reused-content readiness report.
@@ -40,6 +41,7 @@
 - Raw source archive.
 - Story cluster history.
 - Manual editor overrides.
+- Override revocation and second-review workflow.
 - Audit trail for every generated package.
 
 ## Phase 4: Rendering

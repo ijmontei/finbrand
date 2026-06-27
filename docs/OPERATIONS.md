@@ -13,12 +13,13 @@
 9. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
 10. Verify `platform_readiness.json`: original angle, visual transformation, caveat language, and reused-content risk.
 11. Verify `approval_checklist.json`: no blockers before approval; warning-level packages need editor notes.
-12. Rewrite the hook, chart, or caveat when needed.
-13. Record an editor decision: approve, hold, revise, or archive.
-14. Export the daily brief for owned-audience distribution.
-15. Render the video package only after approval.
-16. Publish manually.
-17. Archive performance metrics.
+12. Use a primary-source override only when an editor has documented alternate evidence and the reason belongs in the audit trail.
+13. Rewrite the hook, chart, or caveat when needed.
+14. Record an editor decision: approve, hold, revise, or archive.
+15. Export the daily brief for owned-audience distribution.
+16. Render the video package only after approval.
+17. Publish manually.
+18. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -34,6 +35,7 @@ python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 -
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
 python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
 python -m app.cli slate --limit 5
+python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
@@ -45,6 +47,8 @@ The exported `daily_brief.md` is the owned-audience brief for newsletter or emai
 Use `decision_template.json` as the export-side audit stub when a package is reviewed outside the dashboard.
 
 Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SIGNAL_DECISION_LEDGER` points elsewhere. Treat this file as local audit data; do not commit it.
+
+Primary-source overrides are appended to `.runtime/overrides.jsonl` unless `MARKET_SIGNAL_OVERRIDE_LEDGER` points elsewhere. Treat them as exception records: they downgrade a primary-source block to a warning, but approval still requires notes and rights/platform checks still apply.
 
 RSS source snapshots are appended to `.runtime/source_archive.jsonl` unless `MARKET_SIGNAL_SOURCE_ARCHIVE` points elsewhere. Treat this file as local audit data; do not commit it.
 
@@ -75,6 +79,7 @@ Market CSV ingestion is for licensed or internally reviewed market-reaction cont
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |
+| Weak primary-source override | Vague reason or missing evidence URL | Reject the override and require a stronger audit trail |
 | GDELT-only candidate | Discovery source without official corroboration | Attach SEC, Fed, BLS, FRED, or issuer evidence before approval |
 | Market CSV rejected | Missing `ticker` column value | Fix the row or exclude it before import |
 | Market CSV rights review | Imported row has provider-review posture | Keep as internal signal until license terms allow publication |

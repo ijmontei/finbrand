@@ -2,14 +2,20 @@ from __future__ import annotations
 
 from app.claims import build_claim_checklist
 from app.models import StoryCandidate, VideoPackage
+from app.overrides import serialize_overrides
 from app.pipeline.compliance import run_qa
 from app.platform import build_platform_readiness
 from app.rights import build_rights_report
 
 
-def build_approval_checklist(story: StoryCandidate, package: VideoPackage) -> dict[str, object]:
-    qa = run_qa(story, package)
-    claims = build_claim_checklist(story, package)
+def build_approval_checklist(
+    story: StoryCandidate,
+    package: VideoPackage,
+    editorial_overrides: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    overrides = serialize_overrides(editorial_overrides)
+    qa = run_qa(story, package, editorial_overrides=overrides)
+    claims = build_claim_checklist(story, package, editorial_overrides=overrides)
     rights = build_rights_report(story)
     platform = build_platform_readiness(story, package)
     checks = [
@@ -25,6 +31,7 @@ def build_approval_checklist(story: StoryCandidate, package: VideoPackage) -> di
         "status": status,
         "can_approve": status != "blocked",
         "notes_required": status == "needs_review",
+        "editorial_overrides": overrides,
         "checks": checks,
         "required_actions": _required_actions(checks),
         "publish_rule": "Approve only after blockers are cleared; warnings require editor notes that explain the human judgment call.",

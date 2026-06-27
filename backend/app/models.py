@@ -99,3 +99,17 @@ class EditorialDecision:
 
     def to_dict(self) -> JsonDict:
         return asdict(self)
+
+
+@dataclass(slots=True)
+class EditorialOverride:
+    story_id: str
+    override_type: str
+    editor: str
+    reason: str
+    evidence_url: str
+    created_at: str
+    active: bool = True
+
+    def to_dict(self) -> JsonDict:
+        return asdict(self)

@@ -59,6 +59,12 @@ def main() -> None:
     market_parser.add_argument("path")
     market_parser.add_argument("--source-name", default=None)
 
+    override_parser = subparsers.add_parser("override-primary-source", help="Record an audited primary-source override")
+    override_parser.add_argument("story_id")
+    override_parser.add_argument("--editor", default="editor")
+    override_parser.add_argument("--reason", required=True)
+    override_parser.add_argument("--evidence-url", required=True)
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -73,9 +79,9 @@ def main() -> None:
     elif args.command == "qa":
         _print_json(store.get_qa(args.story_id))
     elif args.command == "export":
-        _print_json(export_story_slate(store.stories, Path(args.output_dir), args.limit))
+        _print_json(export_story_slate(store.stories, Path(args.output_dir), args.limit, store.overrides_by_story()))
     elif args.command == "newsletter":
-        _print_json(export_daily_brief(store.stories, Path(args.output_dir), args.limit))
+        _print_json(export_daily_brief(store.stories, Path(args.output_dir), args.limit, store.overrides_by_story()))
     elif args.command == "ingest-feed":
         feed = find_source_feed(args.feed_id)
         result = store.ingest_rss(
@@ -166,6 +172,21 @@ def main() -> None:
                 "archive": store.last_source_archive_summary,
                 "publish_posture": "provider_review",
                 "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "override-primary-source":
+        result = store.record_override(
+            args.story_id,
+            "primary_source",
+            args.editor,
+            args.reason,
+            args.evidence_url,
+        )
+        _print_json(
+            {
+                "override": result,
+                "qa": store.get_qa(args.story_id),
+                "approval": store.get_approval(args.story_id),
             }
         )
     elif args.command == "archive-status":

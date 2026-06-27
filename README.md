@@ -12,6 +12,7 @@ The first product lane is:
 - FastAPI backend exposing story, package, RSS ingest, and QA endpoints.
 - React dashboard for reviewing the story slate, source trail, scoring rationale, generated script, and publishing gates.
 - Daily brief export for newsletter or owned-audience distribution.
+- Audited editor overrides for rare primary-source exceptions.
 - Sample primary-source-style records so the app runs before paid APIs or data licenses are added.
 - Documentation for source policy, roadmap, and operating model.
 
@@ -71,6 +72,7 @@ python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 -
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
 python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
 python -m app.cli slate --limit 3
+python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
@@ -117,6 +119,8 @@ Each generated package includes an editorial format, style variant, and angle. T
 `platform_readiness.json` checks whether a draft has enough original framing, visual transformation, caveat language, and human judgment to avoid feeling like commodity headline reuse.
 
 `approval_checklist.json` is the final pre-publish gate. Blocking checks prevent approval; warning-level packages require editor notes before approval can be recorded.
+
+Primary-source overrides are available for rare editor-reviewed exceptions. They require an editor, a reason, and an evidence URL, and they turn the primary-source gate into a warning rather than a pass. Overrides are appended to `.runtime/overrides.jsonl` by default.
 
 ## Source posture
 

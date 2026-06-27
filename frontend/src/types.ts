@@ -65,6 +65,7 @@ export interface QAGate {
 export interface QAResult {
   story_id: string;
   status: "ready" | "needs_review" | "blocked";
+  editorial_overrides: EditorialOverride[];
   gates: QAGate[];
 }
 
@@ -118,7 +119,18 @@ export interface ClaimItem {
 export interface ClaimChecklist {
   story_id: string;
   status: "ready" | "needs_review" | "blocked";
+  editorial_overrides: EditorialOverride[];
   claims: ClaimItem[];
+}
+
+export interface EditorialOverride {
+  story_id: string;
+  override_type: "primary_source";
+  editor: string;
+  reason: string;
+  evidence_url: string;
+  created_at: string;
+  active: boolean;
 }
 
 export interface RightsSource {
@@ -185,6 +197,7 @@ export interface ApprovalChecklist {
   status: "ready" | "needs_review" | "blocked";
   can_approve: boolean;
   notes_required: boolean;
+  editorial_overrides: EditorialOverride[];
   checks: ApprovalCheck[];
   required_actions: string[];
   publish_rule: string;

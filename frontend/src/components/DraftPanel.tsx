@@ -6,6 +6,7 @@ import type {
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
+  EditorialOverride,
   PlatformReadiness,
   QAResult,
   RightsReport,
@@ -22,8 +23,10 @@ interface DraftPanelProps {
   approval?: ApprovalChecklist;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
+  overrides?: EditorialOverride[];
   storyId?: string;
   onDecision: (decision: Exclude<EditorialDecisionValue, "pending">, notes: string) => void;
+  onOverride: (reason: string, evidenceUrl: string) => void;
   onGenerate: () => void;
   loading: boolean;
 }
@@ -37,15 +40,20 @@ export function DraftPanel({
   approval,
   storyboard,
   decision,
+  overrides = [],
   storyId,
   onDecision,
+  onOverride,
   onGenerate,
   loading
 }: DraftPanelProps) {
   const [notes, setNotes] = useState("");
+  const [overrideReason, setOverrideReason] = useState("");
+  const [overrideEvidenceUrl, setOverrideEvidenceUrl] = useState("");
   const approveDisabled = Boolean(
     approval && (!approval.can_approve || (approval.notes_required && !notes.trim()))
   );
+  const overrideDisabled = !storyId || overrideReason.trim().length < 20 || overrideEvidenceUrl.trim().length < 8;
 
   useEffect(() => {
     setNotes(decision?.notes ?? "");
@@ -237,6 +245,52 @@ export function DraftPanel({
               </div>
             </section>
           ) : null}
+
+          <section className="overrideBox">
+            <div className="scriptHeader">
+              <span>Editorial Overrides</span>
+              <strong>{overrides.length}</strong>
+            </div>
+            {overrides.length ? (
+              <div className="overrideList">
+                {overrides.map((override) => (
+                  <div className="overrideItem" key={`${override.override_type}-${override.created_at}`}>
+                    <strong>{override.override_type.replace("_", " ")}</strong>
+                    <span>{override.reason}</span>
+                    <small>
+                      {override.editor} - {new Date(override.created_at).toLocaleString()}
+                    </small>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            <div className="overrideForm">
+              <textarea
+                value={overrideReason}
+                onChange={(event) => setOverrideReason(event.target.value)}
+                placeholder="Reason for primary-source override."
+                aria-label="Primary-source override reason"
+              />
+              <input
+                value={overrideEvidenceUrl}
+                onChange={(event) => setOverrideEvidenceUrl(event.target.value)}
+                placeholder="https://... or internal://..."
+                aria-label="Primary-source override evidence URL"
+              />
+              <button
+                className="decisionButton revise"
+                disabled={overrideDisabled}
+                onClick={() => {
+                  onOverride(overrideReason, overrideEvidenceUrl);
+                  setOverrideReason("");
+                  setOverrideEvidenceUrl("");
+                }}
+                title="Record primary-source override"
+              >
+                Record Override
+              </button>
+            </div>
+          </section>
 
           <section className="decisionBox">
             <div className="scriptHeader">

@@ -39,6 +39,7 @@ flowchart LR
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
 - `app.approval`: final approval checklist combining QA, claims, rights, and platform readiness.
 - `app.newsletter`: owned-audience daily brief builder and exporter.
+- `app.overrides`: append-only editor override ledger and validation helpers.
 - `app.ingest.bls`: BLS time-series adapter for official labor and inflation observations.
 - `app.ingest.gdelt`: GDELT article discovery adapter that produces non-primary candidates.
 - `app.ingest.market_csv`: rights-aware CSV adapter for licensed market reaction context.
@@ -68,6 +69,8 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/rights` | Source-rights and redistribution review report |
 | `GET` | `/api/stories/{story_id}/platform-readiness` | Platform originality and reused-content readiness report |
 | `GET` | `/api/stories/{story_id}/approval` | Final pre-publish approval checklist |
+| `GET` | `/api/stories/{story_id}/overrides` | Active editor overrides for a story |
+| `POST` | `/api/stories/{story_id}/overrides` | Record an audited editor override |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
 | `POST` | `/api/stories/{story_id}/decision` | Record approve, hold, revise, or archive decision |
 | `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |
@@ -94,6 +97,7 @@ flowchart LR
 | `python -m app.cli bls-timeseries SERIES_ID --start-year YYYY --end-year YYYY --limit 3` | Pull recent BLS time-series observations |
 | `python -m app.cli gdelt-search QUERY --limit 10 --timespan 24h` | Pull GDELT article discovery candidates |
 | `python -m app.cli market-csv PATH --source-name PROVIDER` | Import provider-review market reaction context from CSV |
+| `python -m app.cli override-primary-source STORY_ID --reason TEXT --evidence-url URL` | Record an audited primary-source exception |
 | `python -m app.cli archive-status` | Show local source archive path and record count |
 
 ## Storage path
@@ -117,10 +121,13 @@ The MVP writes ingested source snapshots to an append-only JSONL archive. By def
 
 The MVP also writes editorial decisions to an append-only JSONL ledger. By default this lives at `.runtime/decisions.jsonl`, or at `MARKET_SIGNAL_DECISION_LEDGER` when configured. The store loads the latest decision per story on startup, so approvals, holds, revision notes, and archive decisions survive local restarts.
 
+Primary-source overrides are written to an append-only JSONL ledger at `.runtime/overrides.jsonl`, or at `MARKET_SIGNAL_OVERRIDE_LEDGER` when configured. Overrides are active exception records with editor, reason, evidence URL, and timestamp; they turn the primary-source gate into a warning, not a pass.
+
 Production should promote this into Postgres with:
 
 - immutable raw source snapshots
 - immutable append-only decision events
+- immutable append-only override events
 - authenticated editor identity
 - old and new state
 - QA snapshot

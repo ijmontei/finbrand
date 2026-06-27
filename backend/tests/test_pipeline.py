@@ -19,6 +19,7 @@ from app.ingest.market_csv import market_csv_rows_to_source_items
 from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
 from app.models import SourceItem
 from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
+from app.overrides import OverrideLedger
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
@@ -233,6 +234,37 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("needs_primary_source_review", story.risk_flags)
         self.assertEqual(qa["status"], "blocked")
         self.assertEqual(rights["status"], "needs_review")
+
+    def test_primary_source_override_downgrades_block_to_warning(self) -> None:
+        story = build_story_candidates(
+            gdelt_payload_to_source_items(_sample_gdelt_payload(), query="NVDA export controls", limit=1)
+        )[0]
+        package = generate_video_package(story)
+        override = {
+            "story_id": story.story_id,
+            "override_type": "primary_source",
+            "editor": "editor",
+            "reason": "Official source is unavailable; editor verified the context against internal notes.",
+            "evidence_url": "internal://editorial/source-review/1",
+            "created_at": "2026-06-27T13:00:00+00:00",
+            "active": True,
+        }
+
+        qa = run_qa(story, package, editorial_overrides=[override])
+        claims = build_claim_checklist(story, package, editorial_overrides=[override])
+        approval = build_approval_checklist(story, package, editorial_overrides=[override])
+
+        self.assertEqual(qa["status"], "needs_review")
+        self.assertTrue(
+            any(
+                gate["name"] == "Primary-source traceability" and gate["status"] == "warn"
+                for gate in qa["gates"]
+            )
+        )
+        self.assertEqual(claims["status"], "needs_review")
+        self.assertTrue(approval["can_approve"])
+        self.assertTrue(approval["notes_required"])
+        self.assertEqual(approval["editorial_overrides"][0]["override_type"], "primary_source")
 
     def test_store_archives_gdelt_discovery_items(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -595,6 +627,32 @@ class PipelineTests(unittest.TestCase):
 
             self.assertEqual(restarted_store.get_decision(story_id)["decision"], "approve")
             self.assertEqual(restarted_store.get_decision(story_id)["notes"], "Looks ready.")
+
+    def test_editorial_override_survives_store_restart(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            sample_path = Path(__file__).parents[1] / "app" / "data" / "sample_sources.json"
+            override_path = Path(temp_dir) / "overrides.jsonl"
+            first_store = EditorialStore(
+                sample_path,
+                override_ledger=OverrideLedger(override_path),
+            )
+            story_id = first_store.stories[0].story_id
+
+            saved = first_store.record_override(
+                story_id,
+                "primary_source",
+                "editor",
+                "Editor reviewed alternate evidence because official source is unavailable.",
+                "internal://editorial/source-review/sample",
+            )
+            restarted_store = EditorialStore(
+                sample_path,
+                override_ledger=OverrideLedger(override_path),
+            )
+
+            self.assertEqual(saved["override_type"], "primary_source")
+            self.assertEqual(len(restarted_store.get_overrides(story_id)), 1)
+            self.assertEqual(restarted_store.get_overrides(story_id)[0]["reason"], saved["reason"])
 
 def _sample_sec_submissions_payload() -> dict[str, object]:
     return {

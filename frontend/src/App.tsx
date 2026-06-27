@@ -4,12 +4,14 @@ import {
   fetchApproval,
   fetchClaims,
   fetchDecision,
+  fetchOverrides,
   fetchPlatformReadiness,
   fetchQA,
   fetchRights,
   fetchStoryboard,
   fetchStories,
   generatePackage,
+  recordPrimarySourceOverride,
   recordDecision,
   refreshStories
 } from "./api";
@@ -23,6 +25,7 @@ import type {
   ApprovalChecklist,
   EditorialDecision,
   EditorialDecisionValue,
+  EditorialOverride,
   PlatformReadiness,
   QAResult,
   RightsReport,
@@ -51,6 +54,7 @@ export default function App() {
   const [approval, setApproval] = useState<ApprovalChecklist>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
   const [decision, setDecision] = useState<EditorialDecision>();
+  const [overrides, setOverrides] = useState<EditorialOverride[]>([]);
   const [loading, setLoading] = useState(true);
   const [drafting, setDrafting] = useState(false);
   const [error, setError] = useState<string>();
@@ -103,7 +107,17 @@ export default function App() {
     setDrafting(true);
     setError(undefined);
     try {
-      const [nextPackage, nextQA, nextClaims, nextRights, nextPlatform, nextApproval, nextStoryboard, nextDecision] = await Promise.all([
+      const [
+        nextPackage,
+        nextQA,
+        nextClaims,
+        nextRights,
+        nextPlatform,
+        nextApproval,
+        nextStoryboard,
+        nextDecision,
+        nextOverrides
+      ] = await Promise.all([
         generatePackage(storyId),
         fetchQA(storyId),
         fetchClaims(storyId),
@@ -111,7 +125,8 @@ export default function App() {
         fetchPlatformReadiness(storyId),
         fetchApproval(storyId),
         fetchStoryboard(storyId),
-        fetchDecision(storyId)
+        fetchDecision(storyId),
+        fetchOverrides(storyId)
       ]);
       setVideoPackage(nextPackage);
       setQa(nextQA);
@@ -121,6 +136,7 @@ export default function App() {
       setApproval(nextApproval);
       setStoryboard(nextStoryboard);
       setDecision(nextDecision);
+      setOverrides(nextOverrides);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Draft failed");
     } finally {
@@ -136,6 +152,17 @@ export default function App() {
       setDecision(saved);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Decision failed");
+    }
+  }
+
+  async function savePrimarySourceOverride(reason: string, evidenceUrl: string) {
+    if (!selectedStory) return;
+    setError(undefined);
+    try {
+      await recordPrimarySourceOverride(selectedStory.story_id, reason, evidenceUrl);
+      await buildDraft(selectedStory.story_id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Override failed");
     }
   }
 
@@ -230,8 +257,10 @@ export default function App() {
           approval={approval}
           storyboard={storyboard}
           decision={decision}
+          overrides={overrides}
           storyId={selectedStory?.story_id}
           onDecision={saveDecision}
+          onOverride={savePrimarySourceOverride}
           onGenerate={() => buildDraft()}
           loading={drafting}
         />

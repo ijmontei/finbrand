@@ -3,6 +3,7 @@ import type {
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
+  EditorialOverride,
   PlatformReadiness,
   QAResult,
   RightsReport,
@@ -65,6 +66,10 @@ export function fetchDecision(storyId: string): Promise<EditorialDecision> {
   return request<EditorialDecision>(`/api/stories/${storyId}/decision`);
 }
 
+export function fetchOverrides(storyId: string): Promise<EditorialOverride[]> {
+  return request<EditorialOverride[]>(`/api/stories/${storyId}/overrides`);
+}
+
 export function recordDecision(
   storyId: string,
   decision: Exclude<EditorialDecisionValue, "pending">,
@@ -74,6 +79,23 @@ export function recordDecision(
   return request<EditorialDecision>(`/api/stories/${storyId}/decision`, {
     method: "POST",
     body: JSON.stringify({ decision, editor, notes })
+  });
+}
+
+export function recordPrimarySourceOverride(
+  storyId: string,
+  reason: string,
+  evidenceUrl: string,
+  editor = "editor"
+): Promise<EditorialOverride> {
+  return request<EditorialOverride>(`/api/stories/${storyId}/overrides`, {
+    method: "POST",
+    body: JSON.stringify({
+      override_type: "primary_source",
+      editor,
+      reason,
+      evidence_url: evidenceUrl
+    })
   });
 }
 

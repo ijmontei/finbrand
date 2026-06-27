@@ -4,6 +4,7 @@ import re
 
 from app.claims import build_claim_checklist
 from app.models import QAGate, StoryCandidate, VideoPackage
+from app.overrides import has_override, serialize_overrides
 from app.platform import build_platform_readiness
 from app.rights import build_rights_report
 
@@ -20,30 +21,42 @@ BLOCKING_ADVICE_PATTERNS = [
 ]
 
 
-def run_qa(story: StoryCandidate, package: VideoPackage) -> dict[str, object]:
+def run_qa(
+    story: StoryCandidate,
+    package: VideoPackage,
+    editorial_overrides: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    overrides = serialize_overrides(editorial_overrides)
     gates = [
-        _primary_source_gate(story),
+        _primary_source_gate(story, overrides),
         _advice_language_gate(package),
         _rights_gate(story),
         _originality_gate(package),
         _platform_readiness_gate(story, package),
         _chart_gate(package),
         _caveat_gate(package),
-        _claim_traceability_gate(story, package),
+        _claim_traceability_gate(story, package, overrides),
         _disclosure_gate(story),
     ]
     status = _overall_status(gates)
     return {
         "story_id": story.story_id,
         "status": status,
+        "editorial_overrides": overrides,
         "gates": [gate.to_dict() for gate in gates],
     }
 
 
-def _primary_source_gate(story: StoryCandidate) -> QAGate:
+def _primary_source_gate(story: StoryCandidate, editorial_overrides: list[dict[str, object]]) -> QAGate:
     if story.primary_evidence:
         source_names = ", ".join(item["source_name"] for item in story.primary_evidence)
         return QAGate("Primary-source traceability", "pass", f"Primary evidence present: {source_names}.")
+    if has_override(editorial_overrides, "primary_source"):
+        return QAGate(
+            "Primary-source traceability",
+            "warn",
+            "No primary source is attached, but an editor override is recorded for this story.",
+        )
     return QAGate(
         "Primary-source traceability",
         "block",
@@ -95,8 +108,12 @@ def _caveat_gate(package: VideoPackage) -> QAGate:
     return QAGate("Uncertainty note", "warn", "Draft is missing a caveat.")
 
 
-def _claim_traceability_gate(story: StoryCandidate, package: VideoPackage) -> QAGate:
-    checklist = build_claim_checklist(story, package)
+def _claim_traceability_gate(
+    story: StoryCandidate,
+    package: VideoPackage,
+    editorial_overrides: list[dict[str, object]],
+) -> QAGate:
+    checklist = build_claim_checklist(story, package, editorial_overrides=editorial_overrides)
     if checklist["status"] == "blocked":
         return QAGate("Claim traceability", "block", "One or more material claims lacks source references.")
     if checklist["status"] == "needs_review":
