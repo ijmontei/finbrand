@@ -9,8 +9,9 @@ from unittest.mock import patch
 from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
+from app.content_batch import build_content_batch
 from app.decision_ledger import DecisionLedger
-from app.exporter import export_publish_packet, export_story_slate
+from app.exporter import export_content_batch, export_publish_packet, export_story_slate
 from app.ingest.bls import bls_timeseries_payload_to_source_items
 from app.ingest.catalog import load_source_catalog
 from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
@@ -699,6 +700,38 @@ class PipelineTests(unittest.TestCase):
             self.assertTrue(Path(files["publish_brief"]).exists())
             self.assertIn("manual_only", Path(files["publish_packet"]).read_text(encoding="utf-8"))
             self.assertIn("Auto-post allowed: False", Path(files["publish_brief"]).read_text(encoding="utf-8"))
+
+    def test_content_batch_builds_50_distinct_reviewable_pieces(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        batch = build_content_batch(store.stories, count=50)
+
+        self.assertEqual(batch["count"], 50)
+        self.assertFalse(batch["auto_post_allowed"])
+        self.assertEqual(batch["publish_mode"], "manual_only")
+        self.assertEqual(len({piece["content_id"] for piece in batch["pieces"]}), 50)
+        self.assertEqual(
+            set(batch["platform_mix"]),
+            {"youtube_shorts", "instagram_reels", "tiktok", "newsletter", "linkedin"},
+        )
+        self.assertTrue(all(piece["manual_publish_required"] for piece in batch["pieces"]))
+        self.assertTrue(all(not piece["auto_post_allowed"] for piece in batch["pieces"]))
+        self.assertTrue(all(piece["source_refs"] for piece in batch["pieces"]))
+        self.assertTrue(all(piece["script_or_body"] for piece in batch["pieces"]))
+
+    def test_export_content_batch_writes_50_piece_files(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        with TemporaryDirectory() as temp_dir:
+            files = export_content_batch(store.stories, Path(temp_dir) / "content-batch", count=50)
+
+            self.assertEqual(files["piece_count"], 50)
+            self.assertTrue(Path(files["content_batch"]).exists())
+            self.assertTrue(Path(files["content_batch_markdown"]).exists())
+            self.assertEqual(len(files["pieces"]), 50)
+            self.assertTrue(Path(files["pieces"][0]["content_piece"]).exists())
+            self.assertTrue(Path(files["pieces"][0]["content_brief"]).exists())
+            self.assertIn("Auto-post allowed: False", Path(files["pieces"][0]["content_brief"]).read_text(encoding="utf-8"))
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

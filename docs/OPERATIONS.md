@@ -17,9 +17,10 @@
 13. Rewrite the hook, chart, or caveat when needed.
 14. Record an editor decision: approve, hold, revise, or archive.
 15. Export the daily brief for owned-audience distribution.
-16. Render the video package only after approval.
-17. Publish manually.
-18. Archive performance metrics.
+16. Export the 50-piece draft content batch when preparing a launch or weekly production slate.
+17. Render the video package only after approval.
+18. Publish manually.
+19. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -40,12 +41,15 @@ python -m app.cli slate --limit 5
 python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli publish-packet STORY_ID --output-dir ..\exports\publish
+python -m app.cli content-batch --count 50 --output-dir ..\exports\content-batch
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
 
 The exported `editor_brief.md` is the human review surface. `preview.html` is the quick visual review surface. `storyboard.json`, `captions.srt`, and `chart_signal.svg` are intended for later Remotion or FFmpeg publishing workers.
 
 The exported `publish_packet.json` and `publish_brief.md` are the final manual handoff. They stay blocked until an editor decision is `approve` and no blocking gates remain. They explicitly set `auto_post_allowed` to `false`.
+
+The exported content batch is the launch-slate handoff. It creates 50 draft content pieces by default, with one folder per piece plus a batch index. Each piece keeps its platform, editorial lens, script or body copy, caption, thumbnail/cover text, chart direction, source refs, blockers, warnings, and the manual-publish rule.
 
 The exported `daily_brief.md` is the owned-audience brief for newsletter or email workflows. It should preserve short source citations and avoid republishing article text.
 
@@ -79,6 +83,7 @@ Market CSV ingestion is for licensed or internally reviewed market-reaction cont
 | Platform-readiness warning | Weak transformation or commodity recap language | Rewrite around the data missed, owned visual, and editor caveat |
 | Approval rejected | Blocking check or missing notes for warning-level package | Use hold/revise, or add specific approval notes after review |
 | Publish packet blocked | Missing approval or blocking gate remains | Record approval only after review or revise the package |
+| Content batch has blocked pieces | Source, rights, platform, or approval gates are unresolved | Treat the batch as draft inventory and clear blockers before publishing individual pieces |
 | Archive count did not change | Feed failed, returned no items, or archive path is misconfigured | Check `archive-status`, feed URL, and provider/user-agent requirements |
 | SEC ingestion rejected | Missing declared SEC user agent | Set `SEC_USER_AGENT` to a real app/contact string before retrying |
 | FRED ingestion rejected | Missing FRED API key | Set `FRED_API_KEY` before retrying |

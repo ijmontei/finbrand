@@ -12,6 +12,7 @@ The first product lane is:
 - FastAPI backend exposing story, package, RSS ingest, and QA endpoints.
 - React dashboard for reviewing the story slate, source trail, scoring rationale, generated script, and publishing gates.
 - Daily brief export for newsletter or owned-audience distribution.
+- 50-piece draft content batch export for launch planning across Shorts, Reels, TikTok, newsletter, and LinkedIn.
 - Audited editor overrides for rare primary-source exceptions.
 - Structured source-terms reviews for provider licensing and restrictions.
 - Sample primary-source-style records so the app runs before paid APIs or data licenses are added.
@@ -78,6 +79,7 @@ python -m app.cli slate --limit 3
 python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli publish-packet STORY_ID --output-dir ..\exports\publish
+python -m app.cli content-batch --count 50 --output-dir ..\exports\content-batch
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
 
@@ -99,6 +101,8 @@ Each exported story folder contains:
 - `editor_brief.md`
 
 After an editor records an approved decision, `publish-packet` writes `publish_packet.json` and `publish_brief.md`. This is the manual publishing handoff: it never auto-posts and remains blocked until the editor decision and publishing gates have no blockers.
+
+`content-batch` writes a launch batch of 50 draft content pieces by default. The export includes `content_batch.json`, `content_batch.md`, and one folder per piece with `content_piece.json` and `content_brief.md`. These are draft assets for human review, not automated posts; every piece preserves source refs, review status, blockers, warnings, and `auto_post_allowed: false`.
 
 Slate exports also include `daily_brief.md` and `daily_brief.json` for a newsletter or owned-audience daily brief. These reuse the same source trail, approval status, rights status, caveat, and chart idea as the video workflow.
 
@@ -133,6 +137,8 @@ Each generated package includes an editorial format, style variant, and angle. T
 `approval_checklist.json` is the final pre-publish gate. Blocking checks prevent approval; warning-level packages require editor notes before approval can be recorded.
 
 `publish_packet.json` is the approval-gated manual publishing packet. It sets `auto_post_allowed` to false and lists blockers, warnings, platform metadata, source citations, and final upload checks.
+
+`content_batch.json` is the 50-piece draft launch batch. It rotates source-backed stories across editorial lenses and platform playbooks so the workflow creates many useful drafts without collapsing into repeated headline summaries.
 
 Primary-source overrides are available for rare editor-reviewed exceptions. They require an editor, a reason, and an evidence URL, and they turn the primary-source gate into a warning rather than a pass. Overrides are appended to `.runtime/overrides.jsonl` by default.
 

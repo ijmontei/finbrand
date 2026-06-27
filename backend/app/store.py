@@ -5,6 +5,7 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from app.approval import build_approval_checklist
+from app.content_batch import build_content_batch
 from app.decision_ledger import DecisionLedger
 from app.models import EditorialDecision, EditorialOverride, SourceItem, SourceTermsReview, StoryCandidate, VideoPackage
 from app.overrides import OverrideLedger, serialize_overrides, validate_override
@@ -170,6 +171,16 @@ class EditorialStore:
         approval = self.get_approval(story_id)
         decision = self.get_decision(story_id)
         return build_publish_packet(story, package, qa, claims, rights, platform, approval, decision)
+
+    def get_content_batch(self, count: int = 50) -> dict[str, object]:
+        decisions = {story.story_id: self.get_decision(story.story_id) for story in self.stories}
+        return build_content_batch(
+            self.stories,
+            count=count,
+            decisions_by_story=decisions,
+            overrides_by_story=self.overrides_by_story(),
+            source_terms=self.list_source_terms(),
+        )
 
     def list_source_terms(self) -> list[dict[str, object]]:
         return serialize_terms_reviews(self.source_terms_reviews)

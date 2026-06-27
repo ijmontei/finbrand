@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -138,6 +138,14 @@ def publish_packet(story_id: str) -> dict[str, object]:
         return store.get_publish_packet(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.get("/api/content-batch")
+def content_batch(count: int = Query(50, ge=1, le=200)) -> dict[str, object]:
+    try:
+        return store.get_content_batch(count=count)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/stories/{story_id}/overrides")

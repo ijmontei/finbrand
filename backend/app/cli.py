@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from app.exporter import export_publish_packet, export_story_slate
+from app.exporter import export_content_batch, export_publish_packet, export_story_slate
 from app.ingest.catalog import find_source_feed, load_source_catalog
 from app.newsletter import export_daily_brief
 from app.store import EditorialStore
@@ -28,6 +28,10 @@ def main() -> None:
     publish_parser = subparsers.add_parser("publish-packet", help="Export an approval-gated manual publish packet")
     publish_parser.add_argument("story_id")
     publish_parser.add_argument("--output-dir", default="exports/publish")
+
+    batch_parser = subparsers.add_parser("content-batch", help="Export a 50-piece draft content launch batch")
+    batch_parser.add_argument("--count", type=int, default=50)
+    batch_parser.add_argument("--output-dir", default="exports/content-batch")
 
     export_parser = subparsers.add_parser("export", help="Export editor-ready files")
     export_parser.add_argument("--output-dir", default="exports/latest")
@@ -109,6 +113,30 @@ def main() -> None:
         _print_json(
             {
                 "packet": store.get_publish_packet(args.story_id),
+                "files": files,
+            }
+        )
+    elif args.command == "content-batch":
+        decisions = {story.story_id: store.get_decision(story.story_id) for story in store.stories}
+        files = export_content_batch(
+            store.stories,
+            Path(args.output_dir),
+            args.count,
+            decisions_by_story=decisions,
+            overrides_by_story=store.overrides_by_story(),
+            source_terms=store.list_source_terms(),
+        )
+        batch = store.get_content_batch(args.count)
+        _print_json(
+            {
+                "batch": {
+                    "count": batch["count"],
+                    "publish_mode": batch["publish_mode"],
+                    "auto_post_allowed": batch["auto_post_allowed"],
+                    "status_summary": batch["status_summary"],
+                    "platform_mix": batch["platform_mix"],
+                    "lens_mix": batch["lens_mix"],
+                },
                 "files": files,
             }
         )

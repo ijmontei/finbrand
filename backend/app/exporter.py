@@ -6,6 +6,7 @@ from pathlib import Path
 from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
+from app.content_batch import build_content_batch, render_content_batch_markdown, render_content_piece_markdown
 from app.models import StoryCandidate, VideoPackage
 from app.newsletter import export_daily_brief
 from app.pipeline.compliance import run_qa
@@ -139,6 +140,53 @@ def export_publish_packet(
     return {
         "publish_packet": str(packet_path),
         "publish_brief": str(brief_path),
+    }
+
+
+def export_content_batch(
+    stories: list[StoryCandidate],
+    output_dir: Path,
+    count: int = 50,
+    decisions_by_story: dict[str, dict[str, object]] | None = None,
+    overrides_by_story: dict[str, list[dict[str, object]]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
+) -> dict[str, object]:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    batch = build_content_batch(
+        stories,
+        count=count,
+        decisions_by_story=decisions_by_story,
+        overrides_by_story=overrides_by_story,
+        source_terms=source_terms,
+    )
+    batch_path = output_dir / "content_batch.json"
+    markdown_path = output_dir / "content_batch.md"
+    _write_json(batch_path, batch)
+    markdown_path.write_text(render_content_batch_markdown(batch), encoding="utf-8")
+
+    piece_files = []
+    for piece in batch["pieces"]:
+        sequence = int(piece["sequence"])
+        piece_dir = output_dir / f"piece_{sequence:03d}"
+        piece_dir.mkdir(parents=True, exist_ok=True)
+        piece_json = piece_dir / "content_piece.json"
+        piece_markdown = piece_dir / "content_brief.md"
+        _write_json(piece_json, piece)
+        piece_markdown.write_text(render_content_piece_markdown(piece), encoding="utf-8")
+        piece_files.append(
+            {
+                "sequence": sequence,
+                "content_id": piece["content_id"],
+                "content_piece": str(piece_json),
+                "content_brief": str(piece_markdown),
+            }
+        )
+
+    return {
+        "content_batch": str(batch_path),
+        "content_batch_markdown": str(markdown_path),
+        "piece_count": len(piece_files),
+        "pieces": piece_files,
     }
 
 

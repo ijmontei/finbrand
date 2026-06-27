@@ -13,6 +13,7 @@ flowchart LR
     F --> G["Compliance QA"]
     G --> H["React editorial dashboard"]
     G --> J["Daily brief export"]
+    G --> K["50-piece content batch export"]
 ```
 
 ## Production target
@@ -38,6 +39,7 @@ flowchart LR
 
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
 - `app.approval`: final approval checklist combining QA, claims, rights, and platform readiness.
+- `app.content_batch`: 50-piece draft launch-batch builder with platform and editorial-lens rotation.
 - `app.newsletter`: owned-audience daily brief builder and exporter.
 - `app.overrides`: append-only editor override ledger and validation helpers.
 - `app.ingest.bls`: BLS time-series adapter for official labor and inflation observations.
@@ -71,6 +73,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/platform-readiness` | Platform originality and reused-content readiness report |
 | `GET` | `/api/stories/{story_id}/approval` | Final pre-publish approval checklist |
 | `GET` | `/api/stories/{story_id}/publish-packet` | Approval-gated manual publishing packet |
+| `GET` | `/api/content-batch?count=50` | Draft content batch preview for launch or weekly production planning |
 | `GET` | `/api/stories/{story_id}/overrides` | Active editor overrides for a story |
 | `POST` | `/api/stories/{story_id}/overrides` | Record an audited editor override |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
@@ -94,6 +97,7 @@ flowchart LR
 | `python -m app.cli package STORY_ID` | Generate one story package |
 | `python -m app.cli qa STORY_ID` | Run QA for one story |
 | `python -m app.cli publish-packet STORY_ID --output-dir exports/publish` | Write approval-gated manual publishing files |
+| `python -m app.cli content-batch --count 50 --output-dir exports/content-batch` | Write 50 draft content pieces plus a batch index |
 | `python -m app.cli export --output-dir exports/latest --limit 5` | Write editor briefs, manifests, QA, and package JSON |
 | `python -m app.cli newsletter --output-dir exports/newsletter --limit 3` | Write `daily_brief.md` and `daily_brief.json` |
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
@@ -119,6 +123,7 @@ The MVP uses an in-memory store seeded from JSON. The next version should add Po
 - `qa_runs`
 - `asset_manifests`
 - `publish_jobs`
+- `content_batches`
 
 Add `jsonb` for raw provider payloads and `pgvector` later for novelty and dedupe.
 
