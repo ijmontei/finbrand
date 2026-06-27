@@ -12,6 +12,7 @@ from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
+from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
 from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
 from app.models import SourceItem
 from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
@@ -143,6 +144,42 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(len(result), 1)
             self.assertEqual(store.last_source_archive_summary["count"], 1)
             self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "sec_submissions")
+
+    def test_fred_observations_payload_builds_macro_source_items(self) -> None:
+        items = fred_observations_payload_to_source_items("CPIAUCSL", _sample_fred_observations_payload(), limit=2)
+
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0].source_type, "fred_series")
+        self.assertTrue(items[0].primary_source)
+        self.assertIn("inflation", items[0].themes)
+        self.assertEqual(items[0].market["series_value"], 318.1)
+        self.assertIn("fred.stlouisfed.org/series/CPIAUCSL", items[0].canonical_url)
+
+    def test_fred_api_key_is_required(self) -> None:
+        with patch.dict("os.environ", {}, clear=True):
+            with self.assertRaises(ValueError):
+                require_fred_api_key()
+
+        with patch.dict("os.environ", {"FRED_API_KEY": "test-key"}):
+            self.assertEqual(require_fred_api_key(), "test-key")
+
+    def test_store_archives_fred_observations(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            item = fred_observations_payload_to_source_items("CPIAUCSL", _sample_fred_observations_payload(), limit=1)[0]
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            with patch("app.ingest.fred.fetch_fred_observations", return_value=[item]):
+                result = store.ingest_fred_observations("CPIAUCSL", limit=1, api_key="test-key")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "fred_observations")
 
     def test_source_archive_writes_append_only_records(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -411,6 +448,31 @@ def _sample_sec_submissions_payload() -> dict[str, object]:
                 "reportDate": ["2026-06-20", "2026-04-30"],
             }
         },
+    }
+
+
+def _sample_fred_observations_payload() -> dict[str, object]:
+    return {
+        "observations": [
+            {
+                "realtime_start": "2026-06-27",
+                "realtime_end": "2026-06-27",
+                "date": "2026-05-01",
+                "value": "318.100",
+            },
+            {
+                "realtime_start": "2026-06-27",
+                "realtime_end": "2026-06-27",
+                "date": "2026-04-01",
+                "value": "317.200",
+            },
+            {
+                "realtime_start": "2026-06-27",
+                "realtime_end": "2026-06-27",
+                "date": "2026-03-01",
+                "value": ".",
+            },
+        ]
     }
 
 

@@ -29,6 +29,7 @@ cd C:\Users\Admin\Desktop\market-signal-studio\backend
 python -m app.cli catalog
 python -m app.cli archive-status
 python -m app.cli sec-submissions 0000320193 --limit 5
+python -m app.cli fred-observations CPIAUCSL --limit 3
 python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
@@ -46,6 +47,8 @@ RSS source snapshots are appended to `.runtime/source_archive.jsonl` unless `MAR
 
 SEC EDGAR submissions ingestion requires `SEC_USER_AGENT` to be set to a real declared contact string before calling `sec-submissions`.
 
+FRED observations ingestion requires `FRED_API_KEY` before calling `fred-observations`.
+
 ## Failure modes
 
 | Failure | Cause | Response |
@@ -57,6 +60,7 @@ SEC EDGAR submissions ingestion requires `SEC_USER_AGENT` to be set to a real de
 | Approval rejected | Blocking check or missing notes for warning-level package | Use hold/revise, or add specific approval notes after review |
 | Archive count did not change | Feed failed, returned no items, or archive path is misconfigured | Check `archive-status`, feed URL, and provider/user-agent requirements |
 | SEC ingestion rejected | Missing declared SEC user agent | Set `SEC_USER_AGENT` to a real app/contact string before retrying |
+| FRED ingestion rejected | Missing FRED API key | Set `FRED_API_KEY` before retrying |
 | Newsletter brief feels generic | Hooks were not rewritten for owned-audience context | Tighten each signal, caveat, and chart-to-watch line |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |

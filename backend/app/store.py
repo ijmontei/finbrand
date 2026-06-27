@@ -131,6 +131,27 @@ class EditorialStore:
         self.refresh_stories()
         return [item.to_dict() for item in items]
 
+    def ingest_fred_observations(
+        self,
+        series_id: str,
+        limit: int = 3,
+        api_key: str | None = None,
+    ) -> list[dict[str, object]]:
+        from app.ingest.fred import fetch_fred_observations
+
+        items = fetch_fred_observations(series_id, limit=limit, api_key=api_key)
+        self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "fred_observations",
+                "series_id": series_id.upper(),
+                "limit": limit,
+            },
+        )
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
     def source_archive_summary(self) -> dict[str, object]:
         return self.source_archive.summary()
 

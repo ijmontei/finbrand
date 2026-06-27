@@ -45,6 +45,7 @@ flowchart LR
 - `app.pipeline.compliance`: publish-readiness gates.
 - `app.platform`: platform originality and reused-content readiness report.
 - `app.source_archive`: append-only local JSONL archive for ingested source snapshots.
+- `app.ingest.fred`: FRED observations adapter for official macro series.
 - `app.ingest.rss`: RSS ingestion adapter.
 - `app.ingest.sec`: SEC EDGAR submissions adapter.
 - `app.store`: in-memory MVP store.
@@ -86,6 +87,7 @@ flowchart LR
 | `python -m app.cli newsletter --output-dir exports/newsletter --limit 3` | Write `daily_brief.md` and `daily_brief.json` |
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
 | `python -m app.cli sec-submissions CIK --limit 5` | Pull recent SEC submissions for one CIK |
+| `python -m app.cli fred-observations SERIES_ID --limit 3` | Pull recent FRED observations for one macro series |
 | `python -m app.cli archive-status` | Show local source archive path and record count |
 
 ## Storage path

@@ -5,6 +5,7 @@
 - Seeded source records.
 - Configured official RSS feed catalog.
 - SEC EDGAR submissions adapter.
+- FRED observations adapter.
 - Append-only local source archive for ingested feed snapshots.
 - Story clustering and ranking.
 - Script and chart idea generation.
@@ -27,7 +28,6 @@
 - SEC EDGAR companyfacts adapter.
 - Federal Reserve RSS adapter.
 - BLS RSS and API adapter.
-- FRED observations adapter.
 - GDELT discovery adapter.
 - Provider abstraction for market data.
 

@@ -40,6 +40,10 @@ def main() -> None:
     sec_parser.add_argument("cik")
     sec_parser.add_argument("--limit", type=int, default=10)
 
+    fred_parser = subparsers.add_parser("fred-observations", help="Ingest recent FRED observations for one series")
+    fred_parser.add_argument("series_id")
+    fred_parser.add_argument("--limit", type=int, default=3)
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -87,6 +91,25 @@ def main() -> None:
         _print_json(
             {
                 "cik": args.cik,
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "fred-observations":
+        try:
+            result = store.ingest_fred_observations(args.series_id, limit=args.limit)
+        except ValueError as exc:
+            _print_json(
+                {
+                    "error": str(exc),
+                    "hint": "Set FRED_API_KEY before calling the FRED API.",
+                }
+            )
+            raise SystemExit(2) from exc
+        _print_json(
+            {
+                "series_id": args.series_id,
                 "ingested": len(result),
                 "archive": store.last_source_archive_summary,
                 "stories": store.list_stories(),
