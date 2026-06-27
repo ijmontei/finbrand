@@ -3,6 +3,7 @@ $ErrorActionPreference = "Stop"
 Push-Location "$PSScriptRoot\..\backend"
 try {
   python -m unittest discover -s tests
+  python -m app.cli slate --limit 1 | Out-Null
 }
 finally {
   Pop-Location
@@ -20,4 +21,3 @@ try {
 finally {
   Pop-Location
 }
-

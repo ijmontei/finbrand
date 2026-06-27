@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from app.ingest.catalog import load_source_catalog
 from app.store import EditorialStore
 
 
@@ -75,3 +76,7 @@ def ingest_rss(request: RssIngestRequest) -> dict[str, object]:
     items = store.ingest_rss(request.feed_url, request.source_name, request.source_type)
     return {"ingested": len(items), "items": items, "stories": store.list_stories()}
 
+
+@app.get("/api/sources/catalog")
+def source_catalog() -> list[dict[str, str]]:
+    return [feed.to_dict() for feed in load_source_catalog()]

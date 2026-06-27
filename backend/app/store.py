@@ -40,10 +40,16 @@ class EditorialStore:
         package = self.get_or_generate_package(story_id)
         return run_qa(story, package)
 
-    def ingest_rss(self, feed_url: str, source_name: str, source_type: str) -> list[dict[str, object]]:
+    def ingest_rss(
+        self,
+        feed_url: str,
+        source_name: str,
+        source_type: str,
+        license_notes: str | None = None,
+    ) -> list[dict[str, object]]:
         from app.ingest.rss import fetch_rss_feed
 
-        items = fetch_rss_feed(feed_url, source_name, source_type)
+        items = fetch_rss_feed(feed_url, source_name, source_type, license_notes=license_notes)
         self.source_items.extend(items)
         self.refresh_stories()
         return [item.to_dict() for item in items]

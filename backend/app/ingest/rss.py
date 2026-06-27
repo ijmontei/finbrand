@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import os
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
@@ -10,8 +11,17 @@ from app.models import SourceItem
 from app.pipeline.entity_mapping import normalize_source_item
 
 
-def fetch_rss_feed(feed_url: str, source_name: str, source_type: str = "news_discovery") -> list[SourceItem]:
-    parsed = feedparser.parse(feed_url)
+def fetch_rss_feed(
+    feed_url: str,
+    source_name: str,
+    source_type: str = "news_discovery",
+    license_notes: str | None = None,
+    user_agent: str | None = None,
+) -> list[SourceItem]:
+    request_headers = {
+        "User-Agent": user_agent or os.getenv("SEC_USER_AGENT") or "Market Signal Studio research bot"
+    }
+    parsed = feedparser.parse(feed_url, request_headers=request_headers)
     now = datetime.now(timezone.utc).isoformat()
     items: list[SourceItem] = []
     for entry in parsed.entries[:30]:
@@ -29,8 +39,9 @@ def fetch_rss_feed(feed_url: str, source_name: str, source_type: str = "news_dis
             canonical_url=link,
             title=title,
             summary=summary,
-            license_notes="RSS item for discovery or first-party summary; verify reuse rights before publication.",
-            provenance={"feed_url": feed_url},
+            license_notes=license_notes
+            or "RSS item for discovery or first-party summary; verify reuse rights before publication.",
+            provenance={"feed_url": feed_url, "bozo": bool(getattr(parsed, "bozo", False))},
         )
         items.append(normalize_source_item(item))
     return items
@@ -49,4 +60,3 @@ def _published_at(entry: object) -> str:
 def _item_id(source_name: str, link: str, title: str) -> str:
     digest = hashlib.sha1(f"{source_name}:{link}:{title}".encode("utf-8")).hexdigest()[:12]
     return f"rss_{digest}"
-

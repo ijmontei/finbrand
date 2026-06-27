@@ -3,10 +3,12 @@
 ## Phase 1: Working prototype
 
 - Seeded source records.
+- Configured official RSS feed catalog.
 - Story clustering and ranking.
 - Script and chart idea generation.
 - Compliance QA.
 - Local editorial dashboard.
+- Headless package export for editor briefs and asset manifests.
 
 ## Phase 2: Real ingestion
 
@@ -40,4 +42,3 @@
 - Analytics import.
 - Watchlist and alert dashboard.
 - Premium "why it moved" archive.
-

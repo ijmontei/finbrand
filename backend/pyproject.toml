@@ -13,7 +13,9 @@ dependencies = [
   "feedparser>=6.0.11",
 ]
 
+[project.scripts]
+market-signal-studio = "app.cli:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["app*"]
-

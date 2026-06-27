@@ -13,6 +13,19 @@
 9. Publish manually.
 10. Archive performance metrics.
 
+## Terminal workflow
+
+Use the CLI when the dashboard is not running:
+
+```powershell
+cd C:\Users\Admin\Desktop\market-signal-studio\backend
+python -m app.cli catalog
+python -m app.cli slate --limit 5
+python -m app.cli export --output-dir ..\exports\latest --limit 3
+```
+
+The exported `editor_brief.md` is the human review surface. The JSON files are intended for later Remotion, charting, captioning, and publishing workers.
+
 ## Failure modes
 
 | Failure | Cause | Response |
@@ -52,4 +65,3 @@ Avoid:
 - Caveat is honest.
 - No personalized advice.
 - Sponsorship or affiliate disclosures present if relevant.
-

@@ -56,6 +56,27 @@ cd C:\Users\Admin\Desktop\market-signal-studio\backend
 python -m unittest discover -s tests
 ```
 
+### Headless editorial workflow
+
+The backend also includes a CLI for producing editor-ready files without opening the dashboard:
+
+```powershell
+cd C:\Users\Admin\Desktop\market-signal-studio\backend
+python -m app.cli catalog
+python -m app.cli slate --limit 3
+python -m app.cli export --output-dir ..\exports\latest --limit 3
+```
+
+Each exported story folder contains:
+
+- `story.json`
+- `package.json`
+- `qa.json`
+- `asset_manifest.json`
+- `editor_brief.md`
+
+Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Live ingestion still needs normal provider care: SEC requests should use a real declared `SEC_USER_AGENT`, and source/provider terms must be reviewed before commercial reuse.
+
 ## Source posture
 
 The MVP treats official and first-party sources as the highest authority layer: SEC, Fed, BLS, FRED, issuer IR feeds, and official press releases. Broad news discovery, social buzz, and market data providers are enrichment layers, not the only source of truth.
@@ -79,4 +100,3 @@ This is an engineering workflow, not legal advice. Commercial use still needs pr
 ## Repo status
 
 This is a working scaffold intended to become the first production MVP. The next build steps are persistent storage, scheduled ingestion, real provider adapters, Remotion render templates, and editor authentication.
-

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "sec_current_filings",
+    "source_name": "SEC EDGAR current filings",
+    "source_type": "sec_filing",
+    "feed_url": "https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&owner=include&count=40&output=atom",
+    "license_notes": "Official SEC EDGAR feed. Use a declared User-Agent and respect fair-access guidance."
+  },
+  {
+    "id": "sec_press_releases",
+    "source_name": "SEC press releases",
+    "source_type": "issuer_release",
+    "feed_url": "https://www.sec.gov/news/pressreleases.rss",
+    "license_notes": "Official SEC press RSS. Summarize and link; do not imply SEC endorsement."
+  },
+  {
+    "id": "fed_all_press",
+    "source_name": "Federal Reserve press releases",
+    "source_type": "fed_release",
+    "feed_url": "https://www.federalreserve.gov/feeds/press_all.xml",
+    "license_notes": "Official Federal Reserve RSS feed. Cite source and preserve release context."
+  },
+  {
+    "id": "fed_monetary_policy",
+    "source_name": "Federal Reserve monetary policy",
+    "source_type": "fed_release",
+    "feed_url": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+    "license_notes": "Official Federal Reserve monetary-policy feed. Cite source and release date."
+  },
+  {
+    "id": "bls_employment_situation",
+    "source_name": "BLS Employment Situation",
+    "source_type": "bls_release",
+    "feed_url": "https://www.bls.gov/feed/empsit.rss",
+    "license_notes": "Official BLS RSS feed. Use official release values and cite the release."
+  }
+]
+

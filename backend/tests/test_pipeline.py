@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import unittest
+from tempfile import TemporaryDirectory
 from pathlib import Path
 
+from app.exporter import export_story_slate
+from app.ingest.catalog import load_source_catalog
 from app.models import SourceItem
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
@@ -72,7 +75,30 @@ class PipelineTests(unittest.TestCase):
         self.assertTrue(story.primary_evidence)
         self.assertGreater(story.scores["source_authority"], 0.6)
 
+    def test_source_catalog_contains_official_feeds(self) -> None:
+        feeds = load_source_catalog(Path(__file__).parents[1] / "app" / "data" / "source_feeds.json")
+
+        feed_ids = {feed.id for feed in feeds}
+
+        self.assertIn("sec_current_filings", feed_ids)
+        self.assertIn("fed_monetary_policy", feed_ids)
+        self.assertIn("bls_employment_situation", feed_ids)
+
+    def test_export_story_slate_writes_editor_files(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        with TemporaryDirectory() as temp_dir:
+            result = export_story_slate(store.stories, Path(temp_dir), limit=2)
+
+            self.assertTrue(Path(result["slate"]).exists())
+            self.assertEqual(len(result["packages"]), 2)
+            for package_files in result["packages"]:
+                self.assertTrue(Path(package_files["story"]).exists())
+                self.assertTrue(Path(package_files["package"]).exists())
+                self.assertTrue(Path(package_files["qa"]).exists())
+                self.assertTrue(Path(package_files["manifest"]).exists())
+                self.assertIn("editor_brief.md", package_files["brief"])
+
 
 if __name__ == "__main__":
     unittest.main()
-

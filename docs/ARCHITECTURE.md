@@ -53,7 +53,19 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}` | Story detail |
 | `POST` | `/api/stories/{story_id}/package` | Generate draft package |
 | `GET` | `/api/stories/{story_id}/qa` | QA result |
+| `GET` | `/api/sources/catalog` | Configured official source feeds |
 | `POST` | `/api/sources/rss` | Ingest an RSS feed |
+
+## CLI surface
+
+| Command | Purpose |
+| --- | --- |
+| `python -m app.cli catalog` | List configured official source feeds |
+| `python -m app.cli slate --limit 5` | Print the ranked story slate |
+| `python -m app.cli package STORY_ID` | Generate one story package |
+| `python -m app.cli qa STORY_ID` | Run QA for one story |
+| `python -m app.cli export --output-dir exports/latest --limit 5` | Write editor briefs, manifests, QA, and package JSON |
+| `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
 
 ## Storage path
 
@@ -69,4 +81,3 @@ The MVP uses an in-memory store seeded from JSON. The next version should add Po
 - `publish_jobs`
 
 Add `jsonb` for raw provider payloads and `pgvector` later for novelty and dedupe.
-
