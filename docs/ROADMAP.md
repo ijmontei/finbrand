@@ -7,6 +7,7 @@
 - SEC EDGAR submissions adapter.
 - FRED observations adapter.
 - BLS time-series adapter.
+- GDELT discovery adapter with primary-source hold behavior.
 - Append-only local source archive for ingested feed snapshots.
 - Story clustering and ranking.
 - Script and chart idea generation.
@@ -29,7 +30,6 @@
 - SEC EDGAR companyfacts adapter.
 - Federal Reserve RSS adapter.
 - BLS RSS release adapter.
-- GDELT discovery adapter.
 - Provider abstraction for market data.
 
 ## Phase 3: Editorial persistence

@@ -50,6 +50,11 @@ def main() -> None:
     bls_parser.add_argument("--end-year", type=int, required=True)
     bls_parser.add_argument("--limit", type=int, default=3)
 
+    gdelt_parser = subparsers.add_parser("gdelt-search", help="Ingest GDELT article discovery candidates")
+    gdelt_parser.add_argument("query", nargs="+")
+    gdelt_parser.add_argument("--limit", type=int, default=10)
+    gdelt_parser.add_argument("--timespan", default="24h")
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -133,6 +138,18 @@ def main() -> None:
                 "series_id": args.series_id,
                 "ingested": len(result),
                 "archive": store.last_source_archive_summary,
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "gdelt-search":
+        query = " ".join(args.query)
+        result = store.ingest_gdelt_articles(query, limit=args.limit, timespan=args.timespan)
+        _print_json(
+            {
+                "query": query,
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "publish_posture": "discovery_only",
                 "stories": store.list_stories(),
             }
         )

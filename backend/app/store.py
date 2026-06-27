@@ -177,6 +177,29 @@ class EditorialStore:
         self.refresh_stories()
         return [item.to_dict() for item in items]
 
+    def ingest_gdelt_articles(
+        self,
+        query: str,
+        limit: int = 10,
+        timespan: str = "24h",
+    ) -> list[dict[str, object]]:
+        from app.ingest.gdelt import fetch_gdelt_articles
+
+        items = fetch_gdelt_articles(query, limit=limit, timespan=timespan)
+        self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "gdelt_articles",
+                "query": query,
+                "timespan": timespan,
+                "limit": limit,
+                "publish_posture": "discovery_only",
+            },
+        )
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
     def source_archive_summary(self) -> dict[str, object]:
         return self.source_archive.summary()
 

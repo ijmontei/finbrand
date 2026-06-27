@@ -14,6 +14,7 @@ from app.exporter import export_story_slate
 from app.ingest.bls import bls_timeseries_payload_to_source_items
 from app.ingest.catalog import load_source_catalog
 from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
+from app.ingest.gdelt import gdelt_payload_to_source_items
 from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
 from app.models import SourceItem
 from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
@@ -209,6 +210,47 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(len(result), 1)
             self.assertEqual(store.last_source_archive_summary["count"], 1)
             self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "bls_timeseries")
+
+    def test_gdelt_payload_builds_discovery_only_items(self) -> None:
+        items = gdelt_payload_to_source_items(_sample_gdelt_payload(), query="NVDA export controls", limit=1)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].source_type, "news_discovery")
+        self.assertFalse(items[0].primary_source)
+        self.assertIn("NVDA", items[0].tickers)
+        self.assertIn("discovery", items[0].license_notes.lower())
+        self.assertEqual(items[0].provenance["query"], "NVDA export controls")
+
+    def test_gdelt_only_story_requires_primary_source_review(self) -> None:
+        story = build_story_candidates(
+            gdelt_payload_to_source_items(_sample_gdelt_payload(), query="NVDA export controls", limit=1)
+        )[0]
+        package = generate_video_package(story)
+        qa = run_qa(story, package)
+        rights = build_rights_report(story)
+
+        self.assertIn("needs_primary_source_review", story.risk_flags)
+        self.assertEqual(qa["status"], "blocked")
+        self.assertEqual(rights["status"], "needs_review")
+
+    def test_store_archives_gdelt_discovery_items(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            item = gdelt_payload_to_source_items(_sample_gdelt_payload(), query="NVDA export controls", limit=1)[0]
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            with patch("app.ingest.gdelt.fetch_gdelt_articles", return_value=[item]):
+                result = store.ingest_gdelt_articles("NVDA export controls", limit=1, timespan="24h")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "gdelt_articles")
+            self.assertEqual(archive.read_all()[0]["context"]["publish_posture"], "discovery_only")
 
     def test_source_archive_writes_append_only_records(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -532,6 +574,23 @@ def _sample_bls_timeseries_payload() -> dict[str, object]:
                 }
             ]
         },
+    }
+
+
+def _sample_gdelt_payload() -> dict[str, object]:
+    return {
+        "articles": [
+            {
+                "title": "Nvidia shares move as investors weigh export control reports",
+                "url": "https://example.com/news/nvidia-export-controls",
+                "domain": "example.com",
+                "sourceCommonName": "Example Markets",
+                "language": "English",
+                "seendate": "20260627123000",
+                "sourceCountry": "US",
+                "sourceCollection": "WEB",
+            }
+        ]
     }
 
 
