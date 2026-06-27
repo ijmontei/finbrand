@@ -66,6 +66,12 @@ def build_storyboard(story: StoryCandidate, package: VideoPackage) -> dict[str, 
     return {
         "story_id": story.story_id,
         "format": "vertical_1080x1920_60s",
+        "editorial_format": {
+            "key": package.format_key,
+            "name": package.format_name,
+            "style_variant": package.style_variant,
+            "angle": package.editorial_angle,
+        },
         "duration_sec": 60,
         "safe_zones": {
             "top_px": 180,

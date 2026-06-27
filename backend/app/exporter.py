@@ -109,6 +109,12 @@ Score: {story.scores["story_score"]}
 
 {package.hook}
 
+## Editorial Format
+
+Format: {package.format_name}
+Style: {package.style_variant}
+Angle: {package.editorial_angle}
+
 ## Summary
 
 {bullets}

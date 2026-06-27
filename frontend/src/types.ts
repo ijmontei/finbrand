@@ -40,6 +40,10 @@ export interface Story {
 
 export interface VideoPackage {
   story_id: string;
+  format_key: string;
+  format_name: string;
+  style_variant: string;
+  editorial_angle: string;
   hook: string;
   summary_bullets: string[];
   why_it_matters: string;
@@ -79,6 +83,12 @@ export interface StoryboardScene {
 export interface Storyboard {
   story_id: string;
   format: string;
+  editorial_format?: {
+    key: string;
+    name: string;
+    style_variant: string;
+    angle: string;
+  };
   duration_sec: number;
   safe_zones: Record<string, number>;
   assets: Record<string, string>;

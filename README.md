@@ -89,6 +89,8 @@ Open `preview.html` in an exported story folder to review the vertical package, 
 
 The dashboard includes an editor decision panel for approve, hold, revise, or archive decisions with notes. Decisions are appended to a local JSONL ledger by default at `.runtime/decisions.jsonl`; production should move this ledger into Postgres with user identity and immutable audit controls.
 
+Each generated package includes an editorial format, style variant, and angle. This keeps recurring videos from collapsing into one repeated headline-summary template.
+
 `claims.json` is the claim-level review checklist. It separates source-backed claims from claims that still require editor verification, such as market-data numbers, causal framing, and chart choices.
 
 `rights_report.json` summarizes source posture: official, first-party, provider-review, missing notes, or unknown. Use it to keep raw market-data redistribution and article-reuse questions visible before approval.
@@ -110,6 +112,7 @@ Every generated draft runs through QA gates:
 - Rights and copyright hygiene.
 - Original explanation, not headline reuse.
 - Platform readiness for Shorts/Reels style distribution.
+- Editorial format variation so recurring packages do not sound mass-produced.
 - One clear chart idea.
 - Caveat or uncertainty note.
 - Disclosure readiness for sponsors, affiliates, or paid promotions.

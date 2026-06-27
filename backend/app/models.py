@@ -68,6 +68,10 @@ class VideoPackage:
     thumbnail_text: str
     risk_flags: list[str]
     asset_manifest: JsonDict
+    format_key: str = ""
+    format_name: str = ""
+    style_variant: str = ""
+    editorial_angle: str = ""
 
     def to_dict(self) -> JsonDict:
         return asdict(self)

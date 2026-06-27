@@ -60,6 +60,14 @@ export function DraftPanel({
 
       {videoPackage ? (
         <>
+          <section className="formatBox">
+            <div>
+              <span>{videoPackage.format_name || "Editorial format"}</span>
+              <strong>{videoPackage.style_variant || "source-backed explainer"}</strong>
+            </div>
+            <p>{videoPackage.editorial_angle || "Explain the market reaction with source-backed context."}</p>
+          </section>
+
           <section className="draftBlock">
             <p className="eyebrow">Hook</p>
             <h3>{videoPackage.hook}</h3>

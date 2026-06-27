@@ -21,6 +21,7 @@ Use automation for discovery and verification, not for copying. Every publishabl
 - Treat market data rights separately from API access. API availability is not permission to redistribute raw quotes.
 - Keep official source excerpts short and cite the source in the editor-facing package.
 - Treat platform monetization as an editorial quality constraint: every draft needs original framing, owned visuals, and human judgment beyond a headline recap.
+- Rotate editorial formats and style variants, but keep every variant anchored in the same source trail.
 
 ## Publishing gates
 

@@ -37,7 +37,7 @@ flowchart LR
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
 - `app.pipeline.entity_mapping`: watchlist, source authority defaults, ticker and theme inference.
 - `app.pipeline.scoring`: clustering and weighted story score.
-- `app.pipeline.script_writer`: deterministic editorial package generator.
+- `app.pipeline.script_writer`: deterministic editorial package generator with format and style variation.
 - `app.pipeline.compliance`: publish-readiness gates.
 - `app.platform`: platform originality and reused-content readiness report.
 - `app.ingest.rss`: RSS ingestion adapter.

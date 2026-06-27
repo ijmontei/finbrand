@@ -39,7 +39,18 @@ class PipelineTests(unittest.TestCase):
 
         self.assertIn("This is not a recommendation", package.script_60s)
         self.assertNotIn("you should buy", package.script_60s.lower())
+        self.assertTrue(package.format_key)
+        self.assertTrue(package.format_name)
+        self.assertTrue(package.editorial_angle)
+        self.assertIn("editorial_format", package.asset_manifest)
         self.assertNotEqual(qa["status"], "blocked")
+
+    def test_story_slate_uses_multiple_editorial_formats(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        formats = {generate_video_package(story).format_key for story in store.stories}
+
+        self.assertGreaterEqual(len(formats), 3)
 
     def test_primary_source_scores_above_discovery_only(self) -> None:
         official = SourceItem(
@@ -184,6 +195,7 @@ class PipelineTests(unittest.TestCase):
         srt = generate_srt(package)
 
         self.assertEqual(storyboard["format"], "vertical_1080x1920_60s")
+        self.assertEqual(storyboard["editorial_format"]["key"], package.format_key)
         self.assertEqual(storyboard["duration_sec"], 60)
         self.assertEqual(len(storyboard["scenes"]), 6)
         self.assertIn("00:00:00,000 -->", srt)
