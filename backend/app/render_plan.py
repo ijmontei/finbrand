@@ -126,15 +126,20 @@ def render_preview_html(
     <title>{escape(story.headline)} | Market Signal Studio Preview</title>
     <style>
       :root {{
-        --bg: #f4f6f8;
-        --ink: #17202a;
-        --muted: #637083;
-        --line: #d9e0e7;
-        --blue: #2563eb;
-        --teal: #0f766e;
-        --green: #16835a;
-        --amber: #c07616;
-        --red: #c93c3c;
+        --bg: #F4EFE4;
+        --panel: #FAF7EF;
+        --panel-strong: #F7F1E6;
+        --secondary: #DDECE9;
+        --ink: #1D1E20;
+        --body: #2D2A26;
+        --muted: #6E6A61;
+        --line: #D8D2C3;
+        --blue: #2E6F6B;
+        --teal: #2E6F6B;
+        --green: #56704A;
+        --amber: #D99028;
+        --red: #A73234;
+        --walnut: #6D4A32;
         font-family: Inter, "Segoe UI", Arial, sans-serif;
         color: var(--ink);
         background: var(--bg);
@@ -152,10 +157,10 @@ def render_preview_html(
         width: min(100%, 420px);
         aspect-ratio: 9 / 16;
         border-radius: 28px;
-        background: #ffffff;
+        background: var(--panel);
         border: 1px solid var(--line);
         overflow: hidden;
-        box-shadow: 0 18px 48px rgba(23, 32, 42, 0.16);
+        box-shadow: 0 18px 48px rgba(45, 42, 38, 0.16);
       }}
       .frame {{
         display: grid;
@@ -167,20 +172,20 @@ def render_preview_html(
       h1 {{ margin: 14px 0 8px; font-size: 30px; line-height: 1.04; letter-spacing: 0; }}
       .meta {{ color: var(--muted); font-size: 14px; font-weight: 760; }}
       .chartWrap {{ display: grid; place-items: center; margin: 20px 0; min-height: 0; }}
-      .chartWrap img {{ width: 72%; max-height: 520px; border-radius: 10px; box-shadow: 0 10px 24px rgba(23, 32, 42, 0.13); }}
-      .caption {{ align-self: end; padding: 12px; border-radius: 10px; background: #17202a; color: #ffffff; font-weight: 760; line-height: 1.28; }}
+      .chartWrap img {{ width: 72%; max-height: 520px; border-radius: 10px; box-shadow: 0 10px 24px rgba(45, 42, 38, 0.14); }}
+      .caption {{ align-self: end; padding: 12px; border-radius: 10px; background: var(--ink); color: var(--panel); font-weight: 760; line-height: 1.28; }}
       .disclaimer {{ margin-top: 10px; color: var(--muted); font-size: 12px; font-weight: 760; }}
       .panel {{ display: grid; gap: 14px; }}
-      section {{ border: 1px solid var(--line); border-radius: 10px; background: #ffffff; padding: 16px; }}
+      section {{ border: 1px solid var(--line); border-radius: 10px; background: var(--panel); padding: 16px; }}
       h2 {{ margin: 0 0 12px; font-size: 18px; }}
-      .script {{ white-space: pre-wrap; line-height: 1.45; color: #202a38; }}
+      .script {{ white-space: pre-wrap; line-height: 1.45; color: var(--body); }}
       .scenes {{ display: grid; gap: 10px; }}
-      .scene {{ display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 10px; border-radius: 8px; background: #f9fbfc; }}
+      .scene {{ display: grid; grid-template-columns: 72px 1fr; gap: 10px; padding: 10px; border-radius: 8px; background: var(--panel-strong); }}
       .scene time {{ color: var(--blue); font-weight: 850; }}
       .scene strong, .scene span {{ display: block; }}
       .scene span {{ margin-top: 3px; color: var(--muted); font-size: 14px; line-height: 1.35; }}
       ul {{ margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }}
-      li {{ padding: 10px; border-radius: 8px; background: #f9fbfc; }}
+      li {{ padding: 10px; border-radius: 8px; background: var(--panel-strong); }}
       li strong, li span {{ display: block; }}
       li span {{ margin-top: 3px; color: var(--muted); font-size: 14px; }}
       li.pass {{ border-left: 4px solid var(--green); }}

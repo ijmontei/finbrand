@@ -1,18 +1,24 @@
 :root {
   color-scheme: light;
-  --bg: #f4f6f8;
-  --panel: #ffffff;
-  --panel-strong: #f9fbfc;
-  --ink: #17202a;
-  --muted: #637083;
-  --line: #d9e0e7;
-  --blue: #2563eb;
-  --blue-dark: #173f95;
-  --teal: #0f766e;
-  --green: #16835a;
-  --amber: #c07616;
-  --red: #c93c3c;
-  --shadow: 0 12px 34px rgba(23, 32, 42, 0.08);
+  --bg: #f4efe4;
+  --panel: #faf7ef;
+  --panel-strong: #f7f1e6;
+  --secondary: #ddece9;
+  --ink: #1d1e20;
+  --body: #2d2a26;
+  --muted: #6e6a61;
+  --line: #d8d2c3;
+  --blue: #2e6f6b;
+  --blue-dark: #235653;
+  --teal: #2e6f6b;
+  --green: #56704a;
+  --amber: #d99028;
+  --red: #a73234;
+  --walnut: #6d4a32;
+  --ceramic-teal: #5da6a4;
+  --light-red: #e07167;
+  --light-olive: #a8c28a;
+  --shadow: 0 14px 34px rgba(45, 42, 38, 0.11);
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -29,7 +35,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(244, 246, 248, 0.94)),
+    linear-gradient(180deg, rgba(250, 247, 239, 0.86), rgba(244, 239, 228, 0.96)),
     var(--bg);
 }
 
@@ -97,13 +103,13 @@ button {
   background: var(--panel);
   color: var(--ink);
   font-weight: 750;
-  box-shadow: 0 1px 0 rgba(23, 32, 42, 0.04);
+  box-shadow: 0 1px 0 rgba(45, 42, 38, 0.06);
 }
 
 .iconButton.primary {
   border-color: transparent;
   background: var(--blue);
-  color: #ffffff;
+  color: #faf7ef;
 }
 
 .iconButton.ghost {
@@ -117,10 +123,10 @@ button {
 .errorBanner {
   margin-bottom: 12px;
   padding: 10px 12px;
-  border: 1px solid rgba(201, 60, 60, 0.28);
+  border: 1px solid rgba(167, 50, 52, 0.32);
   border-radius: 8px;
-  background: rgba(201, 60, 60, 0.08);
-  color: #8d2525;
+  background: rgba(167, 50, 52, 0.08);
+  color: var(--red);
   font-weight: 700;
 }
 
@@ -137,7 +143,7 @@ button {
   min-height: calc(100vh - 122px);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(250, 247, 239, 0.94);
   box-shadow: var(--shadow);
 }
 
@@ -170,7 +176,7 @@ button {
   min-width: 32px;
   padding: 5px 8px;
   border-radius: 999px;
-  background: #e8eef6;
+  background: var(--secondary);
   color: var(--blue-dark);
   text-align: center;
   font-weight: 850;
@@ -202,8 +208,8 @@ button {
 
 .storyCard:hover,
 .storyCard.selected {
-  border-color: rgba(37, 99, 235, 0.62);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.11);
+  border-color: rgba(46, 111, 107, 0.62);
+  box-shadow: 0 10px 24px rgba(46, 111, 107, 0.13);
   transform: translateY(-1px);
 }
 
@@ -234,8 +240,8 @@ button {
   min-height: 24px;
   padding: 3px 7px;
   border-radius: 999px;
-  background: #edf3f1;
-  color: #29544e;
+  background: var(--secondary);
+  color: var(--blue-dark);
   font-size: 0.74rem;
   font-weight: 760;
 }
@@ -246,26 +252,26 @@ button {
   min-height: 24px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: #e9edf2;
-  color: #425066;
+  background: #eee7d8;
+  color: var(--walnut);
   font-size: 0.72rem;
   font-weight: 850;
   text-transform: capitalize;
 }
 
 .statePill.draft_ready {
-  background: rgba(22, 131, 90, 0.12);
+  background: rgba(86, 112, 74, 0.14);
   color: var(--green);
 }
 
 .statePill.editor_review {
-  background: rgba(192, 118, 22, 0.14);
+  background: rgba(217, 144, 40, 0.16);
   color: var(--amber);
 }
 
 .statePill.archive {
-  background: rgba(99, 112, 131, 0.13);
-  color: #536173;
+  background: rgba(110, 106, 97, 0.14);
+  color: var(--muted);
 }
 
 .score {
@@ -295,8 +301,8 @@ button {
   border: 1px solid transparent;
   border-radius: 999px;
   background:
-    linear-gradient(#ffffff, #ffffff) padding-box,
-    conic-gradient(var(--teal) calc(var(--score) * 1%), #dce4eb 0) border-box;
+    linear-gradient(var(--panel), var(--panel)) padding-box,
+    conic-gradient(var(--teal) calc(var(--score) * 1%), #e7dfcf 0) border-box;
   color: var(--ink);
 }
 
@@ -346,7 +352,7 @@ button {
   min-height: 28px;
   padding: 4px 9px;
   border-radius: 999px;
-  background: #e8eef6;
+  background: var(--secondary);
   color: var(--blue-dark);
   font-style: normal;
   font-size: 0.78rem;
@@ -359,8 +365,8 @@ button {
 }
 
 .entityRow em {
-  background: #edf3f1;
-  color: #29544e;
+  background: var(--secondary);
+  color: var(--blue-dark);
 }
 
 .insightGrid {
@@ -402,8 +408,8 @@ button {
   overflow: hidden;
   border-radius: 8px;
   background:
-    repeating-linear-gradient(90deg, transparent 0 70px, rgba(23, 32, 42, 0.05) 70px 71px),
-    linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(15, 118, 110, 0.08));
+    repeating-linear-gradient(90deg, transparent 0 70px, rgba(45, 42, 38, 0.05) 70px 71px),
+    linear-gradient(135deg, rgba(46, 111, 107, 0.11), rgba(221, 236, 233, 0.72));
 }
 
 .chartPreview img {
@@ -412,7 +418,7 @@ button {
   height: auto;
   max-height: 340px;
   border-radius: 8px;
-  box-shadow: 0 12px 28px rgba(23, 32, 42, 0.13);
+  box-shadow: 0 12px 28px rgba(45, 42, 38, 0.15);
 }
 
 .metricTiles {
@@ -459,14 +465,14 @@ button {
   height: 8px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e2e8ef;
+  background: #e7dfcf;
 }
 
 .scoreBar b {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--teal), var(--blue));
+  background: linear-gradient(90deg, var(--teal), var(--ceramic-teal));
 }
 
 .scoreBar em {
@@ -540,7 +546,7 @@ button {
 }
 
 .sourceItem:hover {
-  border-color: rgba(37, 99, 235, 0.48);
+  border-color: rgba(46, 111, 107, 0.5);
 }
 
 .sourceIcon {
@@ -549,7 +555,7 @@ button {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  background: #e8eef6;
+  background: var(--secondary);
   color: var(--blue-dark);
 }
 
@@ -596,7 +602,7 @@ button {
   gap: 8px;
   margin: 12px;
   padding: 12px;
-  background: #f9fbfc;
+  background: var(--panel-strong);
 }
 
 .formatBox div {
@@ -669,7 +675,7 @@ button {
   border: 1px solid var(--line);
   border-radius: 8px;
   color: var(--blue-dark);
-  background: #ffffff;
+  background: var(--panel);
 }
 
 .scriptBox pre {
@@ -678,7 +684,7 @@ button {
   overflow: auto;
   padding: 14px;
   white-space: pre-wrap;
-  color: #202a38;
+  color: var(--body);
   font-family: "Segoe UI", ui-sans-serif, system-ui, sans-serif;
   font-size: 0.92rem;
   line-height: 1.45;
@@ -911,7 +917,7 @@ button {
 .overrideItem {
   padding: 10px;
   border-radius: 8px;
-  background: #fff7e4;
+  background: #fbefd5;
   border-left: 4px solid var(--amber);
 }
 
@@ -1179,7 +1185,7 @@ button {
   min-height: 34px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--panel);
   color: var(--ink);
   font-size: 0.76rem;
   font-weight: 850;

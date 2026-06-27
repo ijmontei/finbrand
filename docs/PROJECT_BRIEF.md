@@ -18,6 +18,26 @@ Start narrow:
 
 The first recurring format should be "The Story Everyone Saw vs. The Data Everyone Missed." It creates an original angle and gives the engine a clear scoring target.
 
+## Brand palette
+
+The visual system should feel editorial, source-aware, and warm rather than generic SaaS blue. Use paper-like backgrounds, restrained borders, teal section marks, pomegranate editorial accents, ochre calls to action, and olive/pomegranate market cues.
+
+| UI role | Hex |
+| --- | --- |
+| Page background | `#F4EFE4` |
+| Article/card background | `#FAF7EF` |
+| Secondary block background | `#DDECE9` |
+| Border | `#D8D2C3` |
+| Headline text | `#1D1E20` |
+| Body text | `#2D2A26` |
+| Metadata text | `#6E6A61` |
+| Brand link / section mark | `#2E6F6B` |
+| Editorial accent | `#A73234` |
+| CTA / subscribe / sponsor | `#D99028` |
+| Premium divider | `#6D4A32` |
+| Positive market cue | `#56704A` |
+| Negative market cue | `#A73234` |
+
 ## MVP workflow
 
 1. Ingest official, first-party, and discovery sources.
