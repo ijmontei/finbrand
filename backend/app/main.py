@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.ingest.catalog import load_source_catalog
@@ -109,6 +110,16 @@ def platform_readiness(story_id: str) -> dict[str, object]:
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
     return build_platform_readiness(story, package)
+
+
+@app.get("/api/stories/{story_id}/approval")
+def approval(story_id: str) -> dict[str, object]:
+    try:
+        story = store.get_story(story_id)
+        package = store.get_or_generate_package(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    return build_approval_checklist(story, package)
 
 
 @app.get("/api/stories/{story_id}/decision")

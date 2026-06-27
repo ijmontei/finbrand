@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
+from app.approval import build_approval_checklist
 from app.decision_ledger import DecisionLedger
 from app.models import EditorialDecision, SourceItem, StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
@@ -53,15 +54,23 @@ class EditorialStore:
 
     def record_decision(self, story_id: str, decision: str, editor: str, notes: str) -> dict[str, object]:
         story = self.get_story(story_id)
+        package = self.get_or_generate_package(story_id)
         qa = self.get_qa(story_id)
         allowed = {"approve", "hold", "revise", "archive"}
         if decision not in allowed:
             raise ValueError(f"decision must be one of: {', '.join(sorted(allowed))}")
+        clean_notes = notes.strip()
+        if decision == "approve":
+            approval = build_approval_checklist(story, package)
+            if approval["status"] == "blocked":
+                raise ValueError("cannot approve a package with blocking approval checks")
+            if approval["notes_required"] and not clean_notes:
+                raise ValueError("approval notes are required while approval checks need review")
         record = EditorialDecision(
             story_id=story_id,
             decision=decision,
             editor=editor.strip() or "editor",
-            notes=notes.strip(),
+            notes=clean_notes,
             decided_at=datetime.now(timezone.utc).isoformat(),
             qa_status=str(qa["status"]),
             story_score=float(story.scores["story_score"]),

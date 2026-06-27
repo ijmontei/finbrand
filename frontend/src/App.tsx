@@ -1,6 +1,7 @@
 import { RefreshCw, ShieldCheck, Wand2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
+  fetchApproval,
   fetchClaims,
   fetchDecision,
   fetchPlatformReadiness,
@@ -19,6 +20,7 @@ import { SourceTrail } from "./components/SourceTrail";
 import { StoryQueue } from "./components/StoryQueue";
 import type {
   ClaimChecklist,
+  ApprovalChecklist,
   EditorialDecision,
   EditorialDecisionValue,
   PlatformReadiness,
@@ -46,6 +48,7 @@ export default function App() {
   const [claims, setClaims] = useState<ClaimChecklist>();
   const [rights, setRights] = useState<RightsReport>();
   const [platform, setPlatform] = useState<PlatformReadiness>();
+  const [approval, setApproval] = useState<ApprovalChecklist>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
   const [decision, setDecision] = useState<EditorialDecision>();
   const [loading, setLoading] = useState(true);
@@ -100,12 +103,13 @@ export default function App() {
     setDrafting(true);
     setError(undefined);
     try {
-      const [nextPackage, nextQA, nextClaims, nextRights, nextPlatform, nextStoryboard, nextDecision] = await Promise.all([
+      const [nextPackage, nextQA, nextClaims, nextRights, nextPlatform, nextApproval, nextStoryboard, nextDecision] = await Promise.all([
         generatePackage(storyId),
         fetchQA(storyId),
         fetchClaims(storyId),
         fetchRights(storyId),
         fetchPlatformReadiness(storyId),
+        fetchApproval(storyId),
         fetchStoryboard(storyId),
         fetchDecision(storyId)
       ]);
@@ -114,6 +118,7 @@ export default function App() {
       setClaims(nextClaims);
       setRights(nextRights);
       setPlatform(nextPlatform);
+      setApproval(nextApproval);
       setStoryboard(nextStoryboard);
       setDecision(nextDecision);
     } catch (err) {
@@ -222,6 +227,7 @@ export default function App() {
           claims={claims}
           rights={rights}
           platform={platform}
+          approval={approval}
           storyboard={storyboard}
           decision={decision}
           storyId={selectedStory?.story_id}

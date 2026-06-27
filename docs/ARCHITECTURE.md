@@ -35,6 +35,7 @@ flowchart LR
 ## Backend modules
 
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
+- `app.approval`: final approval checklist combining QA, claims, rights, and platform readiness.
 - `app.pipeline.entity_mapping`: watchlist, source authority defaults, ticker and theme inference.
 - `app.pipeline.scoring`: clustering and weighted story score.
 - `app.pipeline.script_writer`: deterministic editorial package generator with format and style variation.
@@ -57,6 +58,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/claims` | Claim-level source and editor-verification checklist |
 | `GET` | `/api/stories/{story_id}/rights` | Source-rights and redistribution review report |
 | `GET` | `/api/stories/{story_id}/platform-readiness` | Platform originality and reused-content readiness report |
+| `GET` | `/api/stories/{story_id}/approval` | Final pre-publish approval checklist |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
 | `POST` | `/api/stories/{story_id}/decision` | Record approve, hold, revise, or archive decision |
 | `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |

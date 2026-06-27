@@ -171,3 +171,21 @@ export interface PlatformReadiness {
   };
   publish_rule: string;
 }
+
+export interface ApprovalCheck {
+  id: string;
+  name: string;
+  status: "pass" | "warn" | "block";
+  detail: string;
+  editorial_action: string;
+}
+
+export interface ApprovalChecklist {
+  story_id: string;
+  status: "ready" | "needs_review" | "blocked";
+  can_approve: boolean;
+  notes_required: boolean;
+  checks: ApprovalCheck[];
+  required_actions: string[];
+  publish_rule: string;
+}

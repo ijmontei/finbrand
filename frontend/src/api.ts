@@ -1,4 +1,5 @@
 import type {
+  ApprovalChecklist,
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
@@ -54,6 +55,10 @@ export function fetchRights(storyId: string): Promise<RightsReport> {
 
 export function fetchPlatformReadiness(storyId: string): Promise<PlatformReadiness> {
   return request<PlatformReadiness>(`/api/stories/${storyId}/platform-readiness`);
+}
+
+export function fetchApproval(storyId: string): Promise<ApprovalChecklist> {
+  return request<ApprovalChecklist>(`/api/stories/${storyId}/approval`);
 }
 
 export function fetchDecision(storyId: string): Promise<EditorialDecision> {

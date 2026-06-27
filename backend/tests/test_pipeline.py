@@ -5,6 +5,7 @@ from dataclasses import replace
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
+from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
@@ -117,6 +118,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["claims"]).exists())
                 self.assertTrue(Path(package_files["rights"]).exists())
                 self.assertTrue(Path(package_files["platform"]).exists())
+                self.assertTrue(Path(package_files["approval"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
                 self.assertTrue(Path(package_files["chart"]).exists())
                 self.assertTrue(Path(package_files["storyboard"]).exists())
@@ -185,6 +187,34 @@ class PipelineTests(unittest.TestCase):
 
         self.assertEqual(report["status"], "blocked")
         self.assertTrue(any(check["id"] == "source_reuse" and check["status"] == "block" for check in report["checks"]))
+
+    def test_approval_checklist_requires_notes_for_warnings(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+        package = generate_video_package(story)
+
+        approval = build_approval_checklist(story, package)
+
+        self.assertEqual(approval["status"], "needs_review")
+        self.assertTrue(approval["can_approve"])
+        self.assertTrue(approval["notes_required"])
+        self.assertTrue(any(check["id"] == "editor_accountability" for check in approval["checks"]))
+
+    def test_store_rejects_approval_without_required_notes(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=DecisionLedger(Path(temp_dir) / "decisions.jsonl"),
+            )
+            story_id = store.stories[0].story_id
+
+            with self.assertRaises(ValueError):
+                store.record_decision(story_id, "approve", "editor", "")
+
+            saved = store.record_decision(story_id, "approve", "editor", "Reviewed rights and claim warnings.")
+
+            self.assertEqual(saved["decision"], "approve")
+            self.assertEqual(saved["notes"], "Reviewed rights and claim warnings.")
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

@@ -75,6 +75,7 @@ Each exported story folder contains:
 - `claims.json`
 - `rights_report.json`
 - `platform_readiness.json`
+- `approval_checklist.json`
 - `asset_manifest.json`
 - `chart_signal.svg`
 - `storyboard.json`
@@ -97,6 +98,8 @@ Each generated package includes an editorial format, style variant, and angle. T
 
 `platform_readiness.json` checks whether a draft has enough original framing, visual transformation, caveat language, and human judgment to avoid feeling like commodity headline reuse.
 
+`approval_checklist.json` is the final pre-publish gate. Blocking checks prevent approval; warning-level packages require editor notes before approval can be recorded.
+
 ## Source posture
 
 The MVP treats official and first-party sources as the highest authority layer: SEC, Fed, BLS, FRED, issuer IR feeds, and official press releases. Broad news discovery, social buzz, and market data providers are enrichment layers, not the only source of truth.
@@ -113,6 +116,7 @@ Every generated draft runs through QA gates:
 - Original explanation, not headline reuse.
 - Platform readiness for Shorts/Reels style distribution.
 - Editorial format variation so recurring packages do not sound mass-produced.
+- Approval checklist with editor notes required for warning-level packages.
 - One clear chart idea.
 - Caveat or uncertainty note.
 - Disclosure readiness for sponsors, affiliates, or paid promotions.

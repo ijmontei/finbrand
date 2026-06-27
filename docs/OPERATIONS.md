@@ -11,11 +11,12 @@
 7. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
 8. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
 9. Verify `platform_readiness.json`: original angle, visual transformation, caveat language, and reused-content risk.
-10. Rewrite the hook, chart, or caveat when needed.
-11. Record an editor decision: approve, hold, revise, or archive.
-12. Render the video package only after approval.
-13. Publish manually.
-14. Archive performance metrics.
+10. Verify `approval_checklist.json`: no blockers before approval; warning-level packages need editor notes.
+11. Rewrite the hook, chart, or caveat when needed.
+12. Record an editor decision: approve, hold, revise, or archive.
+13. Render the video package only after approval.
+14. Publish manually.
+15. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -42,6 +43,7 @@ Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SI
 | Generic script | Template overuse | Switch format variant, rotate hook patterns, and add editor notes |
 | Reused-content risk | Too much source recap | Add chart, caveat, and original "why it matters" |
 | Platform-readiness warning | Weak transformation or commodity recap language | Rewrite around the data missed, owned visual, and editor caveat |
+| Approval rejected | Blocking check or missing notes for warning-level package | Use hold/revise, or add specific approval notes after review |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |
@@ -73,6 +75,7 @@ Avoid:
 - Editorial format fits the story.
 - Chart matches the story.
 - Platform readiness checked.
+- Approval checklist checked.
 - Caveat is honest.
 - No personalized advice.
 - Sponsorship or affiliate disclosures present if relevant.

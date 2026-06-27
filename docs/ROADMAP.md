@@ -17,6 +17,7 @@
 - Claim-level source and editor-verification checklist.
 - Source-rights and redistribution-review report.
 - Platform originality and reused-content readiness report.
+- Approval checklist and note-gated human signoff.
 
 ## Phase 2: Real ingestion
 

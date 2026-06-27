@@ -2,6 +2,7 @@ import { AlertTriangle, CheckCircle2, CircleAlert, Copy, ExternalLink, FileText 
 import { useEffect, useState } from "react";
 import { renderPreviewUrl } from "../api";
 import type {
+  ApprovalChecklist,
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
@@ -18,6 +19,7 @@ interface DraftPanelProps {
   claims?: ClaimChecklist;
   rights?: RightsReport;
   platform?: PlatformReadiness;
+  approval?: ApprovalChecklist;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
   storyId?: string;
@@ -32,6 +34,7 @@ export function DraftPanel({
   claims,
   rights,
   platform,
+  approval,
   storyboard,
   decision,
   storyId,
@@ -40,6 +43,9 @@ export function DraftPanel({
   loading
 }: DraftPanelProps) {
   const [notes, setNotes] = useState("");
+  const approveDisabled = Boolean(
+    approval && (!approval.can_approve || (approval.notes_required && !notes.trim()))
+  );
 
   useEffect(() => {
     setNotes(decision?.notes ?? "");
@@ -211,6 +217,27 @@ export function DraftPanel({
             </section>
           ) : null}
 
+          {approval ? (
+            <section className="approvalBox">
+              <div className="scriptHeader">
+                <span>Approval</span>
+                <strong>{approval.status.replace("_", " ")}</strong>
+              </div>
+              <div className="approvalSummary">
+                <span>{approval.can_approve ? "Can approve" : "Blocked"}</span>
+                <span>{approval.notes_required ? "Notes required" : "Notes optional"}</span>
+              </div>
+              <div className="approvalChecks">
+                {approval.checks.map((check) => (
+                  <div className={`approvalCheck ${check.status}`} key={check.id}>
+                    <strong>{check.name}</strong>
+                    <span>{check.detail}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="decisionBox">
             <div className="scriptHeader">
               <span>Editor Decision</span>
@@ -223,7 +250,14 @@ export function DraftPanel({
               aria-label="Editorial decision notes"
             />
             <div className="decisionActions">
-              <button onClick={() => onDecision("approve", notes)} className="decisionButton approve">Approve</button>
+              <button
+                onClick={() => onDecision("approve", notes)}
+                className="decisionButton approve"
+                disabled={approveDisabled}
+                title={approveDisabled ? "Clear blockers or add approval notes first" : "Approve package"}
+              >
+                Approve
+              </button>
               <button onClick={() => onDecision("hold", notes)} className="decisionButton hold">Hold</button>
               <button onClick={() => onDecision("revise", notes)} className="decisionButton revise">Revise</button>
               <button onClick={() => onDecision("archive", notes)} className="decisionButton archive">Archive</button>

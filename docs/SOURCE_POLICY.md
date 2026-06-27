@@ -33,6 +33,7 @@ A story should not move to "ready" unless it has:
 - Original commentary and visual transformation, not a templated recap.
 - No individualized advice language.
 - Clear disclosure metadata if paid promotion, sponsorship, affiliate, or referral compensation exists.
+- No blocking approval checks; warning-level approval needs editor notes.
 
 ## Sample data
 

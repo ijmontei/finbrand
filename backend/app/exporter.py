@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.models import StoryCandidate, VideoPackage
@@ -20,6 +21,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     claims = build_claim_checklist(story, package)
     rights = build_rights_report(story)
     platform = build_platform_readiness(story, package)
+    approval = build_approval_checklist(story, package)
     story_dir = output_dir / story.story_id
     story_dir.mkdir(parents=True, exist_ok=True)
 
@@ -30,6 +32,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "claims": story_dir / "claims.json",
         "rights": story_dir / "rights_report.json",
         "platform": story_dir / "platform_readiness.json",
+        "approval": story_dir / "approval_checklist.json",
         "manifest": story_dir / "asset_manifest.json",
         "chart": story_dir / "chart_signal.svg",
         "storyboard": story_dir / "storyboard.json",
@@ -44,13 +47,14 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     _write_json(files["claims"], claims)
     _write_json(files["rights"], rights)
     _write_json(files["platform"], platform)
+    _write_json(files["approval"], approval)
     _write_json(files["manifest"], package.asset_manifest)
     _write_json(files["storyboard"], storyboard)
     files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
     files["captions"].write_text(generate_srt(package), encoding="utf-8")
     files["preview"].write_text(render_preview_html(story, package, storyboard, qa), encoding="utf-8")
-    _write_json(files["decision_template"], _decision_template(story, qa))
-    files["brief"].write_text(_editor_brief(story, package, qa, claims, rights, platform), encoding="utf-8")
+    _write_json(files["decision_template"], _decision_template(story, qa, approval))
+    files["brief"].write_text(_editor_brief(story, package, qa, claims, rights, platform, approval), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
 
@@ -81,6 +85,7 @@ def _editor_brief(
     claims: dict[str, object],
     rights: dict[str, object],
     platform: dict[str, object],
+    approval: dict[str, object],
 ) -> str:
     source_lines = "\n".join(
         f"- {item['source_name']}: {item['title']} ({item['url']})" for item in story.source_trail
@@ -98,6 +103,9 @@ def _editor_brief(
     )
     platform_lines = "\n".join(
         f"- {check['status'].upper()}: {check['name']} - {check['detail']}" for check in platform["checks"]
+    )
+    approval_lines = "\n".join(
+        f"- {check['status'].upper()}: {check['name']} - {check['detail']}" for check in approval["checks"]
     )
     return f"""# {story.headline}
 
@@ -165,13 +173,21 @@ Risk level: {platform["risk_level"]}
 
 {platform_lines}
 
+## Approval Checklist
+
+Status: {approval["status"]}
+Can approve: {approval["can_approve"]}
+Notes required: {approval["notes_required"]}
+
+{approval_lines}
+
 ## QA Gates
 
 {gates}
 """
 
 
-def _decision_template(story: StoryCandidate, qa: dict[str, object]) -> dict[str, object]:
+def _decision_template(story: StoryCandidate, qa: dict[str, object], approval: dict[str, object]) -> dict[str, object]:
     return {
         "story_id": story.story_id,
         "decision": "pending",
@@ -179,8 +195,12 @@ def _decision_template(story: StoryCandidate, qa: dict[str, object]) -> dict[str
         "editor": "",
         "notes": "",
         "qa_status": qa["status"],
+        "approval_status": approval["status"],
+        "can_approve": approval["can_approve"],
+        "approval_notes_required": approval["notes_required"],
         "story_score": story.scores["story_score"],
         "required_before_publish": [
+            "confirm approval checklist has no blockers",
             "confirm factual claims",
             "confirm source links and usage rights",
             "confirm no personalized investment advice",

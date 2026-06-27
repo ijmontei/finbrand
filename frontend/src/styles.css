@@ -381,6 +381,7 @@ button {
 .claimsBox,
 .rightsBox,
 .platformBox,
+.approvalBox,
 .decisionBox,
 .emptyState {
   border: 1px solid var(--line);
@@ -575,6 +576,7 @@ button {
 .claimsBox,
 .rightsBox,
 .platformBox,
+.approvalBox,
 .emptyState {
   margin: 12px;
   padding: 14px;
@@ -766,6 +768,67 @@ button {
 .platformBox {
   padding: 0;
   overflow: hidden;
+}
+
+.approvalBox {
+  padding: 0;
+  overflow: hidden;
+}
+
+.approvalSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.approvalSummary span {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-align: center;
+}
+
+.approvalChecks {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.approvalCheck {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  border-left: 4px solid var(--amber);
+}
+
+.approvalCheck.pass {
+  border-left-color: var(--green);
+}
+
+.approvalCheck.block {
+  border-left-color: var(--red);
+}
+
+.approvalCheck strong,
+.approvalCheck span {
+  display: block;
+}
+
+.approvalCheck strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.approvalCheck span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
 }
 
 .platformScore {
@@ -1011,6 +1074,11 @@ button {
 
 .decisionButton.archive {
   color: var(--muted);
+}
+
+.decisionButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
 }
 
 .decisionBox small {
