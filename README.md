@@ -77,6 +77,7 @@ python -m app.cli source-terms
 python -m app.cli slate --limit 3
 python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
+python -m app.cli publish-packet STORY_ID --output-dir ..\exports\publish
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
 
@@ -97,6 +98,8 @@ Each exported story folder contains:
 - `decision_template.json`
 - `editor_brief.md`
 
+After an editor records an approved decision, `publish-packet` writes `publish_packet.json` and `publish_brief.md`. This is the manual publishing handoff: it never auto-posts and remains blocked until the editor decision and publishing gates have no blockers.
+
 Slate exports also include `daily_brief.md` and `daily_brief.json` for a newsletter or owned-audience daily brief. These reuse the same source trail, approval status, rights status, caveat, and chart idea as the video workflow.
 
 Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Recent SEC submissions can be pulled by CIK with `python -m app.cli sec-submissions 0000320193 --limit 5`. FRED macro observations can be pulled with `python -m app.cli fred-observations CPIAUCSL --limit 3`. BLS observations can be pulled with `python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3`. GDELT discovery candidates can be pulled with `python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h`. Rights-reviewed market reaction context can be imported with `python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"`.
@@ -108,6 +111,8 @@ GDELT items are discovery-only. They can help find candidate stories, but they d
 Market CSV rows are enrichment only. The importer expects a `ticker` column and accepts optional columns including `date`, `published_at`, `price_change_pct`, `volume_vs_20d`, `mention_velocity`, `novelty_score`, `sector_etf`, `event_key`, `title`, `summary`, `canonical_url`, `source_name`, `license_notes`, `tickers`, and `themes`. Imported rows default to provider redistribution review until the data license is cleared.
 
 Open `preview.html` in an exported story folder to review the vertical package, source trail, QA gates, chart, and storyboard together before rendering a final MP4.
+
+Use `publish_packet.json` only after approval to prepare manual upload metadata, final captions, source citations, and the final no-auto-post checklist.
 
 RSS ingestion writes source snapshots to an append-only local archive at `.runtime/source_archive.jsonl` by default. Set `MARKET_SIGNAL_SOURCE_ARCHIVE` to move it. The archive is local audit data and should not be committed.
 
@@ -126,6 +131,8 @@ Each generated package includes an editorial format, style variant, and angle. T
 `platform_readiness.json` checks whether a draft has enough original framing, visual transformation, caveat language, and human judgment to avoid feeling like commodity headline reuse.
 
 `approval_checklist.json` is the final pre-publish gate. Blocking checks prevent approval; warning-level packages require editor notes before approval can be recorded.
+
+`publish_packet.json` is the approval-gated manual publishing packet. It sets `auto_post_allowed` to false and lists blockers, warnings, platform metadata, source citations, and final upload checks.
 
 Primary-source overrides are available for rare editor-reviewed exceptions. They require an editor, a reason, and an evidence URL, and they turn the primary-source gate into a warning rather than a pass. Overrides are appended to `.runtime/overrides.jsonl` by default.
 

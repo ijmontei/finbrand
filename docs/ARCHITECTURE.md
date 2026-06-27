@@ -70,6 +70,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/rights` | Source-rights and redistribution review report |
 | `GET` | `/api/stories/{story_id}/platform-readiness` | Platform originality and reused-content readiness report |
 | `GET` | `/api/stories/{story_id}/approval` | Final pre-publish approval checklist |
+| `GET` | `/api/stories/{story_id}/publish-packet` | Approval-gated manual publishing packet |
 | `GET` | `/api/stories/{story_id}/overrides` | Active editor overrides for a story |
 | `POST` | `/api/stories/{story_id}/overrides` | Record an audited editor override |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
@@ -92,6 +93,7 @@ flowchart LR
 | `python -m app.cli slate --limit 5` | Print the ranked story slate |
 | `python -m app.cli package STORY_ID` | Generate one story package |
 | `python -m app.cli qa STORY_ID` | Run QA for one story |
+| `python -m app.cli publish-packet STORY_ID --output-dir exports/publish` | Write approval-gated manual publishing files |
 | `python -m app.cli export --output-dir exports/latest --limit 5` | Write editor briefs, manifests, QA, and package JSON |
 | `python -m app.cli newsletter --output-dir exports/newsletter --limit 3` | Write `daily_brief.md` and `daily_brief.json` |
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |

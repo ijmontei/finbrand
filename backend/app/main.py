@@ -132,6 +132,14 @@ def approval(story_id: str) -> dict[str, object]:
         raise HTTPException(status_code=404, detail="Story not found") from exc
 
 
+@app.get("/api/stories/{story_id}/publish-packet")
+def publish_packet(story_id: str) -> dict[str, object]:
+    try:
+        return store.get_publish_packet(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
 @app.get("/api/stories/{story_id}/overrides")
 def overrides(story_id: str) -> list[dict[str, object]]:
     try:

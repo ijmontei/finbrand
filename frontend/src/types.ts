@@ -208,3 +208,20 @@ export interface ApprovalChecklist {
   required_actions: string[];
   publish_rule: string;
 }
+
+export interface PublishPacket {
+  story_id: string;
+  status: "blocked" | "ready_manual_publish";
+  publish_mode: "manual_only";
+  auto_post_allowed: boolean;
+  manual_publish_rule: string;
+  blockers: string[];
+  warnings: string[];
+  content: {
+    title: string;
+    caption: string;
+    thumbnail_text: string;
+    disclaimer: string;
+  };
+  final_checklist: string[];
+}

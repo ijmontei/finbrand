@@ -382,6 +382,7 @@ button {
 .rightsBox,
 .platformBox,
 .approvalBox,
+.publishBox,
 .overrideBox,
 .decisionBox,
 .emptyState {
@@ -578,6 +579,7 @@ button {
 .rightsBox,
 .platformBox,
 .approvalBox,
+.publishBox,
 .overrideBox,
 .emptyState {
   margin: 12px;
@@ -777,6 +779,11 @@ button {
   overflow: hidden;
 }
 
+.publishBox {
+  padding: 0;
+  overflow: hidden;
+}
+
 .overrideBox {
   padding: 0;
   overflow: hidden;
@@ -832,6 +839,58 @@ button {
 }
 
 .approvalCheck span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.publishSummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.publishSummary span {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-align: center;
+}
+
+.publishList {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.publishItem {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  border-left: 4px solid var(--amber);
+}
+
+.publishItem.block {
+  border-left-color: var(--red);
+}
+
+.publishItem strong,
+.publishItem span {
+  display: block;
+}
+
+.publishItem strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.publishItem span {
   margin-top: 3px;
   color: var(--muted);
   font-size: 0.84rem;

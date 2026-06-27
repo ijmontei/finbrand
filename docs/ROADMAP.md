@@ -20,6 +20,7 @@
 - Draft 60-second storyboard and SRT captions for deterministic rendering.
 - Editorial format and style-variant metadata for less repetitive recurring packages.
 - Openable HTML review preview for each exported story package.
+- Approval-gated manual publish packet export.
 - In-dashboard editorial decisions with notes, local append-only JSONL ledger, and export-side decision templates.
 - Audited primary-source override workflow with local append-only JSONL ledger.
 - Structured source/provider terms review ledger.

@@ -10,7 +10,7 @@ from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
-from app.exporter import export_story_slate
+from app.exporter import export_publish_packet, export_story_slate
 from app.ingest.bls import bls_timeseries_payload_to_source_items
 from app.ingest.catalog import load_source_catalog
 from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
@@ -647,6 +647,58 @@ class PipelineTests(unittest.TestCase):
 
             self.assertEqual(saved["decision"], "approve")
             self.assertEqual(saved["notes"], "Reviewed rights and claim warnings.")
+
+    def test_publish_packet_blocks_until_editor_approval(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=DecisionLedger(Path(temp_dir) / "decisions.jsonl"),
+            )
+            story_id = store.stories[0].story_id
+
+            packet = store.get_publish_packet(story_id)
+
+            self.assertEqual(packet["status"], "blocked")
+            self.assertFalse(packet["auto_post_allowed"])
+            self.assertIn("Editor decision must be approve", packet["blockers"][0])
+
+    def test_publish_packet_is_ready_after_approved_decision(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=DecisionLedger(Path(temp_dir) / "decisions.jsonl"),
+            )
+            story_id = store.stories[0].story_id
+
+            store.record_decision(story_id, "approve", "editor", "Reviewed rights, claims, and platform warnings.")
+            packet = store.get_publish_packet(story_id)
+
+            self.assertEqual(packet["status"], "ready_manual_publish")
+            self.assertEqual(packet["publish_mode"], "manual_only")
+            self.assertFalse(packet["auto_post_allowed"])
+            self.assertTrue(packet["warnings"])
+            self.assertTrue(packet["source_citations"])
+
+    def test_export_publish_packet_writes_manual_publish_files(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=DecisionLedger(Path(temp_dir) / "decisions.jsonl"),
+            )
+            story = store.stories[0]
+            decision = store.record_decision(
+                story.story_id,
+                "approve",
+                "editor",
+                "Reviewed rights, claims, and platform warnings.",
+            )
+
+            files = export_publish_packet(story, decision, Path(temp_dir) / "publish")
+
+            self.assertTrue(Path(files["publish_packet"]).exists())
+            self.assertTrue(Path(files["publish_brief"]).exists())
+            self.assertIn("manual_only", Path(files["publish_packet"]).read_text(encoding="utf-8"))
+            self.assertIn("Auto-post allowed: False", Path(files["publish_brief"]).read_text(encoding="utf-8"))
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

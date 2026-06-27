@@ -8,6 +8,7 @@ import type {
   EditorialDecisionValue,
   EditorialOverride,
   PlatformReadiness,
+  PublishPacket,
   QAResult,
   RightsReport,
   Storyboard,
@@ -21,6 +22,7 @@ interface DraftPanelProps {
   rights?: RightsReport;
   platform?: PlatformReadiness;
   approval?: ApprovalChecklist;
+  publishPacket?: PublishPacket;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
   overrides?: EditorialOverride[];
@@ -38,6 +40,7 @@ export function DraftPanel({
   rights,
   platform,
   approval,
+  publishPacket,
   storyboard,
   decision,
   overrides = [],
@@ -242,6 +245,27 @@ export function DraftPanel({
                   <div className={`approvalCheck ${check.status}`} key={check.id}>
                     <strong>{check.name}</strong>
                     <span>{check.detail}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {publishPacket ? (
+            <section className="publishBox">
+              <div className="scriptHeader">
+                <span>Publish Packet</span>
+                <strong>{publishPacket.status.replaceAll("_", " ")}</strong>
+              </div>
+              <div className="publishSummary">
+                <span>{publishPacket.publish_mode.replace("_", " ")}</span>
+                <span>{publishPacket.auto_post_allowed ? "Auto-post on" : "Manual only"}</span>
+              </div>
+              <div className="publishList">
+                {(publishPacket.blockers.length ? publishPacket.blockers : publishPacket.warnings).slice(0, 3).map((item) => (
+                  <div className={publishPacket.blockers.length ? "publishItem block" : "publishItem warn"} key={item}>
+                    <strong>{publishPacket.blockers.length ? "Blocker" : "Warning"}</strong>
+                    <span>{item}</span>
                   </div>
                 ))}
               </div>

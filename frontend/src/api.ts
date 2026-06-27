@@ -5,6 +5,7 @@ import type {
   EditorialDecisionValue,
   EditorialOverride,
   PlatformReadiness,
+  PublishPacket,
   QAResult,
   RightsReport,
   Story,
@@ -60,6 +61,10 @@ export function fetchPlatformReadiness(storyId: string): Promise<PlatformReadine
 
 export function fetchApproval(storyId: string): Promise<ApprovalChecklist> {
   return request<ApprovalChecklist>(`/api/stories/${storyId}/approval`);
+}
+
+export function fetchPublishPacket(storyId: string): Promise<PublishPacket> {
+  return request<PublishPacket>(`/api/stories/${storyId}/publish-packet`);
 }
 
 export function fetchDecision(storyId: string): Promise<EditorialDecision> {

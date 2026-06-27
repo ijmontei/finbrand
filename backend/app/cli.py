@@ -4,7 +4,7 @@ import argparse
 import json
 from pathlib import Path
 
-from app.exporter import export_story_slate
+from app.exporter import export_publish_packet, export_story_slate
 from app.ingest.catalog import find_source_feed, load_source_catalog
 from app.newsletter import export_daily_brief
 from app.store import EditorialStore
@@ -24,6 +24,10 @@ def main() -> None:
 
     qa_parser = subparsers.add_parser("qa", help="Run QA for one story")
     qa_parser.add_argument("story_id")
+
+    publish_parser = subparsers.add_parser("publish-packet", help="Export an approval-gated manual publish packet")
+    publish_parser.add_argument("story_id")
+    publish_parser.add_argument("--output-dir", default="exports/publish")
 
     export_parser = subparsers.add_parser("export", help="Export editor-ready files")
     export_parser.add_argument("--output-dir", default="exports/latest")
@@ -94,6 +98,20 @@ def main() -> None:
         _print_json(store.get_or_generate_package(args.story_id).to_dict())
     elif args.command == "qa":
         _print_json(store.get_qa(args.story_id))
+    elif args.command == "publish-packet":
+        files = export_publish_packet(
+            store.get_story(args.story_id),
+            store.get_decision(args.story_id),
+            Path(args.output_dir),
+            editorial_overrides=store.get_overrides(args.story_id),
+            source_terms=store.list_source_terms(),
+        )
+        _print_json(
+            {
+                "packet": store.get_publish_packet(args.story_id),
+                "files": files,
+            }
+        )
     elif args.command == "export":
         _print_json(
             export_story_slate(

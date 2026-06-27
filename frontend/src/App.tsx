@@ -6,6 +6,7 @@ import {
   fetchDecision,
   fetchOverrides,
   fetchPlatformReadiness,
+  fetchPublishPacket,
   fetchQA,
   fetchRights,
   fetchStoryboard,
@@ -27,6 +28,7 @@ import type {
   EditorialDecisionValue,
   EditorialOverride,
   PlatformReadiness,
+  PublishPacket,
   QAResult,
   RightsReport,
   Story,
@@ -52,6 +54,7 @@ export default function App() {
   const [rights, setRights] = useState<RightsReport>();
   const [platform, setPlatform] = useState<PlatformReadiness>();
   const [approval, setApproval] = useState<ApprovalChecklist>();
+  const [publishPacket, setPublishPacket] = useState<PublishPacket>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
   const [decision, setDecision] = useState<EditorialDecision>();
   const [overrides, setOverrides] = useState<EditorialOverride[]>([]);
@@ -114,6 +117,7 @@ export default function App() {
         nextRights,
         nextPlatform,
         nextApproval,
+        nextPublishPacket,
         nextStoryboard,
         nextDecision,
         nextOverrides
@@ -124,6 +128,7 @@ export default function App() {
         fetchRights(storyId),
         fetchPlatformReadiness(storyId),
         fetchApproval(storyId),
+        fetchPublishPacket(storyId),
         fetchStoryboard(storyId),
         fetchDecision(storyId),
         fetchOverrides(storyId)
@@ -134,6 +139,7 @@ export default function App() {
       setRights(nextRights);
       setPlatform(nextPlatform);
       setApproval(nextApproval);
+      setPublishPacket(nextPublishPacket);
       setStoryboard(nextStoryboard);
       setDecision(nextDecision);
       setOverrides(nextOverrides);
@@ -255,6 +261,7 @@ export default function App() {
           rights={rights}
           platform={platform}
           approval={approval}
+          publishPacket={publishPacket}
           storyboard={storyboard}
           decision={decision}
           overrides={overrides}

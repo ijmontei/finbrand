@@ -11,6 +11,7 @@ from app.newsletter import export_daily_brief
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
 from app.platform import build_platform_readiness
+from app.publish_packet import build_publish_packet, render_publish_brief
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.rights import build_rights_report
 
@@ -106,6 +107,38 @@ def export_story_slate(
         "slate": str(slate_path),
         "newsletter": newsletter_files,
         "packages": package_files,
+    }
+
+
+def export_publish_packet(
+    story: StoryCandidate,
+    decision: dict[str, object],
+    output_dir: Path,
+    editorial_overrides: list[dict[str, object]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
+) -> dict[str, str]:
+    package = generate_video_package(story)
+    overrides = editorial_overrides or []
+    qa = run_qa(story, package, editorial_overrides=overrides, source_terms=source_terms)
+    claims = build_claim_checklist(story, package, editorial_overrides=overrides)
+    rights = build_rights_report(story, source_terms=source_terms)
+    platform = build_platform_readiness(story, package)
+    approval = build_approval_checklist(
+        story,
+        package,
+        editorial_overrides=overrides,
+        source_terms=source_terms,
+    )
+    packet = build_publish_packet(story, package, qa, claims, rights, platform, approval, decision)
+    story_dir = output_dir / story.story_id
+    story_dir.mkdir(parents=True, exist_ok=True)
+    packet_path = story_dir / "publish_packet.json"
+    brief_path = story_dir / "publish_brief.md"
+    _write_json(packet_path, packet)
+    brief_path.write_text(render_publish_brief(packet), encoding="utf-8")
+    return {
+        "publish_packet": str(packet_path),
+        "publish_brief": str(brief_path),
     }
 
 

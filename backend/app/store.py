@@ -11,6 +11,8 @@ from app.overrides import OverrideLedger, serialize_overrides, validate_override
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
+from app.platform import build_platform_readiness
+from app.publish_packet import build_publish_packet
 from app.source_archive import SourceArchive
 from app.source_terms import SourceTermsLedger, serialize_terms_reviews, validate_terms_review
 
@@ -157,6 +159,17 @@ class EditorialStore:
 
         story = self.get_story(story_id)
         return build_rights_report(story, source_terms=self.list_source_terms())
+
+    def get_publish_packet(self, story_id: str) -> dict[str, object]:
+        story = self.get_story(story_id)
+        package = self.get_or_generate_package(story_id)
+        qa = self.get_qa(story_id)
+        claims = self.get_claims(story_id)
+        rights = self.get_rights(story_id)
+        platform = build_platform_readiness(story, package)
+        approval = self.get_approval(story_id)
+        decision = self.get_decision(story_id)
+        return build_publish_packet(story, package, qa, claims, rights, platform, approval, decision)
 
     def list_source_terms(self) -> list[dict[str, object]]:
         return serialize_terms_reviews(self.source_terms_reviews)
