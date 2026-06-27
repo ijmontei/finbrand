@@ -87,3 +87,16 @@ The MVP uses an in-memory store seeded from JSON. The next version should add Po
 - `publish_jobs`
 
 Add `jsonb` for raw provider payloads and `pgvector` later for novelty and dedupe.
+
+## Audit trail
+
+The MVP writes editorial decisions to an append-only JSONL ledger. By default this lives at `.runtime/decisions.jsonl`, or at `MARKET_SIGNAL_DECISION_LEDGER` when configured. The store loads the latest decision per story on startup, so approvals, holds, revision notes, and archive decisions survive local restarts.
+
+Production should promote this into Postgres with:
+
+- immutable append-only decision events
+- authenticated editor identity
+- old and new state
+- QA snapshot
+- source trail snapshot
+- publish job linkage

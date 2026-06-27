@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 
 from app.charts import render_signal_chart_svg
+from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
 from app.models import SourceItem
@@ -145,17 +146,35 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("QA Gates", html)
 
     def test_store_records_editorial_decision_with_qa_context(self) -> None:
-        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
-        story_id = store.stories[0].story_id
+        with TemporaryDirectory() as temp_dir:
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+            )
+            story_id = store.stories[0].story_id
 
-        pending = store.get_decision(story_id)
-        saved = store.record_decision(story_id, "revise", "editor", "Tighten source caveat.")
+            pending = store.get_decision(story_id)
+            saved = store.record_decision(story_id, "revise", "editor", "Tighten source caveat.")
 
-        self.assertEqual(pending["decision"], "pending")
-        self.assertEqual(saved["decision"], "revise")
-        self.assertEqual(saved["notes"], "Tighten source caveat.")
-        self.assertIn(saved["qa_status"], {"ready", "needs_review", "blocked"})
-        self.assertGreater(saved["story_score"], 0)
+            self.assertEqual(pending["decision"], "pending")
+            self.assertEqual(saved["decision"], "revise")
+            self.assertEqual(saved["notes"], "Tighten source caveat.")
+            self.assertIn(saved["qa_status"], {"ready", "needs_review", "blocked"})
+            self.assertGreater(saved["story_score"], 0)
+
+    def test_editorial_decision_survives_store_restart(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            sample_path = Path(__file__).parents[1] / "app" / "data" / "sample_sources.json"
+            ledger_path = Path(temp_dir) / "decisions.jsonl"
+            first_store = EditorialStore(sample_path, decision_ledger=DecisionLedger(ledger_path))
+            story_id = first_store.stories[0].story_id
+
+            first_store.record_decision(story_id, "approve", "editor", "Looks ready.")
+            restarted_store = EditorialStore(sample_path, decision_ledger=DecisionLedger(ledger_path))
+
+            self.assertEqual(restarted_store.get_decision(story_id)["decision"], "approve")
+            self.assertEqual(restarted_store.get_decision(story_id)["notes"], "Looks ready.")
 
 
 if __name__ == "__main__":

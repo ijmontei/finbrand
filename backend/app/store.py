@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
+from app.decision_ledger import DecisionLedger
 from app.models import EditorialDecision, SourceItem, StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
@@ -11,12 +12,13 @@ from app.pipeline.script_writer import generate_video_package
 
 
 class EditorialStore:
-    def __init__(self, sample_path: Path | None = None) -> None:
+    def __init__(self, sample_path: Path | None = None, decision_ledger: DecisionLedger | None = None) -> None:
         self.sample_path = sample_path or Path(__file__).parent / "data" / "sample_sources.json"
+        self.decision_ledger = decision_ledger or DecisionLedger()
         self.source_items: list[SourceItem] = self._load_sample_items()
         self.stories: list[StoryCandidate] = []
         self.packages: dict[str, VideoPackage] = {}
-        self.decisions: dict[str, EditorialDecision] = {}
+        self.decisions: dict[str, EditorialDecision] = self.decision_ledger.load_latest()
         self.refresh_stories()
 
     def refresh_stories(self) -> list[StoryCandidate]:
@@ -65,6 +67,7 @@ class EditorialStore:
             story_score=float(story.scores["story_score"]),
         )
         self.decisions[story_id] = record
+        self.decision_ledger.append(record)
         return record.to_dict()
 
     def ingest_rss(

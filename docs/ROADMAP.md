@@ -12,7 +12,7 @@
 - Generated original SVG signal charts for editor preview and render inputs.
 - Draft 60-second storyboard and SRT captions for deterministic rendering.
 - Openable HTML review preview for each exported story package.
-- In-dashboard editorial decisions with notes and export-side decision templates.
+- In-dashboard editorial decisions with notes, local append-only JSONL ledger, and export-side decision templates.
 
 ## Phase 2: Real ingestion
 

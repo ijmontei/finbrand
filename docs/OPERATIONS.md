@@ -29,6 +29,8 @@ The exported `editor_brief.md` is the human review surface. `preview.html` is th
 
 Use `decision_template.json` as the export-side audit stub when a package is reviewed outside the dashboard.
 
+Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SIGNAL_DECISION_LEDGER` points elsewhere. Treat this file as local audit data; do not commit it.
+
 ## Failure modes
 
 | Failure | Cause | Response |
