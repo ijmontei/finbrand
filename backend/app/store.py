@@ -6,12 +6,13 @@ from datetime import datetime, timezone
 
 from app.approval import build_approval_checklist
 from app.decision_ledger import DecisionLedger
-from app.models import EditorialDecision, EditorialOverride, SourceItem, StoryCandidate, VideoPackage
+from app.models import EditorialDecision, EditorialOverride, SourceItem, SourceTermsReview, StoryCandidate, VideoPackage
 from app.overrides import OverrideLedger, serialize_overrides, validate_override
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
 from app.source_archive import SourceArchive
+from app.source_terms import SourceTermsLedger, serialize_terms_reviews, validate_terms_review
 
 
 class EditorialStore:
@@ -21,17 +22,20 @@ class EditorialStore:
         decision_ledger: DecisionLedger | None = None,
         source_archive: SourceArchive | None = None,
         override_ledger: OverrideLedger | None = None,
+        source_terms_ledger: SourceTermsLedger | None = None,
     ) -> None:
         self.sample_path = sample_path or Path(__file__).parent / "data" / "sample_sources.json"
         self.decision_ledger = decision_ledger or DecisionLedger()
         self.source_archive = source_archive or SourceArchive()
         self.override_ledger = override_ledger or OverrideLedger()
+        self.source_terms_ledger = source_terms_ledger or SourceTermsLedger()
         self.last_source_archive_summary: dict[str, object] = self.source_archive.summary()
         self.source_items: list[SourceItem] = self._load_sample_items()
         self.stories: list[StoryCandidate] = []
         self.packages: dict[str, VideoPackage] = {}
         self.decisions: dict[str, EditorialDecision] = self.decision_ledger.load_latest()
         self.overrides: dict[str, list[EditorialOverride]] = self.override_ledger.load_active()
+        self.source_terms_reviews: dict[str, SourceTermsReview] = self.source_terms_ledger.load_latest()
         self.refresh_stories()
 
     def refresh_stories(self) -> list[StoryCandidate]:
@@ -55,12 +59,22 @@ class EditorialStore:
     def get_qa(self, story_id: str) -> dict[str, object]:
         story = self.get_story(story_id)
         package = self.get_or_generate_package(story_id)
-        return run_qa(story, package, editorial_overrides=self.get_overrides(story_id))
+        return run_qa(
+            story,
+            package,
+            editorial_overrides=self.get_overrides(story_id),
+            source_terms=self.list_source_terms(),
+        )
 
     def get_approval(self, story_id: str) -> dict[str, object]:
         story = self.get_story(story_id)
         package = self.get_or_generate_package(story_id)
-        return build_approval_checklist(story, package, editorial_overrides=self.get_overrides(story_id))
+        return build_approval_checklist(
+            story,
+            package,
+            editorial_overrides=self.get_overrides(story_id),
+            source_terms=self.list_source_terms(),
+        )
 
     def get_claims(self, story_id: str) -> dict[str, object]:
         from app.claims import build_claim_checklist
@@ -85,7 +99,12 @@ class EditorialStore:
             raise ValueError(f"decision must be one of: {', '.join(sorted(allowed))}")
         clean_notes = notes.strip()
         if decision == "approve":
-            approval = build_approval_checklist(story, package, editorial_overrides=self.get_overrides(story_id))
+            approval = build_approval_checklist(
+                story,
+                package,
+                editorial_overrides=self.get_overrides(story_id),
+                source_terms=self.list_source_terms(),
+            )
             if approval["status"] == "blocked":
                 raise ValueError("cannot approve a package with blocking approval checks")
             if approval["notes_required"] and not clean_notes:
@@ -132,6 +151,52 @@ class EditorialStore:
 
     def overrides_by_story(self) -> dict[str, list[dict[str, object]]]:
         return {story_id: serialize_overrides(items) for story_id, items in self.overrides.items()}
+
+    def get_rights(self, story_id: str) -> dict[str, object]:
+        from app.rights import build_rights_report
+
+        story = self.get_story(story_id)
+        return build_rights_report(story, source_terms=self.list_source_terms())
+
+    def list_source_terms(self) -> list[dict[str, object]]:
+        return serialize_terms_reviews(self.source_terms_reviews)
+
+    def record_source_terms(
+        self,
+        source_name: str,
+        source_type: str,
+        review_status: str,
+        terms_url: str,
+        reviewed_by: str,
+        allowed_use: str,
+        restrictions: str,
+        expires_at: str = "",
+    ) -> dict[str, object]:
+        from app.source_terms import terms_key
+
+        validate_terms_review(
+            source_name,
+            source_type,
+            review_status,
+            terms_url,
+            reviewed_by,
+            allowed_use,
+            restrictions,
+        )
+        review = SourceTermsReview(
+            source_name=source_name.strip(),
+            source_type=source_type.strip(),
+            review_status=review_status,
+            terms_url=terms_url.strip(),
+            reviewed_by=reviewed_by.strip(),
+            reviewed_at=datetime.now(timezone.utc).isoformat(),
+            allowed_use=allowed_use.strip(),
+            restrictions=restrictions.strip(),
+            expires_at=expires_at.strip(),
+        )
+        self.source_terms_reviews[terms_key(review.source_type, review.source_name)] = review
+        self.source_terms_ledger.append(review)
+        return review.to_dict()
 
     def ingest_rss(
         self,

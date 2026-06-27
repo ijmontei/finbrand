@@ -141,10 +141,14 @@ export interface RightsSource {
   url: string;
   primary_source: boolean;
   license_notes: string;
-  posture: "official" | "first_party" | "provider_review" | "missing_notes" | "unknown";
+  posture: "official" | "first_party" | "licensed" | "provider_review" | "prohibited" | "missing_notes" | "unknown";
   risk_level: "low" | "medium" | "high";
   allowed_use: string;
   review_action: string;
+  terms_status: string;
+  terms_url: string;
+  terms_reviewed_at: string;
+  terms_restrictions: string;
 }
 
 export interface RightsReport {
@@ -153,7 +157,9 @@ export interface RightsReport {
   summary: {
     source_count: number;
     official_or_first_party: number;
+    licensed: number;
     provider_review: number;
+    prohibited: number;
     missing_license_notes: number;
   };
   sources: RightsSource[];

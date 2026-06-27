@@ -27,6 +27,7 @@ from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.rights import build_rights_report
 from app.source_archive import SourceArchive
+from app.source_terms import SourceTermsLedger
 from app.store import EditorialStore
 
 
@@ -352,6 +353,85 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(rights["summary"]["provider_review"], 1)
         self.assertEqual(rights["status"], "needs_review")
 
+    def test_source_terms_review_can_license_provider_source(self) -> None:
+        official = SourceItem(
+            id="official",
+            source_type="sec_filing",
+            source_name="SEC",
+            retrieved_at="2026-06-27T12:00:00Z",
+            published_at="2026-06-27T12:00:00Z",
+            canonical_url="https://example.com/official",
+            title="Sample 8-K for NVDA",
+            summary="Official sample filing.",
+            tickers=["NVDA"],
+            themes=["filings"],
+            event_key="same-event",
+            source_authority=0.98,
+            primary_source=True,
+            license_notes="Sample official source.",
+            market={"price_change_pct": 0.0, "volume_vs_20d": 1.0, "novelty_score": 0.7},
+        )
+        market = market_csv_rows_to_source_items(
+            [
+                {
+                    "ticker": "NVDA",
+                    "published_at": "2026-06-27T12:04:00Z",
+                    "price_change_pct": "-5.4",
+                    "volume_vs_20d": "3.2",
+                    "event_key": "same-event",
+                    "source_name": "Licensed desk export",
+                }
+            ]
+        )[0]
+        story = build_story_candidates([official, market])[0]
+
+        rights = build_rights_report(
+            story,
+            source_terms=[
+                {
+                    "source_name": "Licensed desk export",
+                    "source_type": "market_data",
+                    "review_status": "approved_publish",
+                    "terms_url": "internal://terms/market-data",
+                    "reviewed_by": "editor",
+                    "reviewed_at": "2026-06-27T12:00:00+00:00",
+                    "allowed_use": "May publish derived market reaction values with attribution.",
+                    "restrictions": "No raw quote feed redistribution.",
+                    "expires_at": "",
+                }
+            ],
+        )
+
+        self.assertEqual(rights["summary"]["licensed"], 1)
+        self.assertEqual(rights["summary"]["provider_review"], 0)
+        self.assertTrue(any(source["posture"] == "licensed" for source in rights["sources"]))
+
+    def test_prohibited_source_terms_block_rights_report(self) -> None:
+        story = build_story_candidates(
+            gdelt_payload_to_source_items(_sample_gdelt_payload(), query="NVDA export controls", limit=1)
+        )[0]
+
+        rights = build_rights_report(
+            story,
+            source_terms=[
+                {
+                    "source_name": "GDELT DOC: Example Markets",
+                    "source_type": "news_discovery",
+                    "review_status": "prohibited",
+                    "terms_url": "internal://terms/news-discovery",
+                    "reviewed_by": "editor",
+                    "reviewed_at": "2026-06-27T12:00:00+00:00",
+                    "allowed_use": "Do not use in published outputs.",
+                    "restrictions": "Provider terms prohibit this use.",
+                    "expires_at": "",
+                }
+            ],
+        )
+
+        self.assertEqual(rights["status"], "blocked")
+        self.assertEqual(rights["summary"]["prohibited"], 1)
+        self.assertTrue(any(source["review_action"] == "Remove or replace this source before approval." for source in rights["sources"]))
+
     def test_store_archives_market_csv_items(self) -> None:
         with TemporaryDirectory() as temp_dir:
             archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
@@ -653,6 +733,33 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(saved["override_type"], "primary_source")
             self.assertEqual(len(restarted_store.get_overrides(story_id)), 1)
             self.assertEqual(restarted_store.get_overrides(story_id)[0]["reason"], saved["reason"])
+
+    def test_source_terms_review_survives_store_restart(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            sample_path = Path(__file__).parents[1] / "app" / "data" / "sample_sources.json"
+            terms_path = Path(temp_dir) / "source_terms.jsonl"
+            first_store = EditorialStore(
+                sample_path,
+                source_terms_ledger=SourceTermsLedger(terms_path),
+            )
+
+            saved = first_store.record_source_terms(
+                "Market data sample",
+                "market_data",
+                "internal_only",
+                "internal://terms/market-data-sample",
+                "editor",
+                "Use for internal signal detection only.",
+                "Do not show raw values in published outputs.",
+            )
+            restarted_store = EditorialStore(
+                sample_path,
+                source_terms_ledger=SourceTermsLedger(terms_path),
+            )
+
+            self.assertEqual(saved["review_status"], "internal_only")
+            self.assertEqual(len(restarted_store.list_source_terms()), 1)
+            self.assertEqual(restarted_store.list_source_terms()[0]["source_name"], "Market data sample")
 
 def _sample_sec_submissions_payload() -> dict[str, object]:
     return {

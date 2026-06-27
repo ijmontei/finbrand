@@ -13,10 +13,11 @@ def build_daily_brief(
     stories: list[StoryCandidate],
     limit: int = 3,
     overrides_by_story: dict[str, list[dict[str, object]]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     selected = stories[:limit]
     override_map = overrides_by_story or {}
-    items = [_brief_item(story, override_map.get(story.story_id, [])) for story in selected]
+    items = [_brief_item(story, override_map.get(story.story_id, []), source_terms) for story in selected]
     return {
         "title": "Market Signal Daily Brief",
         "subject": _subject_line(items),
@@ -32,9 +33,15 @@ def export_daily_brief(
     output_dir: Path,
     limit: int = 3,
     overrides_by_story: dict[str, list[dict[str, object]]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, str]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    brief = build_daily_brief(stories, limit=limit, overrides_by_story=overrides_by_story)
+    brief = build_daily_brief(
+        stories,
+        limit=limit,
+        overrides_by_story=overrides_by_story,
+        source_terms=source_terms,
+    )
     json_path = output_dir / "daily_brief.json"
     markdown_path = output_dir / "daily_brief.md"
     json_path.write_text(json.dumps(brief, indent=2, sort_keys=True), encoding="utf-8")
@@ -64,10 +71,19 @@ Subject: {brief["subject"]}
 """
 
 
-def _brief_item(story: StoryCandidate, editorial_overrides: list[dict[str, object]]) -> dict[str, object]:
+def _brief_item(
+    story: StoryCandidate,
+    editorial_overrides: list[dict[str, object]],
+    source_terms: list[dict[str, object]] | None,
+) -> dict[str, object]:
     package = generate_video_package(story)
-    approval = build_approval_checklist(story, package, editorial_overrides=editorial_overrides)
-    rights = build_rights_report(story)
+    approval = build_approval_checklist(
+        story,
+        package,
+        editorial_overrides=editorial_overrides,
+        source_terms=source_terms,
+    )
+    rights = build_rights_report(story, source_terms=source_terms)
     return {
         "story_id": story.story_id,
         "headline": story.headline,

@@ -8,7 +8,6 @@ from app.charts import render_signal_chart_svg
 from app.ingest.catalog import load_source_catalog
 from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
-from app.rights import build_rights_report
 from app.store import EditorialStore
 
 
@@ -46,6 +45,17 @@ class EditorialOverrideRequest(BaseModel):
     editor: str = Field(..., min_length=1)
     reason: str = Field(..., min_length=20)
     evidence_url: str = Field(..., min_length=8)
+
+
+class SourceTermsReviewRequest(BaseModel):
+    source_name: str = Field(..., min_length=1)
+    source_type: str = Field(..., min_length=1)
+    review_status: str = Field(..., pattern="^(approved_publish|internal_only|prohibited|needs_review)$")
+    terms_url: str = Field(..., min_length=8)
+    reviewed_by: str = Field(..., min_length=1)
+    allowed_use: str = Field(..., min_length=10)
+    restrictions: str = Field(..., min_length=1)
+    expires_at: str = ""
 
 
 @app.get("/api/health")
@@ -99,10 +109,9 @@ def claims(story_id: str) -> dict[str, object]:
 @app.get("/api/stories/{story_id}/rights")
 def rights(story_id: str) -> dict[str, object]:
     try:
-        story = store.get_story(story_id)
+        return store.get_rights(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
-    return build_rights_report(story)
 
 
 @app.get("/api/stories/{story_id}/platform-readiness")
@@ -228,3 +237,25 @@ def source_catalog() -> list[dict[str, str]]:
 @app.get("/api/sources/archive")
 def source_archive() -> dict[str, object]:
     return store.source_archive_summary()
+
+
+@app.get("/api/source-terms")
+def source_terms() -> list[dict[str, object]]:
+    return store.list_source_terms()
+
+
+@app.post("/api/source-terms")
+def record_source_terms(request: SourceTermsReviewRequest) -> dict[str, object]:
+    try:
+        return store.record_source_terms(
+            request.source_name,
+            request.source_type,
+            request.review_status,
+            request.terms_url,
+            request.reviewed_by,
+            request.allowed_use,
+            request.restrictions,
+            request.expires_at,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc

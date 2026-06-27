@@ -49,6 +49,7 @@ flowchart LR
 - `app.pipeline.compliance`: publish-readiness gates.
 - `app.platform`: platform originality and reused-content readiness report.
 - `app.source_archive`: append-only local JSONL archive for ingested source snapshots.
+- `app.source_terms`: append-only source/provider terms review ledger.
 - `app.ingest.fred`: FRED observations adapter for official macro series.
 - `app.ingest.rss`: RSS ingestion adapter.
 - `app.ingest.sec`: SEC EDGAR submissions adapter.
@@ -80,6 +81,8 @@ flowchart LR
 | `GET` | `/api/sources/catalog` | Configured official source feeds |
 | `POST` | `/api/sources/rss` | Ingest an RSS feed |
 | `GET` | `/api/sources/archive` | Local source archive status |
+| `GET` | `/api/source-terms` | Latest source/provider terms reviews |
+| `POST` | `/api/source-terms` | Record a source/provider terms review |
 
 ## CLI surface
 
@@ -97,6 +100,8 @@ flowchart LR
 | `python -m app.cli bls-timeseries SERIES_ID --start-year YYYY --end-year YYYY --limit 3` | Pull recent BLS time-series observations |
 | `python -m app.cli gdelt-search QUERY --limit 10 --timespan 24h` | Pull GDELT article discovery candidates |
 | `python -m app.cli market-csv PATH --source-name PROVIDER` | Import provider-review market reaction context from CSV |
+| `python -m app.cli source-terms` | List reviewed source/provider terms |
+| `python -m app.cli review-source-terms SOURCE --source-type TYPE --review-status STATUS ...` | Record a provider/source terms review |
 | `python -m app.cli override-primary-source STORY_ID --reason TEXT --evidence-url URL` | Record an audited primary-source exception |
 | `python -m app.cli archive-status` | Show local source archive path and record count |
 
@@ -123,11 +128,14 @@ The MVP also writes editorial decisions to an append-only JSONL ledger. By defau
 
 Primary-source overrides are written to an append-only JSONL ledger at `.runtime/overrides.jsonl`, or at `MARKET_SIGNAL_OVERRIDE_LEDGER` when configured. Overrides are active exception records with editor, reason, evidence URL, and timestamp; they turn the primary-source gate into a warning, not a pass.
 
+Source/provider terms reviews are written to an append-only JSONL ledger at `.runtime/source_terms.jsonl`, or at `MARKET_SIGNAL_SOURCE_TERMS` when configured. The latest review for a source/provider is applied to rights reports, QA gates, daily briefs, and exported editor packages.
+
 Production should promote this into Postgres with:
 
 - immutable raw source snapshots
 - immutable append-only decision events
 - immutable append-only override events
+- immutable append-only source-terms review events
 - authenticated editor identity
 - old and new state
 - QA snapshot

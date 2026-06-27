@@ -183,6 +183,7 @@ export function DraftPanel({
               <div className="rightsSummary">
                 <span>{rights.summary.source_count} sources</span>
                 <span>{rights.summary.official_or_first_party} official/first-party</span>
+                <span>{rights.summary.licensed} licensed</span>
                 <span>{rights.summary.provider_review} provider review</span>
               </div>
               <div className="rightsList">
@@ -190,6 +191,7 @@ export function DraftPanel({
                   <div className={`rightsItem ${source.risk_level}`} key={source.source_id}>
                     <strong>{source.source_name}</strong>
                     <span>{source.review_action}</span>
+                    <small>Terms: {source.terms_status}</small>
                     <small>{source.allowed_use}</small>
                   </div>
                 ))}

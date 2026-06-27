@@ -12,11 +12,12 @@ def build_approval_checklist(
     story: StoryCandidate,
     package: VideoPackage,
     editorial_overrides: list[dict[str, object]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     overrides = serialize_overrides(editorial_overrides)
-    qa = run_qa(story, package, editorial_overrides=overrides)
+    qa = run_qa(story, package, editorial_overrides=overrides, source_terms=source_terms)
     claims = build_claim_checklist(story, package, editorial_overrides=overrides)
-    rights = build_rights_report(story)
+    rights = build_rights_report(story, source_terms=source_terms)
     platform = build_platform_readiness(story, package)
     checks = [
         _qa_check(qa),

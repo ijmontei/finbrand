@@ -25,12 +25,13 @@ def run_qa(
     story: StoryCandidate,
     package: VideoPackage,
     editorial_overrides: list[dict[str, object]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     overrides = serialize_overrides(editorial_overrides)
     gates = [
         _primary_source_gate(story, overrides),
         _advice_language_gate(package),
-        _rights_gate(story),
+        _rights_gate(story, source_terms),
         _originality_gate(package),
         _platform_readiness_gate(story, package),
         _chart_gate(package),
@@ -72,8 +73,8 @@ def _advice_language_gate(package: VideoPackage) -> QAGate:
     return QAGate("Advice-language risk", "pass", "No blocked personalized-advice phrases found.")
 
 
-def _rights_gate(story: StoryCandidate) -> QAGate:
-    report = build_rights_report(story)
+def _rights_gate(story: StoryCandidate, source_terms: list[dict[str, object]] | None = None) -> QAGate:
+    report = build_rights_report(story, source_terms=source_terms)
     if report["status"] == "blocked":
         return QAGate("Rights hygiene", "block", "No publishable source-rights trail is attached.")
     if report["status"] == "needs_review":

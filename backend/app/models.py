@@ -113,3 +113,19 @@ class EditorialOverride:
 
     def to_dict(self) -> JsonDict:
         return asdict(self)
+
+
+@dataclass(slots=True)
+class SourceTermsReview:
+    source_name: str
+    source_type: str
+    review_status: str
+    terms_url: str
+    reviewed_by: str
+    reviewed_at: str
+    allowed_use: str
+    restrictions: str
+    expires_at: str = ""
+
+    def to_dict(self) -> JsonDict:
+        return asdict(self)

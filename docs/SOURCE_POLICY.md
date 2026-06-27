@@ -26,6 +26,7 @@ Use automation for discovery and verification, not for copying. Every publishabl
 - Treat GDELT and broad news indexes as discovery only; they do not clear the primary-source gate by themselves.
 - Treat market data rights separately from API access. API availability is not permission to redistribute raw quotes.
 - Treat imported market-data CSV rows as internal enrichment until the provider license explicitly allows the intended commercial display or redistribution.
+- Record source/provider terms reviews before treating third-party data as publishable. API access alone is not a usage grant.
 - Keep official source excerpts short and cite the source in the editor-facing package.
 - Treat platform monetization as an editorial quality constraint: every draft needs original framing, owned visuals, and human judgment beyond a headline recap.
 - Rotate editorial formats and style variants, but keep every variant anchored in the same source trail.
@@ -45,6 +46,10 @@ A story should not move to "ready" unless it has:
 ## Human overrides
 
 Primary-source overrides are exceptions, not normal workflow. They require an editor name, a specific reason, and an evidence URL or internal evidence reference. An override may downgrade the primary-source gate from blocked to needs-review, but it does not clear rights, claim, platform, advice-language, or disclosure checks.
+
+## Source Terms
+
+Use source-terms reviews to document provider rights. `approved_publish` means the reviewed terms allow the intended display or derived-data use, subject to recorded restrictions. `internal_only` means the data can help detection but should not appear in published output. `prohibited` blocks publication until the source is removed or replaced. `needs_review` keeps the story in rights review.
 
 ## Sample data
 

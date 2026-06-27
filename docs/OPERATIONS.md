@@ -34,6 +34,8 @@ python -m app.cli fred-observations CPIAUCSL --limit 3
 python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
 python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
+python -m app.cli review-source-terms "Licensed desk export" --source-type market_data --review-status approved_publish --terms-url "internal://terms/market-data" --allowed-use "May publish derived market reaction values with attribution." --restrictions "No raw quote feed redistribution."
+python -m app.cli source-terms
 python -m app.cli slate --limit 5
 python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
@@ -49,6 +51,8 @@ Use `decision_template.json` as the export-side audit stub when a package is rev
 Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SIGNAL_DECISION_LEDGER` points elsewhere. Treat this file as local audit data; do not commit it.
 
 Primary-source overrides are appended to `.runtime/overrides.jsonl` unless `MARKET_SIGNAL_OVERRIDE_LEDGER` points elsewhere. Treat them as exception records: they downgrade a primary-source block to a warning, but approval still requires notes and rights/platform checks still apply.
+
+Source-terms reviews are appended to `.runtime/source_terms.jsonl` unless `MARKET_SIGNAL_SOURCE_TERMS` points elsewhere. Treat these as provider-use evidence: `approved_publish` can clear provider-review status for the matched source, `internal_only` keeps it as review-only, `prohibited` blocks approval, and `needs_review` preserves the warning.
 
 RSS source snapshots are appended to `.runtime/source_archive.jsonl` unless `MARKET_SIGNAL_SOURCE_ARCHIVE` points elsewhere. Treat this file as local audit data; do not commit it.
 
@@ -77,6 +81,8 @@ Market CSV ingestion is for licensed or internally reviewed market-reaction cont
 | BLS request is throttled | Unregistered public limits or too many series | Set `BLS_API_KEY` and reduce the request window |
 | Newsletter brief feels generic | Hooks were not rewritten for owned-audience context | Tighten each signal, caveat, and chart-to-watch line |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
+| Expired source-terms review | Terms review passed its expiration date | Refresh the terms review before approval |
+| Prohibited source terms | Provider review says this use is not allowed | Remove or replace the source before approval |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |
 | Weak primary-source override | Vague reason or missing evidence URL | Reject the override and require a stronger audit trail |

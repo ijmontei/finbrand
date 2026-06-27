@@ -13,6 +13,7 @@ The first product lane is:
 - React dashboard for reviewing the story slate, source trail, scoring rationale, generated script, and publishing gates.
 - Daily brief export for newsletter or owned-audience distribution.
 - Audited editor overrides for rare primary-source exceptions.
+- Structured source-terms reviews for provider licensing and restrictions.
 - Sample primary-source-style records so the app runs before paid APIs or data licenses are added.
 - Documentation for source policy, roadmap, and operating model.
 
@@ -71,6 +72,8 @@ python -m app.cli fred-observations CPIAUCSL --limit 3
 python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
 python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
+python -m app.cli review-source-terms "Licensed desk export" --source-type market_data --review-status approved_publish --terms-url "internal://terms/market-data" --allowed-use "May publish derived market reaction values with attribution." --restrictions "No raw quote feed redistribution."
+python -m app.cli source-terms
 python -m app.cli slate --limit 3
 python -m app.cli override-primary-source STORY_ID --reason "Editor reviewed alternate evidence..." --evidence-url "internal://editorial/source-review/123"
 python -m app.cli export --output-dir ..\exports\latest --limit 3
@@ -108,6 +111,8 @@ Open `preview.html` in an exported story folder to review the vertical package, 
 
 RSS ingestion writes source snapshots to an append-only local archive at `.runtime/source_archive.jsonl` by default. Set `MARKET_SIGNAL_SOURCE_ARCHIVE` to move it. The archive is local audit data and should not be committed.
 
+Source-terms reviews are appended to `.runtime/source_terms.jsonl` by default. Set `MARKET_SIGNAL_SOURCE_TERMS` to move it. Terms reviews can mark a source as `approved_publish`, `internal_only`, `prohibited`, or `needs_review`; rights reports use the latest review for each source/provider.
+
 The dashboard includes an editor decision panel for approve, hold, revise, or archive decisions with notes. Decisions are appended to a local JSONL ledger by default at `.runtime/decisions.jsonl`; production should move this ledger into Postgres with user identity and immutable audit controls.
 
 Each generated package includes an editorial format, style variant, and angle. This keeps recurring videos from collapsing into one repeated headline-summary template.
@@ -115,6 +120,8 @@ Each generated package includes an editorial format, style variant, and angle. T
 `claims.json` is the claim-level review checklist. It separates source-backed claims from claims that still require editor verification, such as market-data numbers, causal framing, and chart choices.
 
 `rights_report.json` summarizes source posture: official, first-party, provider-review, missing notes, or unknown. Use it to keep raw market-data redistribution and article-reuse questions visible before approval.
+
+`source_terms.jsonl` records source/provider terms reviews. A current `approved_publish` review can move a provider source from provider-review to licensed; a `prohibited` review blocks approval.
 
 `platform_readiness.json` checks whether a draft has enough original framing, visual transformation, caveat language, and human judgment to avoid feeling like commodity headline reuse.
 

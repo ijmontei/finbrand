@@ -65,6 +65,22 @@ def main() -> None:
     override_parser.add_argument("--reason", required=True)
     override_parser.add_argument("--evidence-url", required=True)
 
+    subparsers.add_parser("source-terms", help="List reviewed source/provider terms")
+
+    terms_parser = subparsers.add_parser("review-source-terms", help="Record a source/provider terms review")
+    terms_parser.add_argument("source_name")
+    terms_parser.add_argument("--source-type", required=True)
+    terms_parser.add_argument(
+        "--review-status",
+        required=True,
+        choices=["approved_publish", "internal_only", "prohibited", "needs_review"],
+    )
+    terms_parser.add_argument("--terms-url", required=True)
+    terms_parser.add_argument("--reviewed-by", default="editor")
+    terms_parser.add_argument("--allowed-use", required=True)
+    terms_parser.add_argument("--restrictions", required=True)
+    terms_parser.add_argument("--expires-at", default="")
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -79,9 +95,25 @@ def main() -> None:
     elif args.command == "qa":
         _print_json(store.get_qa(args.story_id))
     elif args.command == "export":
-        _print_json(export_story_slate(store.stories, Path(args.output_dir), args.limit, store.overrides_by_story()))
+        _print_json(
+            export_story_slate(
+                store.stories,
+                Path(args.output_dir),
+                args.limit,
+                store.overrides_by_story(),
+                store.list_source_terms(),
+            )
+        )
     elif args.command == "newsletter":
-        _print_json(export_daily_brief(store.stories, Path(args.output_dir), args.limit, store.overrides_by_story()))
+        _print_json(
+            export_daily_brief(
+                store.stories,
+                Path(args.output_dir),
+                args.limit,
+                store.overrides_by_story(),
+                store.list_source_terms(),
+            )
+        )
     elif args.command == "ingest-feed":
         feed = find_source_feed(args.feed_id)
         result = store.ingest_rss(
@@ -189,6 +221,20 @@ def main() -> None:
                 "approval": store.get_approval(args.story_id),
             }
         )
+    elif args.command == "source-terms":
+        _print_json(store.list_source_terms())
+    elif args.command == "review-source-terms":
+        result = store.record_source_terms(
+            args.source_name,
+            args.source_type,
+            args.review_status,
+            args.terms_url,
+            args.reviewed_by,
+            args.allowed_use,
+            args.restrictions,
+            args.expires_at,
+        )
+        _print_json({"source_terms": result})
     elif args.command == "archive-status":
         _print_json(store.source_archive_summary())
 

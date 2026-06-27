@@ -19,15 +19,21 @@ def export_story_package(
     story: StoryCandidate,
     output_dir: Path,
     editorial_overrides: list[dict[str, object]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, str]:
     package = generate_video_package(story)
     overrides = editorial_overrides or []
-    qa = run_qa(story, package, editorial_overrides=overrides)
+    qa = run_qa(story, package, editorial_overrides=overrides, source_terms=source_terms)
     storyboard = build_storyboard(story, package)
     claims = build_claim_checklist(story, package, editorial_overrides=overrides)
-    rights = build_rights_report(story)
+    rights = build_rights_report(story, source_terms=source_terms)
     platform = build_platform_readiness(story, package)
-    approval = build_approval_checklist(story, package, editorial_overrides=overrides)
+    approval = build_approval_checklist(
+        story,
+        package,
+        editorial_overrides=overrides,
+        source_terms=source_terms,
+    )
     story_dir = output_dir / story.story_id
     story_dir.mkdir(parents=True, exist_ok=True)
 
@@ -69,6 +75,7 @@ def export_story_slate(
     output_dir: Path,
     limit: int = 5,
     overrides_by_story: dict[str, list[dict[str, object]]] | None = None,
+    source_terms: list[dict[str, object]] | None = None,
 ) -> dict[str, object]:
     output_dir.mkdir(parents=True, exist_ok=True)
     selected = stories[:limit]
@@ -80,10 +87,21 @@ def export_story_slate(
     slate_path = output_dir / "slate.json"
     _write_json(slate_path, slate)
     package_files = [
-        export_story_package(story, output_dir, editorial_overrides=override_map.get(story.story_id, []))
+        export_story_package(
+            story,
+            output_dir,
+            editorial_overrides=override_map.get(story.story_id, []),
+            source_terms=source_terms,
+        )
         for story in selected
     ]
-    newsletter_files = export_daily_brief(selected, output_dir, limit=len(selected), overrides_by_story=override_map)
+    newsletter_files = export_daily_brief(
+        selected,
+        output_dir,
+        limit=len(selected),
+        overrides_by_story=override_map,
+        source_terms=source_terms,
+    )
     return {
         "slate": str(slate_path),
         "newsletter": newsletter_files,
@@ -115,7 +133,7 @@ def _editor_brief(
         f"- {claim['verification_status'].upper()}: {claim['text']}" for claim in claims["claims"]
     )
     rights_lines = "\n".join(
-        f"- {source['risk_level'].upper()}: {source['source_name']} - {source['review_action']}"
+        f"- {source['risk_level'].upper()}: {source['source_name']} [{source['terms_status']}] - {source['review_action']}"
         for source in rights["sources"]
     )
     platform_lines = "\n".join(
