@@ -1,15 +1,17 @@
-import { AlertTriangle, CheckCircle2, CircleAlert, Copy, FileText } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CircleAlert, Copy, ExternalLink, FileText } from "lucide-react";
+import { renderPreviewUrl } from "../api";
 import type { QAResult, Storyboard, VideoPackage } from "../types";
 
 interface DraftPanelProps {
   videoPackage?: VideoPackage;
   qa?: QAResult;
   storyboard?: Storyboard;
+  storyId?: string;
   onGenerate: () => void;
   loading: boolean;
 }
 
-export function DraftPanel({ videoPackage, qa, storyboard, onGenerate, loading }: DraftPanelProps) {
+export function DraftPanel({ videoPackage, qa, storyboard, storyId, onGenerate, loading }: DraftPanelProps) {
   return (
     <aside className="draftPanel">
       <div className="panelHeader">
@@ -49,7 +51,21 @@ export function DraftPanel({ videoPackage, qa, storyboard, onGenerate, loading }
             <section className="storyboardBox">
               <div className="scriptHeader">
                 <span>Storyboard</span>
-                <strong>{storyboard.duration_sec}s</strong>
+                <div className="headerTools">
+                  {storyId ? (
+                    <a
+                      className="miniLink"
+                      href={renderPreviewUrl(storyId)}
+                      target="_blank"
+                      rel="noreferrer"
+                      title="Open render preview"
+                      aria-label="Open render preview"
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+                  ) : null}
+                  <strong>{storyboard.duration_sec}s</strong>
+                </div>
               </div>
               <div className="sceneList">
                 {storyboard.scenes.map((scene) => (

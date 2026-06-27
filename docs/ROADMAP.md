@@ -11,6 +11,7 @@
 - Headless package export for editor briefs and asset manifests.
 - Generated original SVG signal charts for editor preview and render inputs.
 - Draft 60-second storyboard and SRT captions for deterministic rendering.
+- Openable HTML review preview for each exported story package.
 
 ## Phase 2: Real ingestion
 

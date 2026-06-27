@@ -41,3 +41,7 @@ export function fetchStoryboard(storyId: string): Promise<Storyboard> {
 export function chartPreviewUrl(storyId: string): string {
   return `${API_BASE_URL}/api/stories/${storyId}/chart.svg`;
 }
+
+export function renderPreviewUrl(storyId: string): string {
+  return `${API_BASE_URL}/api/stories/${storyId}/preview.html`;
+}

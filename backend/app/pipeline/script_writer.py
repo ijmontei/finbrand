@@ -122,6 +122,7 @@ def _asset_manifest(story: StoryCandidate, chart: str) -> dict[str, object]:
         "format": "vertical_1080x1920_60s",
         "script_ref": f"script_{story.story_id}",
         "storyboard_ref": "storyboard.json",
+        "preview_ref": "preview.html",
         "voiceover": {
             "mode": "manual_or_tts",
             "duration_target_sec": 60,

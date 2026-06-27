@@ -598,6 +598,23 @@ button {
   text-transform: uppercase;
 }
 
+.headerTools {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.miniLink {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--blue-dark);
+  background: #ffffff;
+}
+
 .scriptBox pre {
   max-height: 360px;
   margin: 0;

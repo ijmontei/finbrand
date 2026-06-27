@@ -56,6 +56,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |
 | `GET` | `/api/stories/{story_id}/storyboard` | 60-second vertical render plan |
 | `GET` | `/api/stories/{story_id}/captions.srt` | Draft subtitle file |
+| `GET` | `/api/stories/{story_id}/preview.html` | Openable vertical review preview |
 | `GET` | `/api/sources/catalog` | Configured official source feeds |
 | `POST` | `/api/sources/rss` | Ingest an RSS feed |
 

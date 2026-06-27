@@ -7,7 +7,7 @@ from app.charts import render_signal_chart_svg
 from app.models import StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
-from app.render_plan import build_storyboard, generate_srt
+from app.render_plan import build_storyboard, generate_srt, render_preview_html
 
 
 def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, str]:
@@ -25,6 +25,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "chart": story_dir / "chart_signal.svg",
         "storyboard": story_dir / "storyboard.json",
         "captions": story_dir / "captions.srt",
+        "preview": story_dir / "preview.html",
         "brief": story_dir / "editor_brief.md",
     }
     _write_json(files["story"], story.to_dict())
@@ -34,6 +35,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     _write_json(files["storyboard"], storyboard)
     files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
     files["captions"].write_text(generate_srt(package), encoding="utf-8")
+    files["preview"].write_text(render_preview_html(story, package, storyboard, qa), encoding="utf-8")
     files["brief"].write_text(_editor_brief(story, package, qa), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
@@ -93,6 +95,7 @@ Score: {story.scores["story_score"]}
 - Storyboard: `storyboard.json`
 - Captions: `captions.srt`
 - Chart asset: `chart_signal.svg`
+- Preview: `preview.html`
 
 ## Caveat
 

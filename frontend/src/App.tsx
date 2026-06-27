@@ -176,6 +176,7 @@ export default function App() {
           videoPackage={videoPackage}
           qa={qa}
           storyboard={storyboard}
+          storyId={selectedStory?.story_id}
           onGenerate={() => buildDraft()}
           loading={drafting}
         />

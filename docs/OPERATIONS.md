@@ -24,7 +24,7 @@ python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 ```
 
-The exported `editor_brief.md` is the human review surface. `storyboard.json`, `captions.srt`, and `chart_signal.svg` are intended for later Remotion or FFmpeg publishing workers.
+The exported `editor_brief.md` is the human review surface. `preview.html` is the quick visual review surface. `storyboard.json`, `captions.srt`, and `chart_signal.svg` are intended for later Remotion or FFmpeg publishing workers.
 
 ## Failure modes
 
