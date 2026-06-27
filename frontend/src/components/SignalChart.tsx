@@ -1,4 +1,5 @@
 import type { Story } from "../types";
+import { chartPreviewUrl } from "../api";
 
 interface SignalChartProps {
   story: Story;
@@ -17,9 +18,8 @@ export function SignalChart({ story }: SignalChartProps) {
 
   return (
     <div className="signalChart">
-      <div className="chartBackdrop">
-        <div className="moveLine" style={{ width: `${Math.min(88, Math.abs(move) * 13 + 18)}%` }} />
-        <div className="volumeLine" style={{ width: `${Math.min(92, volume * 28)}%` }} />
+      <div className="chartPreview">
+        <img src={chartPreviewUrl(story.story_id)} alt={`${story.headline} signal chart`} />
       </div>
       <div className="metricTiles">
         <div>
@@ -45,4 +45,3 @@ export function SignalChart({ story }: SignalChartProps) {
     </div>
   );
 }
-

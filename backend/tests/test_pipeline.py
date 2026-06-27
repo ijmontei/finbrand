@@ -4,6 +4,7 @@ import unittest
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
+from app.charts import render_signal_chart_svg
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
 from app.models import SourceItem
@@ -97,7 +98,18 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["package"]).exists())
                 self.assertTrue(Path(package_files["qa"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
+                self.assertTrue(Path(package_files["chart"]).exists())
                 self.assertIn("editor_brief.md", package_files["brief"])
+
+    def test_signal_chart_svg_contains_story_context(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+
+        svg = render_signal_chart_svg(story)
+
+        self.assertIn("<svg", svg)
+        self.assertIn(story.primary_entity["ticker"], svg)
+        self.assertIn("Not investment advice", svg)
 
 
 if __name__ == "__main__":

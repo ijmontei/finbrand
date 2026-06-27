@@ -9,6 +9,7 @@
 - Compliance QA.
 - Local editorial dashboard.
 - Headless package export for editor briefs and asset manifests.
+- Generated original SVG signal charts for editor preview and render inputs.
 
 ## Phase 2: Real ingestion
 

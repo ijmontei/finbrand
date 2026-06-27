@@ -53,6 +53,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}` | Story detail |
 | `POST` | `/api/stories/{story_id}/package` | Generate draft package |
 | `GET` | `/api/stories/{story_id}/qa` | QA result |
+| `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |
 | `GET` | `/api/sources/catalog` | Configured official source feeds |
 | `POST` | `/api/sources/rss` | Ingest an RSS feed |
 

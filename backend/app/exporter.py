@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from app.charts import render_signal_chart_svg
 from app.models import StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
@@ -19,12 +20,14 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "package": story_dir / "package.json",
         "qa": story_dir / "qa.json",
         "manifest": story_dir / "asset_manifest.json",
+        "chart": story_dir / "chart_signal.svg",
         "brief": story_dir / "editor_brief.md",
     }
     _write_json(files["story"], story.to_dict())
     _write_json(files["package"], package.to_dict())
     _write_json(files["qa"], qa)
     _write_json(files["manifest"], package.asset_manifest)
+    files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
     files["brief"].write_text(_editor_brief(story, package, qa), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
@@ -95,4 +98,3 @@ Score: {story.scores["story_score"]}
 
 {gates}
 """
-

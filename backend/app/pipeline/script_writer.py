@@ -130,6 +130,7 @@ def _asset_manifest(story: StoryCandidate, chart: str) -> dict[str, object]:
                 "chart_id": "chart_1",
                 "type": "editorial_signal_chart",
                 "description": chart,
+                "image_ref": "chart_signal.svg",
             }
         ],
         "captions": {
@@ -142,4 +143,3 @@ def _asset_manifest(story: StoryCandidate, chart: str) -> dict[str, object]:
             {"platform": "tiktok", "size": "1080x1920"},
         ],
     }
-

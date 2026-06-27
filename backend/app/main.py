@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from app.charts import render_signal_chart_svg
 from app.ingest.catalog import load_source_catalog
 from app.store import EditorialStore
 
@@ -69,6 +70,15 @@ def qa(story_id: str) -> dict[str, object]:
         return store.get_qa(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.get("/api/stories/{story_id}/chart.svg")
+def chart_svg(story_id: str) -> Response:
+    try:
+        story = store.get_story(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    return Response(content=render_signal_chart_svg(story), media_type="image/svg+xml")
 
 
 @app.post("/api/sources/rss")

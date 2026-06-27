@@ -34,3 +34,6 @@ export function fetchQA(storyId: string): Promise<QAResult> {
   return request<QAResult>(`/api/stories/${storyId}/qa`);
 }
 
+export function chartPreviewUrl(storyId: string): string {
+  return `${API_BASE_URL}/api/stories/${storyId}/chart.svg`;
+}
