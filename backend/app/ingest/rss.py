@@ -1,0 +1,52 @@
+from __future__ import annotations
+
+import hashlib
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
+
+import feedparser
+
+from app.models import SourceItem
+from app.pipeline.entity_mapping import normalize_source_item
+
+
+def fetch_rss_feed(feed_url: str, source_name: str, source_type: str = "news_discovery") -> list[SourceItem]:
+    parsed = feedparser.parse(feed_url)
+    now = datetime.now(timezone.utc).isoformat()
+    items: list[SourceItem] = []
+    for entry in parsed.entries[:30]:
+        title = getattr(entry, "title", "").strip()
+        link = getattr(entry, "link", feed_url)
+        summary = getattr(entry, "summary", "")
+        published = _published_at(entry)
+        item_id = _item_id(source_name, link, title)
+        item = SourceItem(
+            id=item_id,
+            source_type=source_type,
+            source_name=source_name,
+            retrieved_at=now,
+            published_at=published,
+            canonical_url=link,
+            title=title,
+            summary=summary,
+            license_notes="RSS item for discovery or first-party summary; verify reuse rights before publication.",
+            provenance={"feed_url": feed_url},
+        )
+        items.append(normalize_source_item(item))
+    return items
+
+
+def _published_at(entry: object) -> str:
+    candidate = getattr(entry, "published", None) or getattr(entry, "updated", None)
+    if not candidate:
+        return datetime.now(timezone.utc).isoformat()
+    try:
+        return parsedate_to_datetime(candidate).astimezone(timezone.utc).isoformat()
+    except (TypeError, ValueError):
+        return datetime.now(timezone.utc).isoformat()
+
+
+def _item_id(source_name: str, link: str, title: str) -> str:
+    digest = hashlib.sha1(f"{source_name}:{link}:{title}".encode("utf-8")).hexdigest()[:12]
+    return f"rss_{digest}"
+

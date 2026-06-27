@@ -1,0 +1,124 @@
+[
+  {
+    "id": "sample_sec_nvda_8k",
+    "source_type": "sec_filing",
+    "source_name": "SEC EDGAR sample",
+    "retrieved_at": "2026-06-27T12:05:00Z",
+    "published_at": "2026-06-27T12:01:00Z",
+    "canonical_url": "https://example.com/sample/sec-nvda-8k",
+    "title": "Sample 8-K flags updated AI accelerator supply commentary",
+    "summary": "Synthetic sample record representing a material filing that adds primary evidence to an AI infrastructure story.",
+    "language": "en",
+    "tickers": ["NVDA"],
+    "ciks": ["0001045810"],
+    "entities": [{"type": "company", "name": "Nvidia", "confidence": 0.99}],
+    "themes": ["ai-infrastructure", "filings"],
+    "event_key": "sample-ai-supply-chain",
+    "source_authority": 0.98,
+    "primary_source": true,
+    "license_notes": "Synthetic sample. Replace with actual SEC filing URL before publication.",
+    "market": {
+      "price_change_pct": -4.2,
+      "volume_vs_20d": 2.1,
+      "mention_velocity": 64,
+      "novelty_score": 0.84
+    },
+    "provenance": {"endpoint": "sample"}
+  },
+  {
+    "id": "sample_market_nvda_reaction",
+    "source_type": "market_data",
+    "source_name": "Market data sample",
+    "retrieved_at": "2026-06-27T12:06:00Z",
+    "published_at": "2026-06-27T12:04:00Z",
+    "canonical_url": "https://example.com/sample/market-nvda",
+    "title": "Sample market reaction shows semiconductor basket selling with NVDA",
+    "summary": "Synthetic market-data enrichment for relative move and volume context.",
+    "language": "en",
+    "tickers": ["NVDA", "AMD", "SMH", "SOXX"],
+    "themes": ["ai-infrastructure"],
+    "event_key": "sample-ai-supply-chain",
+    "source_authority": 0.72,
+    "primary_source": false,
+    "license_notes": "Synthetic sample. Provider redistribution review required for real market data.",
+    "market": {
+      "price_change_pct": -4.2,
+      "volume_vs_20d": 2.1,
+      "mention_velocity": 64,
+      "novelty_score": 0.84
+    },
+    "provenance": {"provider": "sample"}
+  },
+  {
+    "id": "sample_fed_statement",
+    "source_type": "fed_release",
+    "source_name": "Federal Reserve sample",
+    "retrieved_at": "2026-06-27T18:02:00Z",
+    "published_at": "2026-06-27T18:00:00Z",
+    "canonical_url": "https://example.com/sample/fed-statement",
+    "title": "Sample Fed statement language shifts attention back to inflation risks",
+    "summary": "Synthetic official-feed record representing a policy statement with rates-sensitive language.",
+    "language": "en",
+    "tickers": ["SPY", "QQQ"],
+    "themes": ["rates", "inflation"],
+    "event_key": "sample-fed-language",
+    "source_authority": 0.97,
+    "primary_source": true,
+    "license_notes": "Synthetic sample. Use official Federal Reserve link and excerpts only as allowed.",
+    "market": {
+      "price_change_pct": -0.8,
+      "volume_vs_20d": 1.4,
+      "mention_velocity": 51,
+      "novelty_score": 0.78
+    },
+    "provenance": {"feed": "sample"}
+  },
+  {
+    "id": "sample_bls_cpi",
+    "source_type": "bls_release",
+    "source_name": "BLS sample",
+    "retrieved_at": "2026-06-27T12:32:00Z",
+    "published_at": "2026-06-27T12:30:00Z",
+    "canonical_url": "https://example.com/sample/bls-cpi",
+    "title": "Sample CPI release keeps inflation theme in focus",
+    "summary": "Synthetic BLS-style record representing a macro release with chartable inflation data.",
+    "language": "en",
+    "themes": ["inflation", "rates"],
+    "event_key": "sample-cpi-release",
+    "source_authority": 0.97,
+    "primary_source": true,
+    "license_notes": "Synthetic sample. Use official BLS release or API values for real production.",
+    "market": {
+      "price_change_pct": -0.6,
+      "volume_vs_20d": 1.2,
+      "mention_velocity": 58,
+      "novelty_score": 0.82
+    },
+    "provenance": {"feed": "sample"}
+  },
+  {
+    "id": "sample_issuer_retail",
+    "source_type": "issuer_release",
+    "source_name": "Issuer IR sample",
+    "retrieved_at": "2026-06-27T11:15:00Z",
+    "published_at": "2026-06-27T11:12:00Z",
+    "canonical_url": "https://example.com/sample/issuer-retail-release",
+    "title": "Sample retailer guidance update turns focus to consumer demand",
+    "summary": "Synthetic first-party issuer release for a consumer-stock story.",
+    "language": "en",
+    "tickers": ["AAPL"],
+    "themes": ["consumer", "earnings"],
+    "event_key": "sample-consumer-guidance",
+    "source_authority": 0.88,
+    "primary_source": true,
+    "license_notes": "Synthetic sample. Use issuer IR source and summarize instead of republishing.",
+    "market": {
+      "price_change_pct": 2.3,
+      "volume_vs_20d": 1.6,
+      "mention_velocity": 36,
+      "novelty_score": 0.70
+    },
+    "provenance": {"feed": "sample"}
+  }
+]
+

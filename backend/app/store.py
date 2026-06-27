@@ -1,0 +1,54 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from app.models import SourceItem, StoryCandidate, VideoPackage
+from app.pipeline.compliance import run_qa
+from app.pipeline.scoring import build_story_candidates
+from app.pipeline.script_writer import generate_video_package
+
+
+class EditorialStore:
+    def __init__(self, sample_path: Path | None = None) -> None:
+        self.sample_path = sample_path or Path(__file__).parent / "data" / "sample_sources.json"
+        self.source_items: list[SourceItem] = self._load_sample_items()
+        self.stories: list[StoryCandidate] = []
+        self.packages: dict[str, VideoPackage] = {}
+        self.refresh_stories()
+
+    def refresh_stories(self) -> list[StoryCandidate]:
+        self.stories = build_story_candidates(self.source_items)
+        return self.stories
+
+    def list_stories(self) -> list[dict[str, object]]:
+        return [story.to_dict() for story in self.stories]
+
+    def get_story(self, story_id: str) -> StoryCandidate:
+        for story in self.stories:
+            if story.story_id == story_id:
+                return story
+        raise KeyError(story_id)
+
+    def get_or_generate_package(self, story_id: str) -> VideoPackage:
+        if story_id not in self.packages:
+            self.packages[story_id] = generate_video_package(self.get_story(story_id))
+        return self.packages[story_id]
+
+    def get_qa(self, story_id: str) -> dict[str, object]:
+        story = self.get_story(story_id)
+        package = self.get_or_generate_package(story_id)
+        return run_qa(story, package)
+
+    def ingest_rss(self, feed_url: str, source_name: str, source_type: str) -> list[dict[str, object]]:
+        from app.ingest.rss import fetch_rss_feed
+
+        items = fetch_rss_feed(feed_url, source_name, source_type)
+        self.source_items.extend(items)
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
+    def _load_sample_items(self) -> list[SourceItem]:
+        with self.sample_path.open("r", encoding="utf-8") as handle:
+            raw_items = json.load(handle)
+        return [SourceItem(**item) for item in raw_items]

@@ -1,0 +1,66 @@
+export type ScoreKey =
+  | "market_impact"
+  | "novelty"
+  | "source_authority"
+  | "timeliness"
+  | "corroboration"
+  | "explainability"
+  | "buzz_proxy"
+  | "story_score";
+
+export interface SourceTrailItem {
+  id: string;
+  source_name: string;
+  source_type: string;
+  title: string;
+  url: string;
+  primary_source: boolean;
+  license_notes: string;
+}
+
+export interface Story {
+  story_id: string;
+  story_date: string;
+  headline: string;
+  story_type: string;
+  primary_entity: {
+    ticker: string;
+    name: string;
+  };
+  supporting_entities: string[];
+  cluster_item_ids: string[];
+  primary_evidence: Array<Record<string, string>>;
+  metrics: Record<string, number | boolean>;
+  scores: Record<ScoreKey, number>;
+  angles: string[];
+  risk_flags: string[];
+  editorial_state: "draft_ready" | "editor_review" | "archive";
+  source_trail: SourceTrailItem[];
+}
+
+export interface VideoPackage {
+  story_id: string;
+  hook: string;
+  summary_bullets: string[];
+  why_it_matters: string;
+  chart_idea: string;
+  caveat: string;
+  script_60s: string;
+  caption: string;
+  thumbnail_text: string;
+  risk_flags: string[];
+  asset_manifest: Record<string, unknown>;
+}
+
+export interface QAGate {
+  name: string;
+  status: "pass" | "warn" | "block";
+  detail: string;
+}
+
+export interface QAResult {
+  story_id: string;
+  status: "ready" | "needs_review" | "blocked";
+  gates: QAGate[];
+}
+
