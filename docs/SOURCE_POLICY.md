@@ -25,6 +25,7 @@ Use automation for discovery and verification, not for copying. Every publishabl
 - Keep owned-audience briefs source-cited and original; do not turn the newsletter into republished article excerpts.
 - Treat GDELT and broad news indexes as discovery only; they do not clear the primary-source gate by themselves.
 - Treat market data rights separately from API access. API availability is not permission to redistribute raw quotes.
+- Treat imported market-data CSV rows as internal enrichment until the provider license explicitly allows the intended commercial display or redistribution.
 - Keep official source excerpts short and cite the source in the editor-facing package.
 - Treat platform monetization as an editorial quality constraint: every draft needs original framing, owned visuals, and human judgment beyond a headline recap.
 - Rotate editorial formats and style variants, but keep every variant anchored in the same source trail.

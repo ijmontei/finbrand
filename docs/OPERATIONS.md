@@ -32,6 +32,7 @@ python -m app.cli sec-submissions 0000320193 --limit 5
 python -m app.cli fred-observations CPIAUCSL --limit 3
 python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
+python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
 python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
@@ -55,6 +56,8 @@ BLS time-series ingestion can run without `BLS_API_KEY`, but setting a registere
 
 GDELT discovery ingestion should be treated as recall, not truth. Discovery-only stories should stay held until official or first-party evidence is attached.
 
+Market CSV ingestion is for licensed or internally reviewed market-reaction context. Keep provider names in `--source-name`, preserve license notes when supplied by the desk, and do not publish raw values until redistribution terms are reviewed.
+
 ## Failure modes
 
 | Failure | Cause | Response |
@@ -73,6 +76,8 @@ GDELT discovery ingestion should be treated as recall, not truth. Discovery-only
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |
 | GDELT-only candidate | Discovery source without official corroboration | Attach SEC, Fed, BLS, FRED, or issuer evidence before approval |
+| Market CSV rejected | Missing `ticker` column value | Fix the row or exclude it before import |
+| Market CSV rights review | Imported row has provider-review posture | Keep as internal signal until license terms allow publication |
 
 ## Language guardrails
 

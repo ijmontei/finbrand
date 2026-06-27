@@ -55,6 +55,10 @@ def main() -> None:
     gdelt_parser.add_argument("--limit", type=int, default=10)
     gdelt_parser.add_argument("--timespan", default="24h")
 
+    market_parser = subparsers.add_parser("market-csv", help="Ingest rights-reviewed market data from a CSV file")
+    market_parser.add_argument("path")
+    market_parser.add_argument("--source-name", default=None)
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -150,6 +154,17 @@ def main() -> None:
                 "ingested": len(result),
                 "archive": store.last_source_archive_summary,
                 "publish_posture": "discovery_only",
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "market-csv":
+        result = store.ingest_market_csv(Path(args.path), source_name=args.source_name)
+        _print_json(
+            {
+                "path": args.path,
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "publish_posture": "provider_review",
                 "stories": store.list_stories(),
             }
         )

@@ -15,6 +15,7 @@ from app.ingest.bls import bls_timeseries_payload_to_source_items
 from app.ingest.catalog import load_source_catalog
 from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
 from app.ingest.gdelt import gdelt_payload_to_source_items
+from app.ingest.market_csv import market_csv_rows_to_source_items
 from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
 from app.models import SourceItem
 from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
@@ -251,6 +252,96 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(store.last_source_archive_summary["count"], 1)
             self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "gdelt_articles")
             self.assertEqual(archive.read_all()[0]["context"]["publish_posture"], "discovery_only")
+
+    def test_market_csv_rows_build_provider_review_items(self) -> None:
+        rows = [
+            {
+                "ticker": "NVDA",
+                "date": "2026-06-27",
+                "price_change_pct": "-4.2",
+                "volume_vs_20d": "2.1",
+                "mention_velocity": "64",
+                "novelty_score": "0.84",
+                "sector_etf": "SMH",
+                "event_key": "sample-ai-supply-chain",
+                "summary": "Market data signal points to semiconductor weakness.",
+            }
+        ]
+
+        items = market_csv_rows_to_source_items(rows, source_name="Licensed desk export")
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].source_type, "market_data")
+        self.assertFalse(items[0].primary_source)
+        self.assertIn("Provider redistribution review", items[0].license_notes)
+        self.assertIn("NVDA", items[0].tickers)
+        self.assertIn("SMH", items[0].tickers)
+        self.assertEqual(items[0].market["price_change_pct"], -4.2)
+        self.assertEqual(items[0].market["volume_vs_20d"], 2.1)
+        self.assertEqual(items[0].provenance["publish_posture"], "provider_review")
+
+    def test_market_csv_enriches_primary_story_but_keeps_rights_review(self) -> None:
+        official = SourceItem(
+            id="official",
+            source_type="sec_filing",
+            source_name="SEC",
+            retrieved_at="2026-06-27T12:00:00Z",
+            published_at="2026-06-27T12:00:00Z",
+            canonical_url="https://example.com/official",
+            title="Sample 8-K for NVDA",
+            summary="Official sample filing.",
+            tickers=["NVDA"],
+            themes=["filings"],
+            event_key="same-event",
+            source_authority=0.98,
+            primary_source=True,
+            license_notes="Sample official source.",
+            market={"price_change_pct": 0.0, "volume_vs_20d": 1.0, "novelty_score": 0.7},
+        )
+        market = market_csv_rows_to_source_items(
+            [
+                {
+                    "ticker": "NVDA",
+                    "published_at": "2026-06-27T12:04:00Z",
+                    "price_change_pct": "-5.4",
+                    "volume_vs_20d": "3.2",
+                    "mention_velocity": "80",
+                    "event_key": "same-event",
+                }
+            ]
+        )[0]
+
+        story = build_story_candidates([official, market])[0]
+        rights = build_rights_report(story)
+
+        self.assertEqual(story.metrics["price_change_pct"], -5.4)
+        self.assertEqual(story.metrics["volume_vs_20d"], 3.2)
+        self.assertIn("market_data_rights_review", story.risk_flags)
+        self.assertEqual(rights["summary"]["provider_review"], 1)
+        self.assertEqual(rights["status"], "needs_review")
+
+    def test_store_archives_market_csv_items(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            csv_path = Path(temp_dir) / "market.csv"
+            csv_path.write_text(
+                "ticker,date,price_change_pct,volume_vs_20d,mention_velocity,sector_etf\n"
+                "NVDA,2026-06-27,-4.2,2.1,64,SMH\n",
+                encoding="utf-8",
+            )
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            result = store.ingest_market_csv(csv_path, source_name="Licensed desk export")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "market_csv")
+            self.assertEqual(archive.read_all()[0]["context"]["publish_posture"], "provider_review")
 
     def test_source_archive_writes_append_only_records(self) -> None:
         with TemporaryDirectory() as temp_dir:

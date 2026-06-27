@@ -200,6 +200,28 @@ class EditorialStore:
         self.refresh_stories()
         return [item.to_dict() for item in items]
 
+    def ingest_market_csv(
+        self,
+        path: Path | str,
+        source_name: str | None = None,
+    ) -> list[dict[str, object]]:
+        from app.ingest.market_csv import DEFAULT_SOURCE_NAME, load_market_csv
+
+        provider_name = source_name or DEFAULT_SOURCE_NAME
+        items = load_market_csv(path, source_name=provider_name)
+        self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "market_csv",
+                "csv_path": str(path),
+                "source_name": provider_name,
+                "publish_posture": "provider_review",
+            },
+        )
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
     def source_archive_summary(self) -> dict[str, object]:
         return self.source_archive.summary()
 

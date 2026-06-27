@@ -69,6 +69,7 @@ python -m app.cli sec-submissions 0000320193 --limit 5
 python -m app.cli fred-observations CPIAUCSL --limit 3
 python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h
+python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"
 python -m app.cli slate --limit 3
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
@@ -93,11 +94,13 @@ Each exported story folder contains:
 
 Slate exports also include `daily_brief.md` and `daily_brief.json` for a newsletter or owned-audience daily brief. These reuse the same source trail, approval status, rights status, caveat, and chart idea as the video workflow.
 
-Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Recent SEC submissions can be pulled by CIK with `python -m app.cli sec-submissions 0000320193 --limit 5`. FRED macro observations can be pulled with `python -m app.cli fred-observations CPIAUCSL --limit 3`. BLS observations can be pulled with `python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3`. GDELT discovery candidates can be pulled with `python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h`.
+Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Recent SEC submissions can be pulled by CIK with `python -m app.cli sec-submissions 0000320193 --limit 5`. FRED macro observations can be pulled with `python -m app.cli fred-observations CPIAUCSL --limit 3`. BLS observations can be pulled with `python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3`. GDELT discovery candidates can be pulled with `python -m app.cli gdelt-search "NVDA export controls" --limit 5 --timespan 24h`. Rights-reviewed market reaction context can be imported with `python -m app.cli market-csv ..\data\market-reactions.csv --source-name "Licensed desk export"`.
 
 Live ingestion still needs normal provider care: SEC requests require a real declared `SEC_USER_AGENT`, FRED requests require `FRED_API_KEY`, BLS registered keys can be supplied with `BLS_API_KEY` for better limits, and source/provider terms must be reviewed before commercial reuse.
 
 GDELT items are discovery-only. They can help find candidate stories, but they do not satisfy the primary-source gate without an official or first-party source.
+
+Market CSV rows are enrichment only. The importer expects a `ticker` column and accepts optional columns including `date`, `published_at`, `price_change_pct`, `volume_vs_20d`, `mention_velocity`, `novelty_score`, `sector_etf`, `event_key`, `title`, `summary`, `canonical_url`, `source_name`, `license_notes`, `tickers`, and `themes`. Imported rows default to provider redistribution review until the data license is cleared.
 
 Open `preview.html` in an exported story folder to review the vertical package, source trail, QA gates, chart, and storyboard together before rendering a final MP4.
 

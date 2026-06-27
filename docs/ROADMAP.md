@@ -8,6 +8,7 @@
 - FRED observations adapter.
 - BLS time-series adapter.
 - GDELT discovery adapter with primary-source hold behavior.
+- Rights-aware market data CSV importer.
 - Append-only local source archive for ingested feed snapshots.
 - Story clustering and ranking.
 - Script and chart idea generation.
@@ -31,6 +32,7 @@
 - Federal Reserve RSS adapter.
 - BLS RSS release adapter.
 - Provider abstraction for market data.
+- Scheduled licensed market-data imports with provider-specific terms metadata.
 
 ## Phase 3: Editorial persistence
 
