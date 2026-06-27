@@ -16,6 +16,7 @@ Use automation for discovery and verification, not for copying. Every publishabl
 ## Usage notes
 
 - Store source URL, retrieval time, source type, license note, and provenance metadata on every item.
+- Archive ingested source snapshots locally so later fact, rights, and editorial reviews can reconstruct what the system saw.
 - Treat full article text as restricted unless a license clearly allows the intended use.
 - Summarize and transform; do not reproduce full articles or paywalled material.
 - Treat market data rights separately from API access. API availability is not permission to redistribute raw quotes.

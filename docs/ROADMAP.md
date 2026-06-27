@@ -4,6 +4,7 @@
 
 - Seeded source records.
 - Configured official RSS feed catalog.
+- Append-only local source archive for ingested feed snapshots.
 - Story clustering and ranking.
 - Script and chart idea generation.
 - Compliance QA.

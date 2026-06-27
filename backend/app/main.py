@@ -187,9 +187,19 @@ def preview(story_id: str) -> Response:
 @app.post("/api/sources/rss")
 def ingest_rss(request: RssIngestRequest) -> dict[str, object]:
     items = store.ingest_rss(request.feed_url, request.source_name, request.source_type)
-    return {"ingested": len(items), "items": items, "stories": store.list_stories()}
+    return {
+        "ingested": len(items),
+        "items": items,
+        "archive": store.last_source_archive_summary,
+        "stories": store.list_stories(),
+    }
 
 
 @app.get("/api/sources/catalog")
 def source_catalog() -> list[dict[str, str]]:
     return [feed.to_dict() for feed in load_source_catalog()]
+
+
+@app.get("/api/sources/archive")
+def source_archive() -> dict[str, object]:
+    return store.source_archive_summary()

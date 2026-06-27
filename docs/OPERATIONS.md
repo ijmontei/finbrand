@@ -3,20 +3,21 @@
 ## Daily editorial loop
 
 1. Poll official and first-party sources.
-2. Pull market reaction context.
-3. Cluster and score stories.
-4. Review the top slate.
-5. Generate draft packages for the best candidates.
-6. Confirm the editorial format and style variant fit the story.
-7. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
-8. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
-9. Verify `platform_readiness.json`: original angle, visual transformation, caveat language, and reused-content risk.
-10. Verify `approval_checklist.json`: no blockers before approval; warning-level packages need editor notes.
-11. Rewrite the hook, chart, or caveat when needed.
-12. Record an editor decision: approve, hold, revise, or archive.
-13. Render the video package only after approval.
-14. Publish manually.
-15. Archive performance metrics.
+2. Confirm source snapshots landed in the local archive.
+3. Pull market reaction context.
+4. Cluster and score stories.
+5. Review the top slate.
+6. Generate draft packages for the best candidates.
+7. Confirm the editorial format and style variant fit the story.
+8. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
+9. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
+10. Verify `platform_readiness.json`: original angle, visual transformation, caveat language, and reused-content risk.
+11. Verify `approval_checklist.json`: no blockers before approval; warning-level packages need editor notes.
+12. Rewrite the hook, chart, or caveat when needed.
+13. Record an editor decision: approve, hold, revise, or archive.
+14. Render the video package only after approval.
+15. Publish manually.
+16. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -25,6 +26,7 @@ Use the CLI when the dashboard is not running:
 ```powershell
 cd C:\Users\Admin\Desktop\market-signal-studio\backend
 python -m app.cli catalog
+python -m app.cli archive-status
 python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 ```
@@ -35,6 +37,8 @@ Use `decision_template.json` as the export-side audit stub when a package is rev
 
 Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SIGNAL_DECISION_LEDGER` points elsewhere. Treat this file as local audit data; do not commit it.
 
+RSS source snapshots are appended to `.runtime/source_archive.jsonl` unless `MARKET_SIGNAL_SOURCE_ARCHIVE` points elsewhere. Treat this file as local audit data; do not commit it.
+
 ## Failure modes
 
 | Failure | Cause | Response |
@@ -44,6 +48,7 @@ Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SI
 | Reused-content risk | Too much source recap | Add chart, caveat, and original "why it matters" |
 | Platform-readiness warning | Weak transformation or commodity recap language | Rewrite around the data missed, owned visual, and editor caveat |
 | Approval rejected | Blocking check or missing notes for warning-level package | Use hold/revise, or add specific approval notes after review |
+| Archive count did not change | Feed failed, returned no items, or archive path is misconfigured | Check `archive-status`, feed URL, and provider/user-agent requirements |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |

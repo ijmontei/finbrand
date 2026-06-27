@@ -41,7 +41,11 @@ def fetch_rss_feed(
             summary=summary,
             license_notes=license_notes
             or "RSS item for discovery or first-party summary; verify reuse rights before publication.",
-            provenance={"feed_url": feed_url, "bozo": bool(getattr(parsed, "bozo", False))},
+            provenance={
+                "feed_url": feed_url,
+                "bozo": bool(getattr(parsed, "bozo", False)),
+                "entry_snapshot": _entry_snapshot(entry),
+            },
         )
         items.append(normalize_source_item(item))
     return items
@@ -60,3 +64,15 @@ def _published_at(entry: object) -> str:
 def _item_id(source_name: str, link: str, title: str) -> str:
     digest = hashlib.sha1(f"{source_name}:{link}:{title}".encode("utf-8")).hexdigest()[:12]
     return f"rss_{digest}"
+
+
+def _entry_snapshot(entry: object) -> dict[str, object]:
+    snapshot: dict[str, object] = {}
+    for key in ["id", "title", "link", "published", "updated", "summary"]:
+        value = getattr(entry, key, None)
+        if value:
+            snapshot[key] = str(value)
+    tags = getattr(entry, "tags", None)
+    if tags:
+        snapshot["tags"] = [str(getattr(tag, "term", tag)) for tag in tags[:8]]
+    return snapshot

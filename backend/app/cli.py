@@ -31,6 +31,8 @@ def main() -> None:
     ingest_parser = subparsers.add_parser("ingest-feed", help="Ingest one configured RSS feed")
     ingest_parser.add_argument("feed_id")
 
+    subparsers.add_parser("archive-status", help="Show local raw source archive status")
+
     args = parser.parse_args()
     store = EditorialStore()
 
@@ -52,7 +54,16 @@ def main() -> None:
             feed.source_type,
             license_notes=feed.license_notes,
         )
-        _print_json({"feed": feed.to_dict(), "ingested": len(result), "stories": store.list_stories()})
+        _print_json(
+            {
+                "feed": feed.to_dict(),
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "archive-status":
+        _print_json(store.source_archive_summary())
 
 
 def _print_json(payload: object) -> None:
@@ -61,4 +72,3 @@ def _print_json(payload: object) -> None:
 
 if __name__ == "__main__":
     main()
-

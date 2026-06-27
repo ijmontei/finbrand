@@ -10,12 +10,20 @@ from app.models import EditorialDecision, SourceItem, StoryCandidate, VideoPacka
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
+from app.source_archive import SourceArchive
 
 
 class EditorialStore:
-    def __init__(self, sample_path: Path | None = None, decision_ledger: DecisionLedger | None = None) -> None:
+    def __init__(
+        self,
+        sample_path: Path | None = None,
+        decision_ledger: DecisionLedger | None = None,
+        source_archive: SourceArchive | None = None,
+    ) -> None:
         self.sample_path = sample_path or Path(__file__).parent / "data" / "sample_sources.json"
         self.decision_ledger = decision_ledger or DecisionLedger()
+        self.source_archive = source_archive or SourceArchive()
+        self.last_source_archive_summary: dict[str, object] = self.source_archive.summary()
         self.source_items: list[SourceItem] = self._load_sample_items()
         self.stories: list[StoryCandidate] = []
         self.packages: dict[str, VideoPackage] = {}
@@ -90,8 +98,20 @@ class EditorialStore:
 
         items = fetch_rss_feed(feed_url, source_name, source_type, license_notes=license_notes)
         self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "rss",
+                "feed_url": feed_url,
+                "source_name": source_name,
+                "source_type": source_type,
+            },
+        )
         self.refresh_stories()
         return [item.to_dict() for item in items]
+
+    def source_archive_summary(self) -> dict[str, object]:
+        return self.source_archive.summary()
 
     def _load_sample_items(self) -> list[SourceItem]:
         with self.sample_path.open("r", encoding="utf-8") as handle:

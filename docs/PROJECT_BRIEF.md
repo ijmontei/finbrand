@@ -21,13 +21,14 @@ The first recurring format should be "The Story Everyone Saw vs. The Data Everyo
 ## MVP workflow
 
 1. Ingest official, first-party, and discovery sources.
-2. Normalize items into a canonical source schema.
-3. Map tickers, entities, sectors, and themes.
-4. Cluster duplicate coverage around one event.
-5. Score the story by market impact, novelty, authority, timeliness, corroboration, explainability, and buzz.
-6. Generate an editorial package: format, style variant, hook, summary, why it matters, chart idea, caveat, caption, thumbnail text, script.
-7. Run compliance QA, source-rights review, claim traceability, platform-readiness checks, and approval readiness.
-8. Human editor approves with notes when warnings remain, edits, records or generates voice, and renders the final asset.
+2. Archive source snapshots for auditability.
+3. Normalize items into a canonical source schema.
+4. Map tickers, entities, sectors, and themes.
+5. Cluster duplicate coverage around one event.
+6. Score the story by market impact, novelty, authority, timeliness, corroboration, explainability, and buzz.
+7. Generate an editorial package: format, style variant, hook, summary, why it matters, chart idea, caveat, caption, thumbnail text, script.
+8. Run compliance QA, source-rights review, claim traceability, platform-readiness checks, and approval readiness.
+9. Human editor approves with notes when warnings remain, edits, records or generates voice, and renders the final asset.
 
 ## Non-goals for v0
 

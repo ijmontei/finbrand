@@ -63,6 +63,7 @@ The backend also includes a CLI for producing editor-ready files without opening
 ```powershell
 cd C:\Users\Admin\Desktop\market-signal-studio\backend
 python -m app.cli catalog
+python -m app.cli archive-status
 python -m app.cli slate --limit 3
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 ```
@@ -87,6 +88,8 @@ Each exported story folder contains:
 Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Live ingestion still needs normal provider care: SEC requests should use a real declared `SEC_USER_AGENT`, and source/provider terms must be reviewed before commercial reuse.
 
 Open `preview.html` in an exported story folder to review the vertical package, source trail, QA gates, chart, and storyboard together before rendering a final MP4.
+
+RSS ingestion writes source snapshots to an append-only local archive at `.runtime/source_archive.jsonl` by default. Set `MARKET_SIGNAL_SOURCE_ARCHIVE` to move it. The archive is local audit data and should not be committed.
 
 The dashboard includes an editor decision panel for approve, hold, revise, or archive decisions with notes. Decisions are appended to a local JSONL ledger by default at `.runtime/decisions.jsonl`; production should move this ledger into Postgres with user identity and immutable audit controls.
 

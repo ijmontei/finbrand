@@ -5,6 +5,7 @@
 ```mermaid
 flowchart LR
     A["Sample source records"] --> B["Normalizer"]
+    A --> I["Local source archive"]
     B --> C["Entity and theme mapping"]
     C --> D["Story clustering"]
     D --> E["Scoring engine"]
@@ -41,6 +42,7 @@ flowchart LR
 - `app.pipeline.script_writer`: deterministic editorial package generator with format and style variation.
 - `app.pipeline.compliance`: publish-readiness gates.
 - `app.platform`: platform originality and reused-content readiness report.
+- `app.source_archive`: append-only local JSONL archive for ingested source snapshots.
 - `app.ingest.rss`: RSS ingestion adapter.
 - `app.store`: in-memory MVP store.
 - `app.main`: FastAPI endpoints.
@@ -67,6 +69,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/preview.html` | Openable vertical review preview |
 | `GET` | `/api/sources/catalog` | Configured official source feeds |
 | `POST` | `/api/sources/rss` | Ingest an RSS feed |
+| `GET` | `/api/sources/archive` | Local source archive status |
 
 ## CLI surface
 
@@ -78,6 +81,7 @@ flowchart LR
 | `python -m app.cli qa STORY_ID` | Run QA for one story |
 | `python -m app.cli export --output-dir exports/latest --limit 5` | Write editor briefs, manifests, QA, and package JSON |
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
+| `python -m app.cli archive-status` | Show local source archive path and record count |
 
 ## Storage path
 
@@ -96,10 +100,13 @@ Add `jsonb` for raw provider payloads and `pgvector` later for novelty and dedup
 
 ## Audit trail
 
-The MVP writes editorial decisions to an append-only JSONL ledger. By default this lives at `.runtime/decisions.jsonl`, or at `MARKET_SIGNAL_DECISION_LEDGER` when configured. The store loads the latest decision per story on startup, so approvals, holds, revision notes, and archive decisions survive local restarts.
+The MVP writes ingested source snapshots to an append-only JSONL archive. By default this lives at `.runtime/source_archive.jsonl`, or at `MARKET_SIGNAL_SOURCE_ARCHIVE` when configured. Each record includes the normalized source item, source URL, provenance, and ingest context.
+
+The MVP also writes editorial decisions to an append-only JSONL ledger. By default this lives at `.runtime/decisions.jsonl`, or at `MARKET_SIGNAL_DECISION_LEDGER` when configured. The store loads the latest decision per story on startup, so approvals, holds, revision notes, and archive decisions survive local restarts.
 
 Production should promote this into Postgres with:
 
+- immutable raw source snapshots
 - immutable append-only decision events
 - authenticated editor identity
 - old and new state

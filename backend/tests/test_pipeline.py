@@ -4,6 +4,7 @@ import unittest
 from dataclasses import replace
 from tempfile import TemporaryDirectory
 from pathlib import Path
+from unittest.mock import patch
 
 from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
@@ -18,6 +19,7 @@ from app.pipeline.script_writer import generate_video_package
 from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.rights import build_rights_report
+from app.source_archive import SourceArchive
 from app.store import EditorialStore
 
 
@@ -102,6 +104,63 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("sec_current_filings", feed_ids)
         self.assertIn("fed_monetary_policy", feed_ids)
         self.assertIn("bls_employment_situation", feed_ids)
+
+    def test_source_archive_writes_append_only_records(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            item = SourceItem(
+                id="source-1",
+                source_type="fed_release",
+                source_name="Federal Reserve",
+                retrieved_at="2026-06-27T12:00:00Z",
+                published_at="2026-06-27T12:00:00Z",
+                canonical_url="https://example.com/fed",
+                title="Fed sample release",
+                summary="Official release sample.",
+                primary_source=True,
+                license_notes="Official source.",
+                provenance={"feed_url": "https://example.com/feed"},
+            )
+
+            summary = archive.append_many([item], context={"feed_id": "fed_all_press"})
+            records = archive.read_all()
+
+            self.assertEqual(summary["count"], 1)
+            self.assertEqual(len(records), 1)
+            self.assertEqual(records[0]["source_id"], "source-1")
+            self.assertEqual(records[0]["context"]["feed_id"], "fed_all_press")
+            self.assertEqual(records[0]["source_item"]["provenance"]["feed_url"], "https://example.com/feed")
+
+    def test_store_archives_ingested_rss_items(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            item = SourceItem(
+                id="rss-test-item",
+                source_type="fed_release",
+                source_name="Federal Reserve",
+                retrieved_at="2026-06-27T12:00:00Z",
+                published_at="2026-06-27T12:00:00Z",
+                canonical_url="https://example.com/rss-item",
+                title="Fed sample policy update",
+                summary="Official release sample.",
+                primary_source=True,
+                license_notes="Official source.",
+                provenance={"feed_url": "https://example.com/feed"},
+            )
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            with patch("app.ingest.rss.fetch_rss_feed", return_value=[item]):
+                result = store.ingest_rss("https://example.com/feed", "Federal Reserve", "fed_release")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(store.source_archive_summary()["record_count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "rss")
 
     def test_export_story_slate_writes_editor_files(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
