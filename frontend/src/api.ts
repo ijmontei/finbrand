@@ -3,6 +3,7 @@ import type {
   EditorialDecision,
   EditorialDecisionValue,
   QAResult,
+  RightsReport,
   Story,
   Storyboard,
   VideoPackage
@@ -44,6 +45,10 @@ export function fetchQA(storyId: string): Promise<QAResult> {
 
 export function fetchClaims(storyId: string): Promise<ClaimChecklist> {
   return request<ClaimChecklist>(`/api/stories/${storyId}/claims`);
+}
+
+export function fetchRights(storyId: string): Promise<RightsReport> {
+  return request<RightsReport>(`/api/stories/${storyId}/rights`);
 }
 
 export function fetchDecision(storyId: string): Promise<EditorialDecision> {

@@ -110,3 +110,31 @@ export interface ClaimChecklist {
   status: "ready" | "needs_review" | "blocked";
   claims: ClaimItem[];
 }
+
+export interface RightsSource {
+  source_id: string;
+  source_name: string;
+  source_type: string;
+  title: string;
+  url: string;
+  primary_source: boolean;
+  license_notes: string;
+  posture: "official" | "first_party" | "provider_review" | "missing_notes" | "unknown";
+  risk_level: "low" | "medium" | "high";
+  allowed_use: string;
+  review_action: string;
+}
+
+export interface RightsReport {
+  story_id: string;
+  status: "ready" | "needs_review" | "blocked";
+  summary: {
+    source_count: number;
+    official_or_first_party: number;
+    provider_review: number;
+    missing_license_notes: number;
+  };
+  sources: RightsSource[];
+  required_actions: string[];
+  publish_rule: string;
+}

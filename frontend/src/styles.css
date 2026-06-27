@@ -378,6 +378,7 @@ button {
 .storyboardBox,
 .qaBox,
 .claimsBox,
+.rightsBox,
 .decisionBox,
 .emptyState {
   border: 1px solid var(--line);
@@ -569,6 +570,7 @@ button {
 .qaBox,
 .decisionBox,
 .claimsBox,
+.rightsBox,
 .emptyState {
   margin: 12px;
   padding: 14px;
@@ -709,6 +711,70 @@ button {
 .claimsBox {
   padding: 0;
   overflow: hidden;
+}
+
+.rightsBox {
+  padding: 0;
+  overflow: hidden;
+}
+
+.rightsSummary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.rightsSummary span {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-align: center;
+}
+
+.rightsList {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.rightsItem {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  border-left: 4px solid var(--amber);
+}
+
+.rightsItem.low {
+  border-left-color: var(--green);
+}
+
+.rightsItem.high {
+  border-left-color: var(--red);
+}
+
+.rightsItem strong,
+.rightsItem span,
+.rightsItem small {
+  display: block;
+}
+
+.rightsItem span {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.rightsItem small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 720;
+  line-height: 1.3;
 }
 
 .claimList {

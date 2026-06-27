@@ -8,11 +8,12 @@
 4. Review the top slate.
 5. Generate draft packages for the best candidates.
 6. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
-7. Rewrite the hook or caveat when needed.
-8. Record an editor decision: approve, hold, revise, or archive.
-9. Render the video package only after approval.
-10. Publish manually.
-11. Archive performance metrics.
+7. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
+8. Rewrite the hook or caveat when needed.
+9. Record an editor decision: approve, hold, revise, or archive.
+10. Render the video package only after approval.
+11. Publish manually.
+12. Archive performance metrics.
 
 ## Terminal workflow
 

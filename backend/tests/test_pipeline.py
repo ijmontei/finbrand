@@ -14,6 +14,7 @@ from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
+from app.rights import build_rights_report
 from app.store import EditorialStore
 
 
@@ -101,6 +102,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["package"]).exists())
                 self.assertTrue(Path(package_files["qa"]).exists())
                 self.assertTrue(Path(package_files["claims"]).exists())
+                self.assertTrue(Path(package_files["rights"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
                 self.assertTrue(Path(package_files["chart"]).exists())
                 self.assertTrue(Path(package_files["storyboard"]).exists())
@@ -130,6 +132,17 @@ class PipelineTests(unittest.TestCase):
         self.assertGreaterEqual(len(checklist["claims"]), 5)
         self.assertIn(checklist["status"], {"ready", "needs_review", "blocked"})
         self.assertTrue(any(claim["claim_id"] == "market_reaction" for claim in checklist["claims"]))
+
+    def test_rights_report_flags_provider_review(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+
+        report = build_rights_report(story)
+
+        self.assertEqual(report["story_id"], story.story_id)
+        self.assertIn(report["status"], {"ready", "needs_review", "blocked"})
+        self.assertTrue(any(source["posture"] == "provider_review" for source in report["sources"]))
+        self.assertTrue(report["required_actions"])
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

@@ -1,12 +1,21 @@
 import { AlertTriangle, CheckCircle2, CircleAlert, Copy, ExternalLink, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { renderPreviewUrl } from "../api";
-import type { ClaimChecklist, EditorialDecision, EditorialDecisionValue, QAResult, Storyboard, VideoPackage } from "../types";
+import type {
+  ClaimChecklist,
+  EditorialDecision,
+  EditorialDecisionValue,
+  QAResult,
+  RightsReport,
+  Storyboard,
+  VideoPackage
+} from "../types";
 
 interface DraftPanelProps {
   videoPackage?: VideoPackage;
   qa?: QAResult;
   claims?: ClaimChecklist;
+  rights?: RightsReport;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
   storyId?: string;
@@ -19,6 +28,7 @@ export function DraftPanel({
   videoPackage,
   qa,
   claims,
+  rights,
   storyboard,
   decision,
   storyId,
@@ -133,6 +143,29 @@ export function DraftPanel({
                     <strong>{claim.verification_status.replaceAll("_", " ")}</strong>
                     <span>{claim.text}</span>
                     <small>{claim.editor_note}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {rights ? (
+            <section className="rightsBox">
+              <div className="scriptHeader">
+                <span>Rights</span>
+                <strong>{rights.status.replace("_", " ")}</strong>
+              </div>
+              <div className="rightsSummary">
+                <span>{rights.summary.source_count} sources</span>
+                <span>{rights.summary.official_or_first_party} official/first-party</span>
+                <span>{rights.summary.provider_review} provider review</span>
+              </div>
+              <div className="rightsList">
+                {rights.sources.map((source) => (
+                  <div className={`rightsItem ${source.risk_level}`} key={source.source_id}>
+                    <strong>{source.source_name}</strong>
+                    <span>{source.review_action}</span>
+                    <small>{source.allowed_use}</small>
                   </div>
                 ))}
               </div>

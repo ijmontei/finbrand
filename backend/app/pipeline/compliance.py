@@ -4,6 +4,7 @@ import re
 
 from app.claims import build_claim_checklist
 from app.models import QAGate, StoryCandidate, VideoPackage
+from app.rights import build_rights_report
 
 
 BLOCKING_ADVICE_PATTERNS = [
@@ -57,18 +58,12 @@ def _advice_language_gate(package: VideoPackage) -> QAGate:
 
 
 def _rights_gate(story: StoryCandidate) -> QAGate:
-    missing = [item for item in story.source_trail if not item.get("license_notes")]
-    if missing:
-        return QAGate("Rights hygiene", "warn", "Some source items are missing license notes.")
-    risky = [
-        item
-        for item in story.source_trail
-        if "do not republish" in str(item.get("license_notes", "")).lower()
-        or "redistribution review" in str(item.get("license_notes", "")).lower()
-    ]
-    if risky:
-        return QAGate("Rights hygiene", "warn", "One or more sources needs redistribution review.")
-    return QAGate("Rights hygiene", "pass", "All source items include usage notes.")
+    report = build_rights_report(story)
+    if report["status"] == "blocked":
+        return QAGate("Rights hygiene", "block", "No publishable source-rights trail is attached.")
+    if report["status"] == "needs_review":
+        return QAGate("Rights hygiene", "warn", "One or more sources needs rights or redistribution review.")
+    return QAGate("Rights hygiene", "pass", "Source-rights report is ready for editorial review.")
 
 
 def _originality_gate(package: VideoPackage) -> QAGate:

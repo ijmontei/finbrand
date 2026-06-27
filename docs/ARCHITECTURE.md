@@ -54,6 +54,7 @@ flowchart LR
 | `POST` | `/api/stories/{story_id}/package` | Generate draft package |
 | `GET` | `/api/stories/{story_id}/qa` | QA result |
 | `GET` | `/api/stories/{story_id}/claims` | Claim-level source and editor-verification checklist |
+| `GET` | `/api/stories/{story_id}/rights` | Source-rights and redistribution review report |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
 | `POST` | `/api/stories/{story_id}/decision` | Record approve, hold, revise, or archive decision |
 | `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |
