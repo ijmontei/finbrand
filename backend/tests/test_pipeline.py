@@ -12,6 +12,7 @@ from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
+from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
 from app.models import SourceItem
 from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
 from app.pipeline.compliance import run_qa
@@ -105,6 +106,43 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("sec_current_filings", feed_ids)
         self.assertIn("fed_monetary_policy", feed_ids)
         self.assertIn("bls_employment_situation", feed_ids)
+
+    def test_sec_submissions_payload_builds_primary_source_items(self) -> None:
+        items = submissions_payload_to_source_items(_sample_sec_submissions_payload(), limit=1)
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0].source_type, "sec_filing")
+        self.assertTrue(items[0].primary_source)
+        self.assertIn("AAPL", items[0].tickers)
+        self.assertIn("0000320193", items[0].ciks)
+        self.assertIn("sec.gov/Archives", items[0].canonical_url)
+        self.assertEqual(items[0].provenance["form"], "10-Q")
+
+    def test_sec_user_agent_is_required(self) -> None:
+        with patch.dict("os.environ", {}, clear=True):
+            with self.assertRaises(ValueError):
+                require_sec_user_agent()
+
+        with patch.dict("os.environ", {"SEC_USER_AGENT": "Market Signal Studio test contact@example.com"}):
+            self.assertIn("Market Signal Studio", require_sec_user_agent())
+
+    def test_store_archives_sec_submissions(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            item = submissions_payload_to_source_items(_sample_sec_submissions_payload(), limit=1)[0]
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            with patch("app.ingest.sec.fetch_sec_submissions", return_value=[item]):
+                result = store.ingest_sec_submissions("320193", limit=1, user_agent="test contact@example.com")
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "sec_submissions")
 
     def test_source_archive_writes_append_only_records(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -358,6 +396,22 @@ class PipelineTests(unittest.TestCase):
 
             self.assertEqual(restarted_store.get_decision(story_id)["decision"], "approve")
             self.assertEqual(restarted_store.get_decision(story_id)["notes"], "Looks ready.")
+
+def _sample_sec_submissions_payload() -> dict[str, object]:
+    return {
+        "cik": "0000320193",
+        "name": "Apple Inc.",
+        "tickers": ["AAPL"],
+        "filings": {
+            "recent": {
+                "accessionNumber": ["0000320193-26-000001", "0000320193-26-000002"],
+                "filingDate": ["2026-06-27", "2026-05-01"],
+                "form": ["10-Q", "8-K"],
+                "primaryDocument": ["aapl-20260627.htm", "aapl-20260501.htm"],
+                "reportDate": ["2026-06-20", "2026-04-30"],
+            }
+        },
+    }
 
 
 if __name__ == "__main__":

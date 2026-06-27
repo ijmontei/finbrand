@@ -4,6 +4,7 @@
 
 - Seeded source records.
 - Configured official RSS feed catalog.
+- SEC EDGAR submissions adapter.
 - Append-only local source archive for ingested feed snapshots.
 - Story clustering and ranking.
 - Script and chart idea generation.
@@ -23,7 +24,7 @@
 
 ## Phase 2: Real ingestion
 
-- SEC EDGAR submissions and companyfacts adapter.
+- SEC EDGAR companyfacts adapter.
 - Federal Reserve RSS adapter.
 - BLS RSS and API adapter.
 - FRED observations adapter.

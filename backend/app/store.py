@@ -110,6 +110,27 @@ class EditorialStore:
         self.refresh_stories()
         return [item.to_dict() for item in items]
 
+    def ingest_sec_submissions(
+        self,
+        cik: str,
+        limit: int = 10,
+        user_agent: str | None = None,
+    ) -> list[dict[str, object]]:
+        from app.ingest.sec import fetch_sec_submissions
+
+        items = fetch_sec_submissions(cik, limit=limit, user_agent=user_agent)
+        self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "sec_submissions",
+                "cik": cik,
+                "limit": limit,
+            },
+        )
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
     def source_archive_summary(self) -> dict[str, object]:
         return self.source_archive.summary()
 

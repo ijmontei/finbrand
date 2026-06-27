@@ -36,6 +36,10 @@ def main() -> None:
     ingest_parser = subparsers.add_parser("ingest-feed", help="Ingest one configured RSS feed")
     ingest_parser.add_argument("feed_id")
 
+    sec_parser = subparsers.add_parser("sec-submissions", help="Ingest recent SEC submissions for one CIK")
+    sec_parser.add_argument("cik")
+    sec_parser.add_argument("--limit", type=int, default=10)
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -64,6 +68,25 @@ def main() -> None:
         _print_json(
             {
                 "feed": feed.to_dict(),
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "sec-submissions":
+        try:
+            result = store.ingest_sec_submissions(args.cik, limit=args.limit)
+        except ValueError as exc:
+            _print_json(
+                {
+                    "error": str(exc),
+                    "hint": "Set SEC_USER_AGENT to a real app/contact string before calling SEC EDGAR.",
+                }
+            )
+            raise SystemExit(2) from exc
+        _print_json(
+            {
+                "cik": args.cik,
                 "ingested": len(result),
                 "archive": store.last_source_archive_summary,
                 "stories": store.list_stories(),
