@@ -9,11 +9,12 @@
 5. Generate draft packages for the best candidates.
 6. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
 7. Verify `rights_report.json`: official/first-party source posture, provider redistribution review, and missing usage notes.
-8. Rewrite the hook or caveat when needed.
-9. Record an editor decision: approve, hold, revise, or archive.
-10. Render the video package only after approval.
-11. Publish manually.
-12. Archive performance metrics.
+8. Verify `platform_readiness.json`: original angle, visual transformation, caveat language, and reused-content risk.
+9. Rewrite the hook, chart, or caveat when needed.
+10. Record an editor decision: approve, hold, revise, or archive.
+11. Render the video package only after approval.
+12. Publish manually.
+13. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -39,6 +40,7 @@ Dashboard decisions are appended to `.runtime/decisions.jsonl` unless `MARKET_SI
 | Wrong ticker | Alias collision or weak entity evidence | Require a second source signal or manual hold |
 | Generic script | Template overuse | Rotate hook patterns and add editor notes |
 | Reused-content risk | Too much source recap | Add chart, caveat, and original "why it matters" |
+| Platform-readiness warning | Weak transformation or commodity recap language | Rewrite around the data missed, owned visual, and editor caveat |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |
@@ -68,6 +70,7 @@ Avoid:
 - Price and volume numbers verified.
 - Source trail attached.
 - Chart matches the story.
+- Platform readiness checked.
 - Caveat is honest.
 - No personalized advice.
 - Sponsorship or affiliate disclosures present if relevant.

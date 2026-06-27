@@ -15,6 +15,7 @@
 - In-dashboard editorial decisions with notes, local append-only JSONL ledger, and export-side decision templates.
 - Claim-level source and editor-verification checklist.
 - Source-rights and redistribution-review report.
+- Platform originality and reused-content readiness report.
 
 ## Phase 2: Real ingestion
 

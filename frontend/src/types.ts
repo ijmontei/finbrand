@@ -138,3 +138,26 @@ export interface RightsReport {
   required_actions: string[];
   publish_rule: string;
 }
+
+export interface PlatformCheck {
+  id: string;
+  name: string;
+  status: "pass" | "warn" | "block";
+  score: number;
+  detail: string;
+  editorial_action: string;
+}
+
+export interface PlatformReadiness {
+  story_id: string;
+  status: "ready" | "needs_review" | "blocked";
+  originality_score: number;
+  risk_level: "low" | "medium" | "high";
+  checks: PlatformCheck[];
+  required_actions: string[];
+  platform_guidance: {
+    youtube_shorts: string;
+    instagram_reels: string;
+  };
+  publish_rule: string;
+}

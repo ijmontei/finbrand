@@ -8,6 +8,7 @@ from app.claims import build_claim_checklist
 from app.models import StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
+from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.rights import build_rights_report
 
@@ -18,6 +19,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     storyboard = build_storyboard(story, package)
     claims = build_claim_checklist(story, package)
     rights = build_rights_report(story)
+    platform = build_platform_readiness(story, package)
     story_dir = output_dir / story.story_id
     story_dir.mkdir(parents=True, exist_ok=True)
 
@@ -27,6 +29,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "qa": story_dir / "qa.json",
         "claims": story_dir / "claims.json",
         "rights": story_dir / "rights_report.json",
+        "platform": story_dir / "platform_readiness.json",
         "manifest": story_dir / "asset_manifest.json",
         "chart": story_dir / "chart_signal.svg",
         "storyboard": story_dir / "storyboard.json",
@@ -40,13 +43,14 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     _write_json(files["qa"], qa)
     _write_json(files["claims"], claims)
     _write_json(files["rights"], rights)
+    _write_json(files["platform"], platform)
     _write_json(files["manifest"], package.asset_manifest)
     _write_json(files["storyboard"], storyboard)
     files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
     files["captions"].write_text(generate_srt(package), encoding="utf-8")
     files["preview"].write_text(render_preview_html(story, package, storyboard, qa), encoding="utf-8")
     _write_json(files["decision_template"], _decision_template(story, qa))
-    files["brief"].write_text(_editor_brief(story, package, qa, claims, rights), encoding="utf-8")
+    files["brief"].write_text(_editor_brief(story, package, qa, claims, rights, platform), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
 
@@ -76,6 +80,7 @@ def _editor_brief(
     qa: dict[str, object],
     claims: dict[str, object],
     rights: dict[str, object],
+    platform: dict[str, object],
 ) -> str:
     source_lines = "\n".join(
         f"- {item['source_name']}: {item['title']} ({item['url']})" for item in story.source_trail
@@ -90,6 +95,9 @@ def _editor_brief(
     rights_lines = "\n".join(
         f"- {source['risk_level'].upper()}: {source['source_name']} - {source['review_action']}"
         for source in rights["sources"]
+    )
+    platform_lines = "\n".join(
+        f"- {check['status'].upper()}: {check['name']} - {check['detail']}" for check in platform["checks"]
     )
     return f"""# {story.headline}
 
@@ -142,6 +150,14 @@ Score: {story.scores["story_score"]}
 Status: {rights["status"]}
 
 {rights_lines}
+
+## Platform Readiness
+
+Status: {platform["status"]}
+Originality score: {platform["originality_score"]}
+Risk level: {platform["risk_level"]}
+
+{platform_lines}
 
 ## QA Gates
 

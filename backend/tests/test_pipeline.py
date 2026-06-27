@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+from dataclasses import replace
 from tempfile import TemporaryDirectory
 from pathlib import Path
 
@@ -13,6 +14,7 @@ from app.models import SourceItem
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
+from app.platform import build_platform_readiness
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.rights import build_rights_report
 from app.store import EditorialStore
@@ -103,6 +105,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["qa"]).exists())
                 self.assertTrue(Path(package_files["claims"]).exists())
                 self.assertTrue(Path(package_files["rights"]).exists())
+                self.assertTrue(Path(package_files["platform"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
                 self.assertTrue(Path(package_files["chart"]).exists())
                 self.assertTrue(Path(package_files["storyboard"]).exists())
@@ -143,6 +146,34 @@ class PipelineTests(unittest.TestCase):
         self.assertIn(report["status"], {"ready", "needs_review", "blocked"})
         self.assertTrue(any(source["posture"] == "provider_review" for source in report["sources"]))
         self.assertTrue(report["required_actions"])
+
+    def test_platform_readiness_tracks_originality_risk(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+        package = generate_video_package(story)
+
+        report = build_platform_readiness(story, package)
+
+        self.assertEqual(report["story_id"], story.story_id)
+        self.assertIn(report["status"], {"ready", "needs_review", "blocked"})
+        self.assertGreater(report["originality_score"], 0.7)
+        self.assertTrue(any(check["id"] == "source_reuse" for check in report["checks"]))
+        self.assertTrue(report["required_actions"])
+
+    def test_platform_readiness_blocks_generic_headline_recap(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+        package = replace(
+            generate_video_package(story),
+            hook="Here are today's market headlines.",
+            caption="Quick recap of today's stock news.",
+            script_60s="Here are the headlines. This is a quick recap of today's market news.",
+        )
+
+        report = build_platform_readiness(story, package)
+
+        self.assertEqual(report["status"], "blocked")
+        self.assertTrue(any(check["id"] == "source_reuse" and check["status"] == "block" for check in report["checks"]))
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

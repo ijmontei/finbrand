@@ -5,6 +5,7 @@ import type {
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
+  PlatformReadiness,
   QAResult,
   RightsReport,
   Storyboard,
@@ -16,6 +17,7 @@ interface DraftPanelProps {
   qa?: QAResult;
   claims?: ClaimChecklist;
   rights?: RightsReport;
+  platform?: PlatformReadiness;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
   storyId?: string;
@@ -29,6 +31,7 @@ export function DraftPanel({
   qa,
   claims,
   rights,
+  platform,
   storyboard,
   decision,
   storyId,
@@ -166,6 +169,34 @@ export function DraftPanel({
                     <strong>{source.source_name}</strong>
                     <span>{source.review_action}</span>
                     <small>{source.allowed_use}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          {platform ? (
+            <section className="platformBox">
+              <div className="scriptHeader">
+                <span>Platform</span>
+                <strong>{platform.status.replace("_", " ")}</strong>
+              </div>
+              <div className="platformScore">
+                <div>
+                  <span>Originality</span>
+                  <strong>{Math.round(platform.originality_score * 100)}</strong>
+                </div>
+                <div>
+                  <span>Risk</span>
+                  <strong>{platform.risk_level}</strong>
+                </div>
+              </div>
+              <div className="platformChecks">
+                {platform.checks.map((check) => (
+                  <div className={`platformCheck ${check.status}`} key={check.id}>
+                    <strong>{check.name}</strong>
+                    <span>{check.detail}</span>
+                    {check.status === "pass" ? null : <small>{check.editorial_action}</small>}
                   </div>
                 ))}
               </div>

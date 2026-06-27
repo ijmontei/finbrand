@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   fetchClaims,
   fetchDecision,
+  fetchPlatformReadiness,
   fetchQA,
   fetchRights,
   fetchStoryboard,
@@ -20,6 +21,7 @@ import type {
   ClaimChecklist,
   EditorialDecision,
   EditorialDecisionValue,
+  PlatformReadiness,
   QAResult,
   RightsReport,
   Story,
@@ -43,6 +45,7 @@ export default function App() {
   const [qa, setQa] = useState<QAResult>();
   const [claims, setClaims] = useState<ClaimChecklist>();
   const [rights, setRights] = useState<RightsReport>();
+  const [platform, setPlatform] = useState<PlatformReadiness>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
   const [decision, setDecision] = useState<EditorialDecision>();
   const [loading, setLoading] = useState(true);
@@ -97,11 +100,12 @@ export default function App() {
     setDrafting(true);
     setError(undefined);
     try {
-      const [nextPackage, nextQA, nextClaims, nextRights, nextStoryboard, nextDecision] = await Promise.all([
+      const [nextPackage, nextQA, nextClaims, nextRights, nextPlatform, nextStoryboard, nextDecision] = await Promise.all([
         generatePackage(storyId),
         fetchQA(storyId),
         fetchClaims(storyId),
         fetchRights(storyId),
+        fetchPlatformReadiness(storyId),
         fetchStoryboard(storyId),
         fetchDecision(storyId)
       ]);
@@ -109,6 +113,7 @@ export default function App() {
       setQa(nextQA);
       setClaims(nextClaims);
       setRights(nextRights);
+      setPlatform(nextPlatform);
       setStoryboard(nextStoryboard);
       setDecision(nextDecision);
     } catch (err) {
@@ -216,6 +221,7 @@ export default function App() {
           qa={qa}
           claims={claims}
           rights={rights}
+          platform={platform}
           storyboard={storyboard}
           decision={decision}
           storyId={selectedStory?.story_id}

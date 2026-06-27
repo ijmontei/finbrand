@@ -39,6 +39,7 @@ flowchart LR
 - `app.pipeline.scoring`: clustering and weighted story score.
 - `app.pipeline.script_writer`: deterministic editorial package generator.
 - `app.pipeline.compliance`: publish-readiness gates.
+- `app.platform`: platform originality and reused-content readiness report.
 - `app.ingest.rss`: RSS ingestion adapter.
 - `app.store`: in-memory MVP store.
 - `app.main`: FastAPI endpoints.
@@ -55,6 +56,7 @@ flowchart LR
 | `GET` | `/api/stories/{story_id}/qa` | QA result |
 | `GET` | `/api/stories/{story_id}/claims` | Claim-level source and editor-verification checklist |
 | `GET` | `/api/stories/{story_id}/rights` | Source-rights and redistribution review report |
+| `GET` | `/api/stories/{story_id}/platform-readiness` | Platform originality and reused-content readiness report |
 | `GET` | `/api/stories/{story_id}/decision` | Current editorial decision |
 | `POST` | `/api/stories/{story_id}/decision` | Record approve, hold, revise, or archive decision |
 | `GET` | `/api/stories/{story_id}/chart.svg` | Generated editorial signal chart |

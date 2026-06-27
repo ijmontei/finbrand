@@ -379,6 +379,7 @@ button {
 .qaBox,
 .claimsBox,
 .rightsBox,
+.platformBox,
 .decisionBox,
 .emptyState {
   border: 1px solid var(--line);
@@ -571,6 +572,7 @@ button {
 .decisionBox,
 .claimsBox,
 .rightsBox,
+.platformBox,
 .emptyState {
   margin: 12px;
   padding: 14px;
@@ -716,6 +718,89 @@ button {
 .rightsBox {
   padding: 0;
   overflow: hidden;
+}
+
+.platformBox {
+  padding: 0;
+  overflow: hidden;
+}
+
+.platformScore {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.platformScore div {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+}
+
+.platformScore span,
+.platformScore strong {
+  display: block;
+}
+
+.platformScore span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 820;
+  text-transform: uppercase;
+}
+
+.platformScore strong {
+  margin-top: 4px;
+  font-size: 1.08rem;
+  text-transform: capitalize;
+}
+
+.platformChecks {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.platformCheck {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  border-left: 4px solid var(--amber);
+}
+
+.platformCheck.pass {
+  border-left-color: var(--green);
+}
+
+.platformCheck.block {
+  border-left-color: var(--red);
+}
+
+.platformCheck strong,
+.platformCheck span,
+.platformCheck small {
+  display: block;
+}
+
+.platformCheck strong {
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.platformCheck span {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.platformCheck small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 720;
+  line-height: 1.3;
 }
 
 .rightsSummary {

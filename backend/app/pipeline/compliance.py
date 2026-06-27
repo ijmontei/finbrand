@@ -4,6 +4,7 @@ import re
 
 from app.claims import build_claim_checklist
 from app.models import QAGate, StoryCandidate, VideoPackage
+from app.platform import build_platform_readiness
 from app.rights import build_rights_report
 
 
@@ -25,6 +26,7 @@ def run_qa(story: StoryCandidate, package: VideoPackage) -> dict[str, object]:
         _advice_language_gate(package),
         _rights_gate(story),
         _originality_gate(package),
+        _platform_readiness_gate(story, package),
         _chart_gate(package),
         _caveat_gate(package),
         _claim_traceability_gate(story, package),
@@ -70,6 +72,15 @@ def _originality_gate(package: VideoPackage) -> QAGate:
     if package.why_it_matters and package.summary_bullets and len(package.script_60s.split()) >= 90:
         return QAGate("Original commentary", "pass", "Draft includes explanation beyond source recap.")
     return QAGate("Original commentary", "warn", "Draft needs more original explanation before publishing.")
+
+
+def _platform_readiness_gate(story: StoryCandidate, package: VideoPackage) -> QAGate:
+    report = build_platform_readiness(story, package)
+    if report["status"] == "blocked":
+        return QAGate("Platform originality", "block", "Draft looks too close to reused or commodity content.")
+    if report["status"] == "needs_review":
+        return QAGate("Platform originality", "warn", "Draft needs platform/originality review before publishing.")
+    return QAGate("Platform originality", "pass", "Draft has original framing, owned visuals, and human judgment markers.")
 
 
 def _chart_gate(package: VideoPackage) -> QAGate:

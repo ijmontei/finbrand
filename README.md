@@ -74,6 +74,7 @@ Each exported story folder contains:
 - `qa.json`
 - `claims.json`
 - `rights_report.json`
+- `platform_readiness.json`
 - `asset_manifest.json`
 - `chart_signal.svg`
 - `storyboard.json`
@@ -92,6 +93,8 @@ The dashboard includes an editor decision panel for approve, hold, revise, or ar
 
 `rights_report.json` summarizes source posture: official, first-party, provider-review, missing notes, or unknown. Use it to keep raw market-data redistribution and article-reuse questions visible before approval.
 
+`platform_readiness.json` checks whether a draft has enough original framing, visual transformation, caveat language, and human judgment to avoid feeling like commodity headline reuse.
+
 ## Source posture
 
 The MVP treats official and first-party sources as the highest authority layer: SEC, Fed, BLS, FRED, issuer IR feeds, and official press releases. Broad news discovery, social buzz, and market data providers are enrichment layers, not the only source of truth.
@@ -106,6 +109,7 @@ Every generated draft runs through QA gates:
 - No personalized advice language.
 - Rights and copyright hygiene.
 - Original explanation, not headline reuse.
+- Platform readiness for Shorts/Reels style distribution.
 - One clear chart idea.
 - Caveat or uncertainty note.
 - Disclosure readiness for sponsors, affiliates, or paid promotions.
