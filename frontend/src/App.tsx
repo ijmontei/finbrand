@@ -1,12 +1,12 @@
 import { RefreshCw, ShieldCheck, Wand2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { fetchQA, fetchStoryboard, fetchStories, generatePackage, refreshStories } from "./api";
+import { fetchDecision, fetchQA, fetchStoryboard, fetchStories, generatePackage, recordDecision, refreshStories } from "./api";
 import { DraftPanel } from "./components/DraftPanel";
 import { ScoreMeter } from "./components/ScoreMeter";
 import { SignalChart } from "./components/SignalChart";
 import { SourceTrail } from "./components/SourceTrail";
 import { StoryQueue } from "./components/StoryQueue";
-import type { QAResult, Story, Storyboard, VideoPackage } from "./types";
+import type { EditorialDecision, EditorialDecisionValue, QAResult, Story, Storyboard, VideoPackage } from "./types";
 
 const scoreLabels = [
   ["market_impact", "Market impact"],
@@ -23,6 +23,7 @@ export default function App() {
   const [videoPackage, setVideoPackage] = useState<VideoPackage>();
   const [qa, setQa] = useState<QAResult>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
+  const [decision, setDecision] = useState<EditorialDecision>();
   const [loading, setLoading] = useState(true);
   const [drafting, setDrafting] = useState(false);
   const [error, setError] = useState<string>();
@@ -75,18 +76,31 @@ export default function App() {
     setDrafting(true);
     setError(undefined);
     try {
-      const [nextPackage, nextQA, nextStoryboard] = await Promise.all([
+      const [nextPackage, nextQA, nextStoryboard, nextDecision] = await Promise.all([
         generatePackage(storyId),
         fetchQA(storyId),
-        fetchStoryboard(storyId)
+        fetchStoryboard(storyId),
+        fetchDecision(storyId)
       ]);
       setVideoPackage(nextPackage);
       setQa(nextQA);
       setStoryboard(nextStoryboard);
+      setDecision(nextDecision);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Draft failed");
     } finally {
       setDrafting(false);
+    }
+  }
+
+  async function saveDecision(nextDecision: Exclude<EditorialDecisionValue, "pending">, notes: string) {
+    if (!selectedStory) return;
+    setError(undefined);
+    try {
+      const saved = await recordDecision(selectedStory.story_id, nextDecision, notes);
+      setDecision(saved);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Decision failed");
     }
   }
 
@@ -176,7 +190,9 @@ export default function App() {
           videoPackage={videoPackage}
           qa={qa}
           storyboard={storyboard}
+          decision={decision}
           storyId={selectedStory?.story_id}
+          onDecision={saveDecision}
           onGenerate={() => buildDraft()}
           loading={drafting}
         />

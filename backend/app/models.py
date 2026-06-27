@@ -82,3 +82,16 @@ class QAGate:
     def to_dict(self) -> JsonDict:
         return asdict(self)
 
+
+@dataclass(slots=True)
+class EditorialDecision:
+    story_id: str
+    decision: str
+    editor: str
+    notes: str
+    decided_at: str
+    qa_status: str
+    story_score: float
+
+    def to_dict(self) -> JsonDict:
+        return asdict(self)

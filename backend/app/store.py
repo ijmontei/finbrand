@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from datetime import datetime, timezone
 
-from app.models import SourceItem, StoryCandidate, VideoPackage
+from app.models import EditorialDecision, SourceItem, StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
@@ -15,6 +16,7 @@ class EditorialStore:
         self.source_items: list[SourceItem] = self._load_sample_items()
         self.stories: list[StoryCandidate] = []
         self.packages: dict[str, VideoPackage] = {}
+        self.decisions: dict[str, EditorialDecision] = {}
         self.refresh_stories()
 
     def refresh_stories(self) -> list[StoryCandidate]:
@@ -40,6 +42,31 @@ class EditorialStore:
         package = self.get_or_generate_package(story_id)
         return run_qa(story, package)
 
+    def get_decision(self, story_id: str) -> dict[str, object]:
+        self.get_story(story_id)
+        decision = self.decisions.get(story_id)
+        if decision:
+            return decision.to_dict()
+        return self._pending_decision(story_id)
+
+    def record_decision(self, story_id: str, decision: str, editor: str, notes: str) -> dict[str, object]:
+        story = self.get_story(story_id)
+        qa = self.get_qa(story_id)
+        allowed = {"approve", "hold", "revise", "archive"}
+        if decision not in allowed:
+            raise ValueError(f"decision must be one of: {', '.join(sorted(allowed))}")
+        record = EditorialDecision(
+            story_id=story_id,
+            decision=decision,
+            editor=editor.strip() or "editor",
+            notes=notes.strip(),
+            decided_at=datetime.now(timezone.utc).isoformat(),
+            qa_status=str(qa["status"]),
+            story_score=float(story.scores["story_score"]),
+        )
+        self.decisions[story_id] = record
+        return record.to_dict()
+
     def ingest_rss(
         self,
         feed_url: str,
@@ -58,3 +85,16 @@ class EditorialStore:
         with self.sample_path.open("r", encoding="utf-8") as handle:
             raw_items = json.load(handle)
         return [SourceItem(**item) for item in raw_items]
+
+    def _pending_decision(self, story_id: str) -> dict[str, object]:
+        story = self.get_story(story_id)
+        qa = self.get_qa(story_id)
+        return {
+            "story_id": story_id,
+            "decision": "pending",
+            "editor": "",
+            "notes": "",
+            "decided_at": None,
+            "qa_status": qa["status"],
+            "story_score": story.scores["story_score"],
+        }

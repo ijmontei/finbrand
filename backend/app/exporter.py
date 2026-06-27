@@ -26,6 +26,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "storyboard": story_dir / "storyboard.json",
         "captions": story_dir / "captions.srt",
         "preview": story_dir / "preview.html",
+        "decision_template": story_dir / "decision_template.json",
         "brief": story_dir / "editor_brief.md",
     }
     _write_json(files["story"], story.to_dict())
@@ -36,6 +37,7 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
     files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
     files["captions"].write_text(generate_srt(package), encoding="utf-8")
     files["preview"].write_text(render_preview_html(story, package, storyboard, qa), encoding="utf-8")
+    _write_json(files["decision_template"], _decision_template(story, qa))
     files["brief"].write_text(_editor_brief(story, package, qa), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
@@ -96,6 +98,7 @@ Score: {story.scores["story_score"]}
 - Captions: `captions.srt`
 - Chart asset: `chart_signal.svg`
 - Preview: `preview.html`
+- Decision template: `decision_template.json`
 
 ## Caveat
 
@@ -113,3 +116,22 @@ Score: {story.scores["story_score"]}
 
 {gates}
 """
+
+
+def _decision_template(story: StoryCandidate, qa: dict[str, object]) -> dict[str, object]:
+    return {
+        "story_id": story.story_id,
+        "decision": "pending",
+        "allowed_decisions": ["approve", "hold", "revise", "archive"],
+        "editor": "",
+        "notes": "",
+        "qa_status": qa["status"],
+        "story_score": story.scores["story_score"],
+        "required_before_publish": [
+            "confirm factual claims",
+            "confirm source links and usage rights",
+            "confirm no personalized investment advice",
+            "confirm chart data and visual framing",
+            "confirm disclosure language if compensation exists",
+        ],
+    }

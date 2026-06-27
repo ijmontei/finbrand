@@ -377,6 +377,7 @@ button {
 .scriptBox,
 .storyboardBox,
 .qaBox,
+.decisionBox,
 .emptyState {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -565,6 +566,7 @@ button {
 .draftBlock,
 .scriptBox,
 .qaBox,
+.decisionBox,
 .emptyState {
   margin: 12px;
   padding: 14px;
@@ -707,6 +709,65 @@ button {
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.32;
+}
+
+.decisionBox {
+  padding: 0;
+  overflow: hidden;
+}
+
+.decisionBox textarea {
+  display: block;
+  width: calc(100% - 24px);
+  min-height: 92px;
+  margin: 12px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  color: var(--ink);
+  font: inherit;
+  line-height: 1.4;
+}
+
+.decisionActions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  padding: 0 12px 12px;
+}
+
+.decisionButton {
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.decisionButton.approve {
+  color: var(--green);
+}
+
+.decisionButton.hold {
+  color: var(--amber);
+}
+
+.decisionButton.revise {
+  color: var(--blue-dark);
+}
+
+.decisionButton.archive {
+  color: var(--muted);
+}
+
+.decisionBox small {
+  display: block;
+  padding: 0 12px 12px;
+  color: var(--muted);
+  font-weight: 720;
 }
 
 .emptyState,

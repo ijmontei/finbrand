@@ -103,6 +103,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["storyboard"]).exists())
                 self.assertTrue(Path(package_files["captions"]).exists())
                 self.assertTrue(Path(package_files["preview"]).exists())
+                self.assertTrue(Path(package_files["decision_template"]).exists())
                 self.assertIn("editor_brief.md", package_files["brief"])
 
     def test_signal_chart_svg_contains_story_context(self) -> None:
@@ -142,6 +143,19 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("Vertical video preview", html)
         self.assertIn("Source Trail", html)
         self.assertIn("QA Gates", html)
+
+    def test_store_records_editorial_decision_with_qa_context(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story_id = store.stories[0].story_id
+
+        pending = store.get_decision(story_id)
+        saved = store.record_decision(story_id, "revise", "editor", "Tighten source caveat.")
+
+        self.assertEqual(pending["decision"], "pending")
+        self.assertEqual(saved["decision"], "revise")
+        self.assertEqual(saved["notes"], "Tighten source caveat.")
+        self.assertIn(saved["qa_status"], {"ready", "needs_review", "blocked"})
+        self.assertGreater(saved["story_score"], 0)
 
 
 if __name__ == "__main__":

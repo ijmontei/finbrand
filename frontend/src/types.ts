@@ -84,3 +84,15 @@ export interface Storyboard {
   assets: Record<string, string>;
   scenes: StoryboardScene[];
 }
+
+export type EditorialDecisionValue = "pending" | "approve" | "hold" | "revise" | "archive";
+
+export interface EditorialDecision {
+  story_id: string;
+  decision: EditorialDecisionValue;
+  editor: string;
+  notes: string;
+  decided_at: string | null;
+  qa_status: QAResult["status"];
+  story_score: number;
+}

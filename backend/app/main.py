@@ -33,6 +33,12 @@ class RssIngestRequest(BaseModel):
     source_type: str = "news_discovery"
 
 
+class EditorialDecisionRequest(BaseModel):
+    decision: str = Field(..., pattern="^(approve|hold|revise|archive)$")
+    editor: str = "editor"
+    notes: str = ""
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -71,6 +77,24 @@ def qa(story_id: str) -> dict[str, object]:
         return store.get_qa(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.get("/api/stories/{story_id}/decision")
+def decision(story_id: str) -> dict[str, object]:
+    try:
+        return store.get_decision(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.post("/api/stories/{story_id}/decision")
+def record_decision(story_id: str, request: EditorialDecisionRequest) -> dict[str, object]:
+    try:
+        return store.record_decision(story_id, request.decision, request.editor, request.notes)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @app.get("/api/stories/{story_id}/chart.svg")

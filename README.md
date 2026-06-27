@@ -77,11 +77,14 @@ Each exported story folder contains:
 - `storyboard.json`
 - `captions.srt`
 - `preview.html`
+- `decision_template.json`
 - `editor_brief.md`
 
 Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Live ingestion still needs normal provider care: SEC requests should use a real declared `SEC_USER_AGENT`, and source/provider terms must be reviewed before commercial reuse.
 
 Open `preview.html` in an exported story folder to review the vertical package, source trail, QA gates, chart, and storyboard together before rendering a final MP4.
+
+The dashboard includes an editor decision panel for approve, hold, revise, or archive decisions with notes. The current MVP stores decisions in memory while the app is running; production should persist this into Postgres with an audit trail.
 
 ## Source posture
 

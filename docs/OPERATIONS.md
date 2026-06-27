@@ -9,9 +9,10 @@
 5. Generate draft packages for the best candidates.
 6. Verify factual claims, source URLs, dates, tickers, and percentages.
 7. Rewrite the hook or caveat when needed.
-8. Render the video package.
-9. Publish manually.
-10. Archive performance metrics.
+8. Record an editor decision: approve, hold, revise, or archive.
+9. Render the video package only after approval.
+10. Publish manually.
+11. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -25,6 +26,8 @@ python -m app.cli export --output-dir ..\exports\latest --limit 3
 ```
 
 The exported `editor_brief.md` is the human review surface. `preview.html` is the quick visual review surface. `storyboard.json`, `captions.srt`, and `chart_signal.svg` are intended for later Remotion or FFmpeg publishing workers.
+
+Use `decision_template.json` as the export-side audit stub when a package is reviewed outside the dashboard.
 
 ## Failure modes
 
