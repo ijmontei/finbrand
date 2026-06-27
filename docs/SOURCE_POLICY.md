@@ -19,6 +19,7 @@ Use automation for discovery and verification, not for copying. Every publishabl
 - Archive ingested source snapshots locally so later fact, rights, and editorial reviews can reconstruct what the system saw.
 - Use a declared `SEC_USER_AGENT` for SEC EDGAR API access and respect SEC fair-access expectations.
 - Use `FRED_API_KEY` for FRED observations and keep series citations attached to macro claims.
+- Use `BLS_API_KEY` when available for better BLS API limits, and keep series IDs attached to inflation or labor claims.
 - Treat full article text as restricted unless a license clearly allows the intended use.
 - Summarize and transform; do not reproduce full articles or paywalled material.
 - Keep owned-audience briefs source-cited and original; do not turn the newsletter into republished article excerpts.

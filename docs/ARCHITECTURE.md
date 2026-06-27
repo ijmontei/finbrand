@@ -39,6 +39,7 @@ flowchart LR
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
 - `app.approval`: final approval checklist combining QA, claims, rights, and platform readiness.
 - `app.newsletter`: owned-audience daily brief builder and exporter.
+- `app.ingest.bls`: BLS time-series adapter for official labor and inflation observations.
 - `app.pipeline.entity_mapping`: watchlist, source authority defaults, ticker and theme inference.
 - `app.pipeline.scoring`: clustering and weighted story score.
 - `app.pipeline.script_writer`: deterministic editorial package generator with format and style variation.
@@ -88,6 +89,7 @@ flowchart LR
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
 | `python -m app.cli sec-submissions CIK --limit 5` | Pull recent SEC submissions for one CIK |
 | `python -m app.cli fred-observations SERIES_ID --limit 3` | Pull recent FRED observations for one macro series |
+| `python -m app.cli bls-timeseries SERIES_ID --start-year YYYY --end-year YYYY --limit 3` | Pull recent BLS time-series observations |
 | `python -m app.cli archive-status` | Show local source archive path and record count |
 
 ## Storage path

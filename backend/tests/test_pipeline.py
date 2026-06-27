@@ -11,6 +11,7 @@ from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
+from app.ingest.bls import bls_timeseries_payload_to_source_items
 from app.ingest.catalog import load_source_catalog
 from app.ingest.fred import fred_observations_payload_to_source_items, require_fred_api_key
 from app.ingest.sec import require_sec_user_agent, submissions_payload_to_source_items
@@ -180,6 +181,34 @@ class PipelineTests(unittest.TestCase):
             self.assertEqual(len(result), 1)
             self.assertEqual(store.last_source_archive_summary["count"], 1)
             self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "fred_observations")
+
+    def test_bls_timeseries_payload_builds_primary_source_items(self) -> None:
+        items = bls_timeseries_payload_to_source_items(_sample_bls_timeseries_payload(), limit=2)
+
+        self.assertEqual(len(items), 2)
+        self.assertEqual(items[0].source_type, "bls_release")
+        self.assertTrue(items[0].primary_source)
+        self.assertIn("inflation", items[0].themes)
+        self.assertEqual(items[0].market["series_value"], 318.1)
+        self.assertIn("data.bls.gov/timeseries/CUUR0000SA0", items[0].canonical_url)
+
+    def test_store_archives_bls_timeseries(self) -> None:
+        with TemporaryDirectory() as temp_dir:
+            archive = SourceArchive(Path(temp_dir) / "source_archive.jsonl")
+            ledger = DecisionLedger(Path(temp_dir) / "decisions.jsonl")
+            item = bls_timeseries_payload_to_source_items(_sample_bls_timeseries_payload(), limit=1)[0]
+            store = EditorialStore(
+                Path(__file__).parents[1] / "app" / "data" / "sample_sources.json",
+                decision_ledger=ledger,
+                source_archive=archive,
+            )
+
+            with patch("app.ingest.bls.fetch_bls_timeseries", return_value=[item]):
+                result = store.ingest_bls_timeseries("CUUR0000SA0", start_year=2026, end_year=2026, limit=1)
+
+            self.assertEqual(len(result), 1)
+            self.assertEqual(store.last_source_archive_summary["count"], 1)
+            self.assertEqual(archive.read_all()[0]["context"]["ingest_method"], "bls_timeseries")
 
     def test_source_archive_writes_append_only_records(self) -> None:
         with TemporaryDirectory() as temp_dir:
@@ -473,6 +502,36 @@ def _sample_fred_observations_payload() -> dict[str, object]:
                 "value": ".",
             },
         ]
+    }
+
+
+def _sample_bls_timeseries_payload() -> dict[str, object]:
+    return {
+        "status": "REQUEST_SUCCEEDED",
+        "message": [],
+        "Results": {
+            "series": [
+                {
+                    "seriesID": "CUUR0000SA0",
+                    "data": [
+                        {
+                            "year": "2026",
+                            "period": "M05",
+                            "periodName": "May",
+                            "value": "318.100",
+                            "footnotes": [{}],
+                        },
+                        {
+                            "year": "2026",
+                            "period": "M04",
+                            "periodName": "April",
+                            "value": "317.200",
+                            "footnotes": [{}],
+                        },
+                    ],
+                }
+            ]
+        },
     }
 
 

@@ -67,6 +67,7 @@ python -m app.cli catalog
 python -m app.cli archive-status
 python -m app.cli sec-submissions 0000320193 --limit 5
 python -m app.cli fred-observations CPIAUCSL --limit 3
+python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli slate --limit 3
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
@@ -91,9 +92,9 @@ Each exported story folder contains:
 
 Slate exports also include `daily_brief.md` and `daily_brief.json` for a newsletter or owned-audience daily brief. These reuse the same source trail, approval status, rights status, caveat, and chart idea as the video workflow.
 
-Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Recent SEC submissions can be pulled by CIK with `python -m app.cli sec-submissions 0000320193 --limit 5`. FRED macro observations can be pulled with `python -m app.cli fred-observations CPIAUCSL --limit 3`.
+Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Recent SEC submissions can be pulled by CIK with `python -m app.cli sec-submissions 0000320193 --limit 5`. FRED macro observations can be pulled with `python -m app.cli fred-observations CPIAUCSL --limit 3`. BLS observations can be pulled with `python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3`.
 
-Live ingestion still needs normal provider care: SEC requests require a real declared `SEC_USER_AGENT`, FRED requests require `FRED_API_KEY`, and source/provider terms must be reviewed before commercial reuse.
+Live ingestion still needs normal provider care: SEC requests require a real declared `SEC_USER_AGENT`, FRED requests require `FRED_API_KEY`, BLS registered keys can be supplied with `BLS_API_KEY` for better limits, and source/provider terms must be reviewed before commercial reuse.
 
 Open `preview.html` in an exported story folder to review the vertical package, source trail, QA gates, chart, and storyboard together before rendering a final MP4.
 

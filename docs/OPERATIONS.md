@@ -30,6 +30,7 @@ python -m app.cli catalog
 python -m app.cli archive-status
 python -m app.cli sec-submissions 0000320193 --limit 5
 python -m app.cli fred-observations CPIAUCSL --limit 3
+python -m app.cli bls-timeseries CUUR0000SA0 --start-year 2026 --end-year 2026 --limit 3
 python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
 python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
@@ -49,6 +50,8 @@ SEC EDGAR submissions ingestion requires `SEC_USER_AGENT` to be set to a real de
 
 FRED observations ingestion requires `FRED_API_KEY` before calling `fred-observations`.
 
+BLS time-series ingestion can run without `BLS_API_KEY`, but setting a registered key improves daily and per-request limits.
+
 ## Failure modes
 
 | Failure | Cause | Response |
@@ -61,6 +64,7 @@ FRED observations ingestion requires `FRED_API_KEY` before calling `fred-observa
 | Archive count did not change | Feed failed, returned no items, or archive path is misconfigured | Check `archive-status`, feed URL, and provider/user-agent requirements |
 | SEC ingestion rejected | Missing declared SEC user agent | Set `SEC_USER_AGENT` to a real app/contact string before retrying |
 | FRED ingestion rejected | Missing FRED API key | Set `FRED_API_KEY` before retrying |
+| BLS request is throttled | Unregistered public limits or too many series | Set `BLS_API_KEY` and reduce the request window |
 | Newsletter brief feels generic | Hooks were not rewritten for owned-audience context | Tighten each signal, caveat, and chart-to-watch line |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |

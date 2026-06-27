@@ -152,6 +152,31 @@ class EditorialStore:
         self.refresh_stories()
         return [item.to_dict() for item in items]
 
+    def ingest_bls_timeseries(
+        self,
+        series_id: str,
+        start_year: int,
+        end_year: int,
+        limit: int = 3,
+        api_key: str | None = None,
+    ) -> list[dict[str, object]]:
+        from app.ingest.bls import fetch_bls_timeseries
+
+        items = fetch_bls_timeseries(series_id, start_year, end_year, limit=limit, api_key=api_key)
+        self.source_items.extend(items)
+        self.last_source_archive_summary = self.source_archive.append_many(
+            items,
+            context={
+                "ingest_method": "bls_timeseries",
+                "series_id": series_id.upper(),
+                "start_year": start_year,
+                "end_year": end_year,
+                "limit": limit,
+            },
+        )
+        self.refresh_stories()
+        return [item.to_dict() for item in items]
+
     def source_archive_summary(self) -> dict[str, object]:
         return self.source_archive.summary()
 

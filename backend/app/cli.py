@@ -44,6 +44,12 @@ def main() -> None:
     fred_parser.add_argument("series_id")
     fred_parser.add_argument("--limit", type=int, default=3)
 
+    bls_parser = subparsers.add_parser("bls-timeseries", help="Ingest recent BLS time-series observations")
+    bls_parser.add_argument("series_id")
+    bls_parser.add_argument("--start-year", type=int, required=True)
+    bls_parser.add_argument("--end-year", type=int, required=True)
+    bls_parser.add_argument("--limit", type=int, default=3)
+
     subparsers.add_parser("archive-status", help="Show local raw source archive status")
 
     args = parser.parse_args()
@@ -107,6 +113,21 @@ def main() -> None:
                 }
             )
             raise SystemExit(2) from exc
+        _print_json(
+            {
+                "series_id": args.series_id,
+                "ingested": len(result),
+                "archive": store.last_source_archive_summary,
+                "stories": store.list_stories(),
+            }
+        )
+    elif args.command == "bls-timeseries":
+        result = store.ingest_bls_timeseries(
+            args.series_id,
+            start_year=args.start_year,
+            end_year=args.end_year,
+            limit=args.limit,
+        )
         _print_json(
             {
                 "series_id": args.series_id,
