@@ -1,14 +1,15 @@
 import { AlertTriangle, CheckCircle2, CircleAlert, Copy, FileText } from "lucide-react";
-import type { QAResult, VideoPackage } from "../types";
+import type { QAResult, Storyboard, VideoPackage } from "../types";
 
 interface DraftPanelProps {
   videoPackage?: VideoPackage;
   qa?: QAResult;
+  storyboard?: Storyboard;
   onGenerate: () => void;
   loading: boolean;
 }
 
-export function DraftPanel({ videoPackage, qa, onGenerate, loading }: DraftPanelProps) {
+export function DraftPanel({ videoPackage, qa, storyboard, onGenerate, loading }: DraftPanelProps) {
   return (
     <aside className="draftPanel">
       <div className="panelHeader">
@@ -44,6 +45,28 @@ export function DraftPanel({ videoPackage, qa, onGenerate, loading }: DraftPanel
             <pre>{videoPackage.script_60s}</pre>
           </section>
 
+          {storyboard ? (
+            <section className="storyboardBox">
+              <div className="scriptHeader">
+                <span>Storyboard</span>
+                <strong>{storyboard.duration_sec}s</strong>
+              </div>
+              <div className="sceneList">
+                {storyboard.scenes.map((scene) => (
+                  <div className="sceneItem" key={scene.id}>
+                    <time>
+                      {scene.start_sec}-{scene.end_sec}s
+                    </time>
+                    <div>
+                      <strong>{scene.title}</strong>
+                      <span>{scene.text_overlay}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <section className="qaBox">
             <div className="qaStatus">
               {qa?.status === "ready" ? <CheckCircle2 size={20} /> : <CircleAlert size={20} />}
@@ -71,4 +94,3 @@ export function DraftPanel({ videoPackage, qa, onGenerate, loading }: DraftPanel
     </aside>
   );
 }
-

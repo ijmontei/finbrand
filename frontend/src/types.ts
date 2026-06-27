@@ -64,3 +64,23 @@ export interface QAResult {
   gates: QAGate[];
 }
 
+export interface StoryboardScene {
+  id: string;
+  title: string;
+  start_sec: number;
+  end_sec: number;
+  duration_sec: number;
+  text_overlay: string;
+  narration: string;
+  asset_ref?: string | null;
+  editor_note: string;
+}
+
+export interface Storyboard {
+  story_id: string;
+  format: string;
+  duration_sec: number;
+  safe_zones: Record<string, number>;
+  assets: Record<string, string>;
+  scenes: StoryboardScene[];
+}

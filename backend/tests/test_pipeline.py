@@ -11,6 +11,7 @@ from app.models import SourceItem
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
+from app.render_plan import build_storyboard, generate_srt
 from app.store import EditorialStore
 
 
@@ -99,6 +100,8 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["qa"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
                 self.assertTrue(Path(package_files["chart"]).exists())
+                self.assertTrue(Path(package_files["storyboard"]).exists())
+                self.assertTrue(Path(package_files["captions"]).exists())
                 self.assertIn("editor_brief.md", package_files["brief"])
 
     def test_signal_chart_svg_contains_story_context(self) -> None:
@@ -110,6 +113,20 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("<svg", svg)
         self.assertIn(story.primary_entity["ticker"], svg)
         self.assertIn("Not investment advice", svg)
+
+    def test_storyboard_and_srt_are_render_ready(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+        package = generate_video_package(story)
+
+        storyboard = build_storyboard(story, package)
+        srt = generate_srt(package)
+
+        self.assertEqual(storyboard["format"], "vertical_1080x1920_60s")
+        self.assertEqual(storyboard["duration_sec"], 60)
+        self.assertEqual(len(storyboard["scenes"]), 6)
+        self.assertIn("00:00:00,000 -->", srt)
+        self.assertIn(package.hook, srt)
 
 
 if __name__ == "__main__":

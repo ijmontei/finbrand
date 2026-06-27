@@ -74,6 +74,8 @@ Each exported story folder contains:
 - `qa.json`
 - `asset_manifest.json`
 - `chart_signal.svg`
+- `storyboard.json`
+- `captions.srt`
 - `editor_brief.md`
 
 Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Live ingestion still needs normal provider care: SEC requests should use a real declared `SEC_USER_AGENT`, and source/provider terms must be reviewed before commercial reuse.

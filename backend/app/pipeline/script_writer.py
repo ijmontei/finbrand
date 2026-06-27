@@ -121,6 +121,7 @@ def _asset_manifest(story: StoryCandidate, chart: str) -> dict[str, object]:
         "story_id": story.story_id,
         "format": "vertical_1080x1920_60s",
         "script_ref": f"script_{story.story_id}",
+        "storyboard_ref": "storyboard.json",
         "voiceover": {
             "mode": "manual_or_tts",
             "duration_target_sec": 60,
@@ -135,6 +136,7 @@ def _asset_manifest(story: StoryCandidate, chart: str) -> dict[str, object]:
         ],
         "captions": {
             "format": "srt_or_burned_in",
+            "srt_ref": "captions.srt",
             "burned_in": True,
         },
         "video_outputs": [

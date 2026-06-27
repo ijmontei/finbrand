@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from app.charts import render_signal_chart_svg
 from app.ingest.catalog import load_source_catalog
+from app.render_plan import build_storyboard, generate_srt
 from app.store import EditorialStore
 
 
@@ -79,6 +80,25 @@ def chart_svg(story_id: str) -> Response:
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
     return Response(content=render_signal_chart_svg(story), media_type="image/svg+xml")
+
+
+@app.get("/api/stories/{story_id}/storyboard")
+def storyboard(story_id: str) -> dict[str, object]:
+    try:
+        story = store.get_story(story_id)
+        package = store.get_or_generate_package(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    return build_storyboard(story, package)
+
+
+@app.get("/api/stories/{story_id}/captions.srt")
+def captions(story_id: str) -> Response:
+    try:
+        package = store.get_or_generate_package(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    return Response(content=generate_srt(package), media_type="application/x-subrip")
 
 
 @app.post("/api/sources/rss")

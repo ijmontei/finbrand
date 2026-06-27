@@ -7,11 +7,13 @@ from app.charts import render_signal_chart_svg
 from app.models import StoryCandidate, VideoPackage
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
+from app.render_plan import build_storyboard, generate_srt
 
 
 def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, str]:
     package = generate_video_package(story)
     qa = run_qa(story, package)
+    storyboard = build_storyboard(story, package)
     story_dir = output_dir / story.story_id
     story_dir.mkdir(parents=True, exist_ok=True)
 
@@ -21,13 +23,17 @@ def export_story_package(story: StoryCandidate, output_dir: Path) -> dict[str, s
         "qa": story_dir / "qa.json",
         "manifest": story_dir / "asset_manifest.json",
         "chart": story_dir / "chart_signal.svg",
+        "storyboard": story_dir / "storyboard.json",
+        "captions": story_dir / "captions.srt",
         "brief": story_dir / "editor_brief.md",
     }
     _write_json(files["story"], story.to_dict())
     _write_json(files["package"], package.to_dict())
     _write_json(files["qa"], qa)
     _write_json(files["manifest"], package.asset_manifest)
+    _write_json(files["storyboard"], storyboard)
     files["chart"].write_text(render_signal_chart_svg(story), encoding="utf-8")
+    files["captions"].write_text(generate_srt(package), encoding="utf-8")
     files["brief"].write_text(_editor_brief(story, package, qa), encoding="utf-8")
     return {name: str(path) for name, path in files.items()}
 
@@ -81,6 +87,12 @@ Score: {story.scores["story_score"]}
 ## Chart
 
 {package.chart_idea}
+
+## Render Plan
+
+- Storyboard: `storyboard.json`
+- Captions: `captions.srt`
+- Chart asset: `chart_signal.svg`
 
 ## Caveat
 

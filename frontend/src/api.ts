@@ -1,4 +1,4 @@
-import type { QAResult, Story, VideoPackage } from "./types";
+import type { QAResult, Story, Storyboard, VideoPackage } from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -32,6 +32,10 @@ export function generatePackage(storyId: string): Promise<VideoPackage> {
 
 export function fetchQA(storyId: string): Promise<QAResult> {
   return request<QAResult>(`/api/stories/${storyId}/qa`);
+}
+
+export function fetchStoryboard(storyId: string): Promise<Storyboard> {
+  return request<Storyboard>(`/api/stories/${storyId}/storyboard`);
 }
 
 export function chartPreviewUrl(storyId: string): string {
