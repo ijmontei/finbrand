@@ -10,6 +10,7 @@
 - Compliance QA.
 - Local editorial dashboard.
 - Headless package export for editor briefs and asset manifests.
+- Owned-audience daily brief export.
 - Generated original SVG signal charts for editor preview and render inputs.
 - Draft 60-second storyboard and SRT captions for deterministic rendering.
 - Editorial format and style-variant metadata for less repetitive recurring packages.
@@ -47,7 +48,7 @@
 
 ## Phase 5: Distribution products
 
-- Newsletter export.
+- Newsletter analytics and signup conversion tracking.
 - Sponsor disclosure fields.
 - Analytics import.
 - Watchlist and alert dashboard.

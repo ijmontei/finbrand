@@ -13,6 +13,7 @@ from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
 from app.models import SourceItem
+from app.newsletter import build_daily_brief, export_daily_brief, render_daily_brief_markdown
 from app.pipeline.compliance import run_qa
 from app.pipeline.scoring import build_story_candidates
 from app.pipeline.script_writer import generate_video_package
@@ -169,6 +170,8 @@ class PipelineTests(unittest.TestCase):
             result = export_story_slate(store.stories, Path(temp_dir), limit=2)
 
             self.assertTrue(Path(result["slate"]).exists())
+            self.assertTrue(Path(result["newsletter"]["newsletter_json"]).exists())
+            self.assertTrue(Path(result["newsletter"]["newsletter_markdown"]).exists())
             self.assertEqual(len(result["packages"]), 2)
             for package_files in result["packages"]:
                 self.assertTrue(Path(package_files["story"]).exists())
@@ -185,6 +188,27 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["preview"]).exists())
                 self.assertTrue(Path(package_files["decision_template"]).exists())
                 self.assertIn("editor_brief.md", package_files["brief"])
+
+    def test_daily_brief_exports_owned_audience_summary(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        brief = build_daily_brief(store.stories, limit=2)
+        markdown = render_daily_brief_markdown(brief)
+
+        self.assertEqual(brief["count"], 2)
+        self.assertIn("Market Signal Daily Brief", markdown)
+        self.assertIn("Not personalized investment advice", markdown)
+        self.assertTrue(all(item["source_refs"] for item in brief["items"]))
+
+    def test_daily_brief_export_writes_json_and_markdown(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+
+        with TemporaryDirectory() as temp_dir:
+            result = export_daily_brief(store.stories, Path(temp_dir), limit=1)
+
+            self.assertTrue(Path(result["newsletter_json"]).exists())
+            self.assertTrue(Path(result["newsletter_markdown"]).exists())
+            self.assertIn("daily_brief.md", result["newsletter_markdown"])
 
     def test_signal_chart_svg_contains_story_context(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

@@ -15,9 +15,10 @@
 11. Verify `approval_checklist.json`: no blockers before approval; warning-level packages need editor notes.
 12. Rewrite the hook, chart, or caveat when needed.
 13. Record an editor decision: approve, hold, revise, or archive.
-14. Render the video package only after approval.
-15. Publish manually.
-16. Archive performance metrics.
+14. Export the daily brief for owned-audience distribution.
+15. Render the video package only after approval.
+16. Publish manually.
+17. Archive performance metrics.
 
 ## Terminal workflow
 
@@ -29,9 +30,12 @@ python -m app.cli catalog
 python -m app.cli archive-status
 python -m app.cli slate --limit 5
 python -m app.cli export --output-dir ..\exports\latest --limit 3
+python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
 
 The exported `editor_brief.md` is the human review surface. `preview.html` is the quick visual review surface. `storyboard.json`, `captions.srt`, and `chart_signal.svg` are intended for later Remotion or FFmpeg publishing workers.
+
+The exported `daily_brief.md` is the owned-audience brief for newsletter or email workflows. It should preserve short source citations and avoid republishing article text.
 
 Use `decision_template.json` as the export-side audit stub when a package is reviewed outside the dashboard.
 
@@ -49,6 +53,7 @@ RSS source snapshots are appended to `.runtime/source_archive.jsonl` unless `MAR
 | Platform-readiness warning | Weak transformation or commodity recap language | Rewrite around the data missed, owned visual, and editor caveat |
 | Approval rejected | Blocking check or missing notes for warning-level package | Use hold/revise, or add specific approval notes after review |
 | Archive count did not change | Feed failed, returned no items, or archive path is misconfigured | Check `archive-status`, feed URL, and provider/user-agent requirements |
+| Newsletter brief feels generic | Hooks were not rewritten for owned-audience context | Tighten each signal, caveat, and chart-to-watch line |
 | Rights risk | Source license unclear | Hold story until terms are reviewed |
 | Market-data risk | Raw quote redistribution | Summarize signal or use licensed provider output |
 | Missing primary evidence | Discovery-only story | Archive or hold for editor |

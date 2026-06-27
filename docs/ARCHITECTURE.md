@@ -12,6 +12,7 @@ flowchart LR
     E --> F["Draft package generator"]
     F --> G["Compliance QA"]
     G --> H["React editorial dashboard"]
+    G --> J["Daily brief export"]
 ```
 
 ## Production target
@@ -37,6 +38,7 @@ flowchart LR
 
 - `app.models`: dataclass schemas for source items, story candidates, packages, and QA gates.
 - `app.approval`: final approval checklist combining QA, claims, rights, and platform readiness.
+- `app.newsletter`: owned-audience daily brief builder and exporter.
 - `app.pipeline.entity_mapping`: watchlist, source authority defaults, ticker and theme inference.
 - `app.pipeline.scoring`: clustering and weighted story score.
 - `app.pipeline.script_writer`: deterministic editorial package generator with format and style variation.
@@ -80,6 +82,7 @@ flowchart LR
 | `python -m app.cli package STORY_ID` | Generate one story package |
 | `python -m app.cli qa STORY_ID` | Run QA for one story |
 | `python -m app.cli export --output-dir exports/latest --limit 5` | Write editor briefs, manifests, QA, and package JSON |
+| `python -m app.cli newsletter --output-dir exports/newsletter --limit 3` | Write `daily_brief.md` and `daily_brief.json` |
 | `python -m app.cli ingest-feed FEED_ID` | Pull one configured RSS feed |
 | `python -m app.cli archive-status` | Show local source archive path and record count |
 

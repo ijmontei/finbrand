@@ -6,6 +6,7 @@ from pathlib import Path
 
 from app.exporter import export_story_slate
 from app.ingest.catalog import find_source_feed, load_source_catalog
+from app.newsletter import export_daily_brief
 from app.store import EditorialStore
 
 
@@ -28,6 +29,10 @@ def main() -> None:
     export_parser.add_argument("--output-dir", default="exports/latest")
     export_parser.add_argument("--limit", type=int, default=5)
 
+    newsletter_parser = subparsers.add_parser("newsletter", help="Export an owned-audience daily brief")
+    newsletter_parser.add_argument("--output-dir", default="exports/newsletter")
+    newsletter_parser.add_argument("--limit", type=int, default=3)
+
     ingest_parser = subparsers.add_parser("ingest-feed", help="Ingest one configured RSS feed")
     ingest_parser.add_argument("feed_id")
 
@@ -46,6 +51,8 @@ def main() -> None:
         _print_json(store.get_qa(args.story_id))
     elif args.command == "export":
         _print_json(export_story_slate(store.stories, Path(args.output_dir), args.limit))
+    elif args.command == "newsletter":
+        _print_json(export_daily_brief(store.stories, Path(args.output_dir), args.limit))
     elif args.command == "ingest-feed":
         feed = find_source_feed(args.feed_id)
         result = store.ingest_rss(

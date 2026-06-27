@@ -11,6 +11,7 @@ The first product lane is:
 - Python editorial engine for source normalization, entity mapping, story clustering, ranking, script drafting, chart ideas, and compliance QA.
 - FastAPI backend exposing story, package, RSS ingest, and QA endpoints.
 - React dashboard for reviewing the story slate, source trail, scoring rationale, generated script, and publishing gates.
+- Daily brief export for newsletter or owned-audience distribution.
 - Sample primary-source-style records so the app runs before paid APIs or data licenses are added.
 - Documentation for source policy, roadmap, and operating model.
 
@@ -66,6 +67,7 @@ python -m app.cli catalog
 python -m app.cli archive-status
 python -m app.cli slate --limit 3
 python -m app.cli export --output-dir ..\exports\latest --limit 3
+python -m app.cli newsletter --output-dir ..\exports\daily-brief --limit 3
 ```
 
 Each exported story folder contains:
@@ -84,6 +86,8 @@ Each exported story folder contains:
 - `preview.html`
 - `decision_template.json`
 - `editor_brief.md`
+
+Slate exports also include `daily_brief.md` and `daily_brief.json` for a newsletter or owned-audience daily brief. These reuse the same source trail, approval status, rights status, caveat, and chart idea as the video workflow.
 
 Configured official feeds can be inspected with `python -m app.cli catalog`. A single configured feed can be pulled with `python -m app.cli ingest-feed fed_monetary_policy`. Live ingestion still needs normal provider care: SEC requests should use a real declared `SEC_USER_AGENT`, and source/provider terms must be reviewed before commercial reuse.
 

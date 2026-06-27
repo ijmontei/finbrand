@@ -7,6 +7,7 @@ from app.approval import build_approval_checklist
 from app.charts import render_signal_chart_svg
 from app.claims import build_claim_checklist
 from app.models import StoryCandidate, VideoPackage
+from app.newsletter import export_daily_brief
 from app.pipeline.compliance import run_qa
 from app.pipeline.script_writer import generate_video_package
 from app.platform import build_platform_readiness
@@ -68,8 +69,10 @@ def export_story_slate(stories: list[StoryCandidate], output_dir: Path, limit: i
     slate_path = output_dir / "slate.json"
     _write_json(slate_path, slate)
     package_files = [export_story_package(story, output_dir) for story in selected]
+    newsletter_files = export_daily_brief(selected, output_dir, limit=len(selected))
     return {
         "slate": str(slate_path),
+        "newsletter": newsletter_files,
         "packages": package_files,
     }
 
