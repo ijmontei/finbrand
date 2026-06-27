@@ -1,11 +1,12 @@
 import { AlertTriangle, CheckCircle2, CircleAlert, Copy, ExternalLink, FileText } from "lucide-react";
 import { useEffect, useState } from "react";
 import { renderPreviewUrl } from "../api";
-import type { EditorialDecision, EditorialDecisionValue, QAResult, Storyboard, VideoPackage } from "../types";
+import type { ClaimChecklist, EditorialDecision, EditorialDecisionValue, QAResult, Storyboard, VideoPackage } from "../types";
 
 interface DraftPanelProps {
   videoPackage?: VideoPackage;
   qa?: QAResult;
+  claims?: ClaimChecklist;
   storyboard?: Storyboard;
   decision?: EditorialDecision;
   storyId?: string;
@@ -17,6 +18,7 @@ interface DraftPanelProps {
 export function DraftPanel({
   videoPackage,
   qa,
+  claims,
   storyboard,
   decision,
   storyId,
@@ -118,6 +120,24 @@ export function DraftPanel({
               ))}
             </div>
           </section>
+
+          {claims ? (
+            <section className="claimsBox">
+              <div className="scriptHeader">
+                <span>Claims</span>
+                <strong>{claims.status.replace("_", " ")}</strong>
+              </div>
+              <div className="claimList">
+                {claims.claims.map((claim) => (
+                  <div className={`claimItem ${claim.verification_status}`} key={claim.claim_id}>
+                    <strong>{claim.verification_status.replaceAll("_", " ")}</strong>
+                    <span>{claim.text}</span>
+                    <small>{claim.editor_note}</small>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="decisionBox">
             <div className="scriptHeader">

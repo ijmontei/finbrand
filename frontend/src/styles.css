@@ -377,6 +377,7 @@ button {
 .scriptBox,
 .storyboardBox,
 .qaBox,
+.claimsBox,
 .decisionBox,
 .emptyState {
   border: 1px solid var(--line);
@@ -567,6 +568,7 @@ button {
 .scriptBox,
 .qaBox,
 .decisionBox,
+.claimsBox,
 .emptyState {
   margin: 12px;
   padding: 14px;
@@ -702,6 +704,60 @@ button {
 .qaGate strong,
 .qaGate span {
   display: block;
+}
+
+.claimsBox {
+  padding: 0;
+  overflow: hidden;
+}
+
+.claimList {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+}
+
+.claimItem {
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--panel-strong);
+  border-left: 4px solid var(--amber);
+}
+
+.claimItem.source_backed,
+.claimItem.ready {
+  border-left-color: var(--green);
+}
+
+.claimItem.needs_source,
+.claimItem.needs_primary_source {
+  border-left-color: var(--red);
+}
+
+.claimItem strong,
+.claimItem span,
+.claimItem small {
+  display: block;
+}
+
+.claimItem strong {
+  color: var(--ink);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+}
+
+.claimItem span {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.claimItem small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-weight: 720;
+  line-height: 1.3;
 }
 
 .qaGate span {

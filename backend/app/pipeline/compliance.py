@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 
+from app.claims import build_claim_checklist
 from app.models import QAGate, StoryCandidate, VideoPackage
 
 
@@ -25,6 +26,7 @@ def run_qa(story: StoryCandidate, package: VideoPackage) -> dict[str, object]:
         _originality_gate(package),
         _chart_gate(package),
         _caveat_gate(package),
+        _claim_traceability_gate(story, package),
         _disclosure_gate(story),
     ]
     status = _overall_status(gates)
@@ -87,6 +89,15 @@ def _caveat_gate(package: VideoPackage) -> QAGate:
     return QAGate("Uncertainty note", "warn", "Draft is missing a caveat.")
 
 
+def _claim_traceability_gate(story: StoryCandidate, package: VideoPackage) -> QAGate:
+    checklist = build_claim_checklist(story, package)
+    if checklist["status"] == "blocked":
+        return QAGate("Claim traceability", "block", "One or more material claims lacks source references.")
+    if checklist["status"] == "needs_review":
+        return QAGate("Claim traceability", "warn", "Material claims are listed for editor verification.")
+    return QAGate("Claim traceability", "pass", "Material claims have source references.")
+
+
 def _disclosure_gate(story: StoryCandidate) -> QAGate:
     if "sponsored" in story.risk_flags or "affiliate" in story.risk_flags:
         return QAGate("Disclosure readiness", "warn", "Sponsorship or affiliate flag needs explicit disclosure copy.")
@@ -99,4 +110,3 @@ def _overall_status(gates: list[QAGate]) -> str:
     if any(gate.status == "warn" for gate in gates):
         return "needs_review"
     return "ready"
-

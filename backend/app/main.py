@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from app.charts import render_signal_chart_svg
+from app.claims import build_claim_checklist
 from app.ingest.catalog import load_source_catalog
 from app.render_plan import build_storyboard, generate_srt, render_preview_html
 from app.store import EditorialStore
@@ -77,6 +78,16 @@ def qa(story_id: str) -> dict[str, object]:
         return store.get_qa(story_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Story not found") from exc
+
+
+@app.get("/api/stories/{story_id}/claims")
+def claims(story_id: str) -> dict[str, object]:
+    try:
+        story = store.get_story(story_id)
+        package = store.get_or_generate_package(story_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Story not found") from exc
+    return build_claim_checklist(story, package)
 
 
 @app.get("/api/stories/{story_id}/decision")

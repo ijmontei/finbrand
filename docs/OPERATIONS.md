@@ -7,7 +7,7 @@
 3. Cluster and score stories.
 4. Review the top slate.
 5. Generate draft packages for the best candidates.
-6. Verify factual claims, source URLs, dates, tickers, and percentages.
+6. Verify `claims.json`: factual claims, source URLs, dates, tickers, percentages, and chart framing.
 7. Rewrite the hook or caveat when needed.
 8. Record an editor decision: approve, hold, revise, or archive.
 9. Render the video package only after approval.

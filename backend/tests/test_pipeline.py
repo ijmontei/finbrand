@@ -5,6 +5,7 @@ from tempfile import TemporaryDirectory
 from pathlib import Path
 
 from app.charts import render_signal_chart_svg
+from app.claims import build_claim_checklist
 from app.decision_ledger import DecisionLedger
 from app.exporter import export_story_slate
 from app.ingest.catalog import load_source_catalog
@@ -99,6 +100,7 @@ class PipelineTests(unittest.TestCase):
                 self.assertTrue(Path(package_files["story"]).exists())
                 self.assertTrue(Path(package_files["package"]).exists())
                 self.assertTrue(Path(package_files["qa"]).exists())
+                self.assertTrue(Path(package_files["claims"]).exists())
                 self.assertTrue(Path(package_files["manifest"]).exists())
                 self.assertTrue(Path(package_files["chart"]).exists())
                 self.assertTrue(Path(package_files["storyboard"]).exists())
@@ -116,6 +118,18 @@ class PipelineTests(unittest.TestCase):
         self.assertIn("<svg", svg)
         self.assertIn(story.primary_entity["ticker"], svg)
         self.assertIn("Not investment advice", svg)
+
+    def test_claim_checklist_tracks_material_claims(self) -> None:
+        store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")
+        story = store.stories[0]
+        package = generate_video_package(story)
+
+        checklist = build_claim_checklist(story, package)
+
+        self.assertEqual(checklist["story_id"], story.story_id)
+        self.assertGreaterEqual(len(checklist["claims"]), 5)
+        self.assertIn(checklist["status"], {"ready", "needs_review", "blocked"})
+        self.assertTrue(any(claim["claim_id"] == "market_reaction" for claim in checklist["claims"]))
 
     def test_storyboard_and_srt_are_render_ready(self) -> None:
         store = EditorialStore(Path(__file__).parents[1] / "app" / "data" / "sample_sources.json")

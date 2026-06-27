@@ -1,12 +1,21 @@
 import { RefreshCw, ShieldCheck, Wand2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { fetchDecision, fetchQA, fetchStoryboard, fetchStories, generatePackage, recordDecision, refreshStories } from "./api";
+import {
+  fetchClaims,
+  fetchDecision,
+  fetchQA,
+  fetchStoryboard,
+  fetchStories,
+  generatePackage,
+  recordDecision,
+  refreshStories
+} from "./api";
 import { DraftPanel } from "./components/DraftPanel";
 import { ScoreMeter } from "./components/ScoreMeter";
 import { SignalChart } from "./components/SignalChart";
 import { SourceTrail } from "./components/SourceTrail";
 import { StoryQueue } from "./components/StoryQueue";
-import type { EditorialDecision, EditorialDecisionValue, QAResult, Story, Storyboard, VideoPackage } from "./types";
+import type { ClaimChecklist, EditorialDecision, EditorialDecisionValue, QAResult, Story, Storyboard, VideoPackage } from "./types";
 
 const scoreLabels = [
   ["market_impact", "Market impact"],
@@ -22,6 +31,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string>();
   const [videoPackage, setVideoPackage] = useState<VideoPackage>();
   const [qa, setQa] = useState<QAResult>();
+  const [claims, setClaims] = useState<ClaimChecklist>();
   const [storyboard, setStoryboard] = useState<Storyboard>();
   const [decision, setDecision] = useState<EditorialDecision>();
   const [loading, setLoading] = useState(true);
@@ -76,14 +86,16 @@ export default function App() {
     setDrafting(true);
     setError(undefined);
     try {
-      const [nextPackage, nextQA, nextStoryboard, nextDecision] = await Promise.all([
+      const [nextPackage, nextQA, nextClaims, nextStoryboard, nextDecision] = await Promise.all([
         generatePackage(storyId),
         fetchQA(storyId),
+        fetchClaims(storyId),
         fetchStoryboard(storyId),
         fetchDecision(storyId)
       ]);
       setVideoPackage(nextPackage);
       setQa(nextQA);
+      setClaims(nextClaims);
       setStoryboard(nextStoryboard);
       setDecision(nextDecision);
     } catch (err) {
@@ -189,6 +201,7 @@ export default function App() {
         <DraftPanel
           videoPackage={videoPackage}
           qa={qa}
+          claims={claims}
           storyboard={storyboard}
           decision={decision}
           storyId={selectedStory?.story_id}

@@ -96,3 +96,17 @@ export interface EditorialDecision {
   qa_status: QAResult["status"];
   story_score: number;
 }
+
+export interface ClaimItem {
+  claim_id: string;
+  text: string;
+  source_refs: string[];
+  verification_status: "ready" | "source_backed" | "editor_verify" | "needs_source" | "needs_primary_source";
+  editor_note: string;
+}
+
+export interface ClaimChecklist {
+  story_id: string;
+  status: "ready" | "needs_review" | "blocked";
+  claims: ClaimItem[];
+}

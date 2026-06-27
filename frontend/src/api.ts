@@ -1,4 +1,12 @@
-import type { EditorialDecision, EditorialDecisionValue, QAResult, Story, Storyboard, VideoPackage } from "./types";
+import type {
+  ClaimChecklist,
+  EditorialDecision,
+  EditorialDecisionValue,
+  QAResult,
+  Story,
+  Storyboard,
+  VideoPackage
+} from "./types";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8000";
 
@@ -32,6 +40,10 @@ export function generatePackage(storyId: string): Promise<VideoPackage> {
 
 export function fetchQA(storyId: string): Promise<QAResult> {
   return request<QAResult>(`/api/stories/${storyId}/qa`);
+}
+
+export function fetchClaims(storyId: string): Promise<ClaimChecklist> {
+  return request<ClaimChecklist>(`/api/stories/${storyId}/claims`);
 }
 
 export function fetchDecision(storyId: string): Promise<EditorialDecision> {
