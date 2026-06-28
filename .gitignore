@@ -20,3 +20,6 @@ coverage/
 htmlcov/
 .idea/
 .vscode/
+content/**/videos/_work/
+content/**/videos/*.concat.txt
+content/**/videos/*-preview.png
