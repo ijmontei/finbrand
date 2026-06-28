@@ -1,0 +1,60 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v03",
+    "storyId":  "2026-06-28-fed-pause-not-pivot",
+    "metrics":  [
+                    {
+                        "id":  "fed_funds_target_range",
+                        "label":  "Fed funds target range",
+                        "value":  "3.50-3.75",
+                        "displayValue":  "3.50-3.75%",
+                        "unit":  "%",
+                        "period":  "June FOMC",
+                        "prior":  "3.50-3.75",
+                        "sourceName":  "Federal Reserve",
+                        "sourceUrl":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "id":  "pce_inflation_yoy",
+                        "label":  "PCE inflation",
+                        "value":  4.1,
+                        "displayValue":  "4.1%",
+                        "unit":  "%",
+                        "period":  "May 2026 YoY",
+                        "benchmark":  2.0,
+                        "benchmarkLabel":  "Fed target",
+                        "sourceName":  "BEA",
+                        "sourceUrl":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "asOf":  "2026-06-28"
+                    },
+                    {
+                        "id":  "inflation_target_gap",
+                        "label":  "Gap to Fed target",
+                        "value":  2.1,
+                        "displayValue":  "+2.1 pp",
+                        "unit":  "percentage points",
+                        "period":  "May 2026 YoY PCE less 2.0% target",
+                        "sourceName":  "Derived from BEA and Federal Reserve target",
+                        "sourceUrl":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "sources":  [
+                    {
+                        "name":  "Federal Reserve",
+                        "url":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "usedFor":  "June FOMC target range and statement tone",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "name":  "BEA",
+                        "url":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "usedFor":  "May 2026 PCE inflation",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "compliance":  {
+                       "disclaimer":  "Not investment advice.",
+                       "sourceSummary":  "Sources: Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026. Verify final figures before publishing."
+                   }
+}

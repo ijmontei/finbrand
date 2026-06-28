@@ -22,6 +22,7 @@ htmlcov/
 .vscode/
 content/**/videos/_work/
 content/**/videos/_work_pro/
+content/**/videos/**/_work/
 content/**/videos/qa_*/
 content/**/videos/*.concat.txt
 content/**/videos/*-preview.png
