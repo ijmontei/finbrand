@@ -1,6 +1,8 @@
 # Market Signal Studio
 
-Market Signal Studio is a rights-aware editorial engine for short-form finance content. It is built around the stronger version of the idea: automated signal detection, source-grounded research packets, original commentary, visual explanation, and human approval before anything gets published.
+Market Signal Studio is a finance content brand system. The software in this repo is infrastructure for the real product: source-backed long-form and short-form market commentary that feels original, analytical, and human-edited.
+
+It is built around the stronger version of the idea: automated signal detection, source-grounded research packets, original commentary, visual explanation, and human approval before anything gets published.
 
 The first product lane is:
 
@@ -8,6 +10,7 @@ The first product lane is:
 
 ## What is included
 
+- A content archive under `content/` with generated long-form scripts, newsletters, short-form scripts, source notes, and critique/revision logs.
 - Python editorial engine for source normalization, entity mapping, story clustering, ranking, script drafting, chart ideas, and compliance QA.
 - FastAPI backend exposing story, package, RSS ingest, and QA endpoints.
 - React dashboard for reviewing the story slate, source trail, scoring rationale, generated script, and publishing gates.
@@ -20,7 +23,7 @@ The first product lane is:
 
 ## Why this shape
 
-The project intentionally avoids the fragile version of "AI reads financial headlines." Discovery APIs can help find candidates, but the durable product is a source-verifiable editorial workflow. The system should be able to answer:
+The project intentionally avoids the fragile version of "AI reads financial headlines." Discovery APIs can help find candidates, but the durable product is a source-verifiable editorial workflow that creates actual publishable content. The system should be able to answer:
 
 - What happened?
 - Who or what did it affect?
@@ -28,6 +31,8 @@ The project intentionally avoids the fragile version of "AI reads financial head
 - What primary or first-party source backs the claim?
 - What chart would make the explanation clearer?
 - What is still uncertain?
+
+The dashboard and scripts are not the product by themselves. They are the production desk for a finance media brand.
 
 ## Local setup
 
