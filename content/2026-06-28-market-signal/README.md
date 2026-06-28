@@ -16,7 +16,7 @@ This package turns that thesis into publishable long-form and short-form drafts 
 - `longform-newsletter.md`: Final newsletter / article draft.
 - `youtube-script.md`: Final long-form video script.
 - `shortform-scripts.md`: Ten short-form video scripts with captions and visual notes.
-- `videos/`: Rendered MP4 video drafts.
+- `videos/`: Rendered professional-editorial MP4 video drafts.
 - `video-production-notes.md`: Video render notes, critique, and next polish steps.
 - `critique-and-revision.md`: Quality review, issues found, and revisions applied.
 
