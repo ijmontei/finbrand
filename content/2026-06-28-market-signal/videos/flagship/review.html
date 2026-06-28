@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Market Signal Studio - Fed Flagship Review</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f14;
+        --panel: #111821;
+        --panel-2: #16202a;
+        --text: #f4f7fa;
+        --muted: #a9b4c0;
+        --rule: #354252;
+        --policy: #32c5c7;
+        --warning: #ffb84d;
+        --negative: #ff4d5f;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+      }
+
+      main {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px;
+      }
+
+      header {
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 28px;
+        padding-bottom: 22px;
+      }
+
+      h1,
+      h2 {
+        letter-spacing: 0;
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+
+      h2 {
+        font-size: 20px;
+        margin-bottom: 14px;
+      }
+
+      p {
+        color: var(--muted);
+        line-height: 1.5;
+        margin: 8px 0 0;
+      }
+
+      a {
+        color: var(--policy);
+      }
+
+      .grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: minmax(280px, 420px) 1fr;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .stack {
+        display: grid;
+        gap: 20px;
+      }
+
+      video,
+      img {
+        background: #05080c;
+        border: 1px solid var(--rule);
+        border-radius: 8px;
+        display: block;
+        width: 100%;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .chip {
+        background: var(--panel-2);
+        border: 1px solid var(--rule);
+        border-radius: 999px;
+        color: var(--muted);
+        font-family: Consolas, monospace;
+        font-size: 13px;
+        padding: 7px 11px;
+      }
+
+      .pass {
+        color: var(--policy);
+      }
+
+      .warn {
+        color: var(--warning);
+      }
+
+      ul {
+        color: var(--muted);
+        line-height: 1.6;
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      @media (max-width: 900px) {
+        main {
+          padding: 20px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Fed Flagship Review</h1>
+        <p>Motion-first dark-market template for <strong>Pause Is Not Pivot</strong>.</p>
+        <div class="chips">
+          <span class="chip">1080x1920</span>
+          <span class="chip">29.5s</span>
+          <span class="chip">30 fps</span>
+          <span class="chip">AAC 48 kHz stereo</span>
+          <span class="chip">visualIntent: target_gap</span>
+        </div>
+      </header>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>MP4 Master</h2>
+          <video controls preload="metadata" poster="2026-06-28-fed-pause-not-pivot-v03-thumbnail.png">
+            <source src="2026-06-28-fed-pause-not-pivot-v03.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        <div class="stack">
+          <div class="panel">
+            <h2>QA Summary</h2>
+            <ul>
+              <li><span class="pass">Pass</span>: safe zones, contrast, chart labels, source metadata, blank-frame check.</li>
+              <li><span class="pass">Pass</span>: upload-master bitrate, H.264 video, AAC 48 kHz stereo audio.</li>
+              <li><span class="warn">Review</span>: synthetic local narration should be replaced before final channel launch.</li>
+            </ul>
+            <p>
+              Files:
+              <a href="2026-06-28-fed-pause-not-pivot-v03-render-manifest.json">render manifest</a>,
+              <a href="2026-06-28-fed-pause-not-pivot-v03-source-manifest.json">source manifest</a>,
+              <a href="2026-06-28-fed-pause-not-pivot-v03-qa.json">QA JSON</a>,
+              <a href="2026-06-28-fed-pause-not-pivot-v03-captions.srt">captions</a>,
+              <a href="2026-06-28-fed-pause-not-pivot-v03-platform-caption.txt">platform caption</a>.
+            </p>
+          </div>
+
+          <div class="panel">
+            <h2>Safe-Zone Contact Sheet</h2>
+            <img src="2026-06-28-fed-pause-not-pivot-v03-qa-contact-sheet.png" alt="Safe-zone QA contact sheet" />
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

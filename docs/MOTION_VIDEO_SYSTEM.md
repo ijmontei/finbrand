@@ -30,6 +30,7 @@ The command exports:
 - QA JSON.
 - Safe-zone contact sheet.
 - Platform caption draft.
+- Local review page.
 
 It also replaces `videos/01-the-fed-did-not-blink.mp4` with the flagship render and updates the package `video_manifest.json`.
 
@@ -72,6 +73,16 @@ Current export target:
 - H.264.
 - AAC, 48 kHz, stereo.
 - Loudness-normalized audio filter.
+
+## Review Page
+
+Open:
+
+```text
+content/2026-06-28-market-signal/videos/flagship/review.html
+```
+
+The page gives a non-programmer review surface for the MP4, thumbnail/poster frame, QA contact sheet, captions, source manifest, render manifest, QA JSON, and platform caption draft.
 
 ## Next Template Targets
 

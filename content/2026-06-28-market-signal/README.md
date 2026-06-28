@@ -18,7 +18,7 @@ This package turns that thesis into publishable long-form and short-form drafts 
 - `shortform-scripts.md`: Ten short-form video scripts with captions and visual notes.
 - `stories/`: Structured story contracts for motion-first renders.
 - `videos/`: Rendered professional-editorial MP4 video drafts.
-- `videos/flagship/`: Motion-first Fed flagship render, thumbnail, captions, source manifest, render manifest, and QA artifacts.
+- `videos/flagship/`: Motion-first Fed flagship render, review page, thumbnail, captions, source manifest, render manifest, and QA artifacts.
 - `video-production-notes.md`: Video render notes, critique, and next polish steps.
 - `critique-and-revision.md`: Quality review, issues found, and revisions applied.
 
