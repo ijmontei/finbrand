@@ -5,7 +5,7 @@ This repo now includes a high-retention flagship template for source-backed mark
 ## Current Flagship Template
 
 - Template: Fed / policy reaction
-- Story: `2026-06-28-fed-pause-not-pivot-v04`
+- Story: `2026-06-28-fed-pause-not-pivot-v05`
 - Visual intent: `target_gap`
 - Theme: `high_retention_market`
 
@@ -48,6 +48,8 @@ Implemented components:
 - `SafeZoneOverlay`
 - `ForbiddenCopyValidator`
 - `EllipsisValidator`
+- `BlueprintStoryContract`
+- `ElevenLabsNarration`
 
 The current renderer draws frames directly with .NET `System.Drawing`, then encodes with FFmpeg. The structure is intentionally compatible with a future Remotion/React migration: story data, scenes, metrics, source metadata, timing, and QA artifacts are already separated from the renderer.
 
@@ -61,12 +63,17 @@ Current automated QA writes:
 - Chart-label status.
 - Source metadata status.
 - Data-integrity status.
+- Production-contract status.
+- Scene-grammar status.
+- Compliance-trust status.
+- Hook-variant status.
 - Forbidden-copy status.
 - Ellipsis status.
 - Retention-beat status.
 - Blank-frame status.
 - Motion-cadence status.
 - Audio encoding status.
+- Voice provider and organic-voice status.
 
 Current export target:
 
@@ -75,6 +82,8 @@ Current export target:
 - H.264.
 - AAC, 48 kHz, stereo.
 - Loudness-normalized audio filter.
+- Target duration: 55-70 seconds, hard cap 85 seconds.
+- ElevenLabs voice `HAM2nE4sbHnPgMji6JqB` when `ELEVENLABS_API_KEY` or `XI_API_KEY` is available.
 
 ## Review Page
 

@@ -1,0 +1,99 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v05",
+    "createdAt":  "2026-06-29T12:56:55.7747968+03:00",
+    "durationSeconds":  58,
+    "dimensions":  "1080x1920",
+    "fps":  30,
+    "theme":  "high_retention_market",
+    "storyType":  "policy_reaction",
+    "topicType":  "macro",
+    "visualIntent":  "target_gap",
+    "visualStylePack":  "editorial_data_board",
+    "productionContract":  {
+                               "format":  "9:16 vertical",
+                               "targetDurationSecondsMin":  55,
+                               "targetDurationSecondsMax":  70,
+                               "hardCapSeconds":  85,
+                               "defaultStructure":  "one thesis, one causal chain, one proof visual, one forward implication",
+                               "motionCadenceMaxStaticSeconds":  2.5,
+                               "selectiveCaptions":  true,
+                               "trustVisible":  true
+                           },
+    "angleScore":  {
+                       "surprise":  8,
+                       "consequence":  8,
+                       "mechanismClarity":  9,
+                       "visualProof":  9,
+                       "audiencePayoff":  8,
+                       "platformFit":  9,
+                       "total":  51,
+                       "rationale":  "A rate hold sounds dovish until the target gap explains why the cut bar stayed high."
+                   },
+    "voice":  {
+                  "provider":  "elevenlabs",
+                  "requestedVoiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "voiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "modelId":  "eleven_v3",
+                  "outputFormat":  "mp3_44100_192",
+                  "envLoaded":  true,
+                  "organicVoice":  "pass"
+              },
+    "files":  {
+                  "mp4":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05.mp4",
+                  "thumbnail":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-thumbnail.png",
+                  "captions":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-captions.srt",
+                  "sourceManifest":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-source-manifest.json",
+                  "qa":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-qa.json",
+                  "contactSheet":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-qa-contact-sheet.png",
+                  "platformCaption":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v05-platform-caption.txt"
+              },
+    "sources":  [
+                    {
+                        "name":  "Federal Reserve",
+                        "url":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "usedFor":  "June FOMC target range and statement tone",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "name":  "BEA",
+                        "url":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "usedFor":  "May 2026 PCE inflation",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "qa":  {
+               "renderId":  "2026-06-28-fed-pause-not-pivot-v05",
+               "safeZones":  "pass",
+               "productionContract":  "pass",
+               "sceneGrammar":  "pass",
+               "complianceTrust":  "pass",
+               "hookVariants":  "pass",
+               "contrast":  "pass",
+               "contrastRatios":  {
+                                      "primaryOnBackground":  17.88,
+                                      "secondaryOnBackground":  9.13
+                                  },
+               "textOverflow":  "pass",
+               "chartLabels":  "pass",
+               "sourceMetadata":  "pass",
+               "dataIntegrity":  "pass",
+               "forbiddenCopy":  "pass",
+               "ellipsis":  "pass",
+               "retentionBeats":  "pass",
+               "blankFrames":  "pass",
+               "motionCadence":  "pass",
+               "audio":  "encoded AAC 48kHz stereo with loudness normalization",
+               "voice":  {
+                             "provider":  "elevenlabs",
+                             "requestedVoiceId":  "HAM2nE4sbHnPgMji6JqB",
+                             "voiceId":  "HAM2nE4sbHnPgMji6JqB",
+                             "modelId":  "eleven_v3",
+                             "outputFormat":  "mp3_44100_192",
+                             "envLoaded":  true,
+                             "organicVoice":  "pass"
+                         },
+               "warnings":  [
+
+                            ]
+           }
+}

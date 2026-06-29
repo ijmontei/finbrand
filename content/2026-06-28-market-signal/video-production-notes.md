@@ -38,7 +38,7 @@ The renderer uses:
 - PowerShell and .NET `System.Drawing` for branded editorial frames.
 - Re-created bar and line charts using sourced market/economic figures.
 - Rights-safe custom illustrations for Fed, consumer, energy, jobs, AI, and market-map visuals.
-- Windows `System.Speech` for local narration WAVs.
+- ElevenLabs for production narration, with Windows `System.Speech` only as a test-render fallback.
 - `ffmpeg` for zoom/pan motion, fades, MP4 assembly, and audio muxing.
 
 No external video service is required for these drafts.
@@ -49,7 +49,8 @@ The high-retention Fed renderer additionally exports a thumbnail, SRT captions, 
 
 What is working:
 
-- The Fed example is now rebuilt as a retention-first flagship template with a conflict hook, target-gap proof chart, risk map, catalysts, and loopback close.
+- The Fed example is now rebuilt as a 58-second retention-first flagship with a conflict hook, context anchor, tension frame, two-step mechanism, target-gap proof chart, implication map, catalysts, and loopback close.
+- The flagship now uses the configured ElevenLabs voice `HAM2nE4sbHnPgMji6JqB` when the API key is available.
 - The videos are no longer static generic cards; each one opens with a large thesis frame.
 - The visual system now feels closer to a clean financial explainer format.
 - Re-created charts make the evidence more legible for normal consumers.
@@ -58,7 +59,6 @@ What is working:
 
 What still needs improvement before final publishing:
 
-- Replace local synthetic narration with a recorded voice or higher-quality licensed TTS.
 - Extend the high-retention renderer from the Fed template to the remaining nine shorts.
 - Add timed burned-in captions or per-beat kinetic text for mobile retention.
 - Add source lower-thirds or QR/source cards for platform trust.
@@ -69,7 +69,7 @@ What still needs improvement before final publishing:
 
 Start with either:
 
-- `videos/flagship/2026-06-28-fed-pause-not-pivot-v04.mp4`
+- `videos/flagship/2026-06-28-fed-pause-not-pivot-v05.mp4`
 - `03-core-cpi-looked-better-energy-did-not.mp4`
 - `05-ai-demand-is-real-the-multiple-is-the-question.mp4`
 

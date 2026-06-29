@@ -2,7 +2,12 @@ param(
   [string]$StoryPath = "content\2026-06-28-market-signal\stories\fed-pause-not-pivot.json",
   [string]$OutputDir = "",
   [switch]$NoReplacePrimary,
-  [switch]$KeepWork
+  [switch]$KeepWork,
+  [string]$ElevenLabsVoiceId = "HAM2nE4sbHnPgMji6JqB",
+  [string]$ElevenLabsModelId = "",
+  [string]$ElevenLabsOutputFormat = "",
+  [string]$ElevenLabsEnvPath = "",
+  [switch]$ForceLocalNarration
 )
 
 $ErrorActionPreference = "Stop"
@@ -23,6 +28,55 @@ $outputPath = if ($OutputDir) {
 $workPath = Join-Path $outputPath "_work"
 $framesPath = Join-Path $workPath "frames"
 New-Item -ItemType Directory -Force -Path $outputPath, $workPath, $framesPath | Out-Null
+
+function Import-DotEnvFile([string]$path) {
+  if (-not $path -or -not (Test-Path -LiteralPath $path)) { return $false }
+  foreach ($line in Get-Content -LiteralPath $path) {
+    if ($line -notmatch "^\s*([^#=\s][^=]*)=(.*)$") { continue }
+    $key = $matches[1].Trim()
+    $value = $matches[2].Trim()
+    if (($value.StartsWith('"') -and $value.EndsWith('"')) -or ($value.StartsWith("'") -and $value.EndsWith("'"))) {
+      $value = $value.Substring(1, $value.Length - 2)
+    }
+    if (-not [Environment]::GetEnvironmentVariable($key, "Process")) {
+      [Environment]::SetEnvironmentVariable($key, $value, "Process")
+    }
+  }
+  return $true
+}
+
+function Get-EnvDouble([string]$name, [double]$fallback) {
+  $value = [Environment]::GetEnvironmentVariable($name, "Process")
+  if (-not $value) { return $fallback }
+  $parsed = 0.0
+  if ([double]::TryParse($value, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$parsed)) {
+    return $parsed
+  }
+  return $fallback
+}
+
+$candidateEnvPaths = @()
+if ($ElevenLabsEnvPath) { $candidateEnvPaths += $ElevenLabsEnvPath }
+$candidateEnvPaths += (Join-Path $root ".env")
+$candidateEnvPaths += "C:\Users\Admin\Desktop\shortform\.env"
+$loadedEnvPath = ""
+foreach ($candidateEnvPath in $candidateEnvPaths) {
+  if (Import-DotEnvFile $candidateEnvPath) {
+    $loadedEnvPath = $candidateEnvPath
+    break
+  }
+}
+
+if (-not $ElevenLabsModelId) {
+  $ElevenLabsModelId = if ($env:ELEVENLABS_MODEL_ID) { $env:ELEVENLABS_MODEL_ID.Trim() } else { "eleven_v3" }
+}
+if (-not $ElevenLabsOutputFormat) {
+  $ElevenLabsOutputFormat = if ($env:ELEVENLABS_OUTPUT_FORMAT) { $env:ELEVENLABS_OUTPUT_FORMAT.Trim() } else { "mp3_44100_192" }
+}
+$ElevenLabsStability = Get-EnvDouble "ELEVENLABS_STABILITY" 0.16
+$ElevenLabsSimilarityBoost = Get-EnvDouble "ELEVENLABS_SIMILARITY_BOOST" 0.94
+$ElevenLabsStyle = Get-EnvDouble "ELEVENLABS_STYLE" 0.98
+$ElevenLabsSpeakerBoost = if ($env:ELEVENLABS_SPEAKER_BOOST) { $env:ELEVENLABS_SPEAKER_BOOST -ne "0" } else { $true }
 
 $palette = @{
   bg = "#0B0F14"
@@ -253,12 +307,12 @@ function Draw-AmbientTicker($g, [int]$w, [int]$h, [int]$frame) {
 }
 
 function Draw-ImpactHook($g, $story, [int]$frame) {
-  $p = Get-SceneProgress $frame 0 150
-  $hit1 = Ease-OutCubic (Get-SceneProgress $frame 0 22)
+  $p = Get-SceneProgress $frame 0 75
+  $hit1 = Ease-OutCubic (Get-SceneProgress $frame 0 12)
   $hit2 = 1
-  $hit3 = Ease-OutCubic (Get-SceneProgress $frame 48 28)
-  $resolve = Ease-OutCubic (Get-SceneProgress $frame 76 44)
-  $tease = Ease-OutCubic (Get-SceneProgress $frame 118 32)
+  $hit3 = Ease-OutCubic (Get-SceneProgress $frame 18 16)
+  $resolve = Ease-OutCubic (Get-SceneProgress $frame 34 22)
+  $tease = Ease-OutCubic (Get-SceneProgress $frame 52 18)
   $mono = New-Font 32 "Bold" "Consolas"
 
   Draw-Text $g "FIRST 3 SECONDS" $mono $palette.warning 96 190 420 42
@@ -306,35 +360,130 @@ function Draw-ImpactHook($g, $story, [int]$frame) {
   $mono.Dispose()
 }
 
-function Draw-ExpectationVsReality($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 150 120)
+function Draw-ContextAnchor($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 75 135)
   $mono = New-Font 25 "Bold" "Consolas"
-  Draw-Text $g "EXPECTATION" $mono $palette.muted 96 192 420 38
-  Draw-Text $g "Relief trade" (New-Font 68 "Bold") $palette.positive 96 240 860 82
-  Draw-Text $g "REALITY" $mono $palette.warning 96 374 420 38
-  Draw-Text $g "Conditions first" (New-Font 72 "Bold") $palette.warning 96 422 860 86
+  Draw-Text $g "CONTEXT ANCHOR" $mono $palette.warning 96 190 480 38
+  Draw-Text $g "The Fed" (New-Font 72 "Bold") $palette.text 96 250 820 100
+  Draw-Text $g "held rates." (New-Font 72 "Bold") $palette.policy 96 344 820 120
+
+  Fill-RoundedRect $g 96 548 840 292 30 $palette.panel $palette.rule 1
+  Draw-Text $g "TARGET RANGE" $mono $palette.textSecondary 132 592 320 36
+  Draw-Text $g $story.hook.primaryNumber (New-Font 86 "Bold" "Consolas") $palette.policy 132 646 560 104
+  Draw-Text $g "unchanged after the June FOMC decision" (New-Font 34 "Bold") $palette.text 132 764 720 48
+
+  $barX = 132
+  $barY = 936
+  Fill-RoundedRect $g $barX $barY 760 108 24 $palette.panelElevated $palette.rule 1
+  $fillW = 120 + (600 * $p)
+  Fill-RoundedRect $g $barX $barY $fillW 108 24 $palette.panelSoft "" 0
+  Draw-Text $g "Event" $mono $palette.textSecondary ($barX + 28) ($barY + 20) 140 30
+  Draw-Text $g "a hold, not a cut" (New-Font 38 "Bold") $palette.text ($barX + 180) ($barY + 32) 520 50
+  Draw-Text $g "The setup: a steady decision with a conditional cut path." (New-Font 28 "Regular") $palette.textSecondary 132 1116 760 50
+  Draw-SourceCapsule $g $story 96 1328 840
+  $mono.Dispose()
+}
+
+function Draw-TensionFrame($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 210 240)
+  $mono = New-Font 25 "Bold" "Consolas"
+  Draw-Text $g "WHY THIS IS WEIRD" $mono $palette.warning 96 190 520 38
+  Draw-Text $g "The hold looked calm." (New-Font 58 "Bold") $palette.text 96 240 880 74
+  Draw-Text $g "The message was not." (New-Font 68 "Bold") $palette.warning 96 318 880 86
 
   $expectX = 96 - ((1 - $p) * 52)
   $actualX = 548 + ((1 - $p) * 52)
-  Fill-RoundedRect $g $expectX 616 382 276 28 $palette.panel $palette.rule 1
-  Fill-RoundedRect $g $actualX 616 388 276 28 $palette.panelElevated $palette.policy 3
-  Draw-Text $g "MARKET WANTED" $mono $palette.textSecondary ($expectX + 30) 648 300 34
-  Draw-Text $g "CUTS" (New-Font 60 "Bold") $palette.positive ($expectX + 30) 700 250 72
-  Draw-Text $g "Lower-rate path" (New-Font 29 "Regular") $palette.textSecondary ($expectX + 30) 790 300 42
-  Draw-Text $g "FED DELIVERED" $mono $palette.textSecondary ($actualX + 30) 648 300 34
-  Draw-Text $g "PROOF" (New-Font 60 "Bold") $palette.warning ($actualX + 30) 700 250 72
-  Draw-Text $g "Inflation must cool" (New-Font 29 "Regular") $palette.textSecondary ($actualX + 30) 790 300 42
+  Fill-RoundedRect $g $expectX 560 388 286 28 $palette.panel $palette.rule 1
+  Fill-RoundedRect $g $actualX 560 388 286 28 $palette.panelElevated $palette.policy 3
+  Draw-Text $g "MARKET READ" $mono $palette.textSecondary ($expectX + 30) 596 300 34
+  Draw-Text $g "RELIEF" (New-Font 58 "Bold") $palette.positive ($expectX + 30) 648 260 72
+  Draw-Text $g "lower-rate path" (New-Font 29 "Regular") $palette.textSecondary ($expectX + 30) 738 300 42
+  Draw-Text $g "FED BAR" $mono $palette.textSecondary ($actualX + 30) 596 300 34
+  Draw-Text $g "PROOF" (New-Font 58 "Bold") $palette.warning ($actualX + 30) 648 260 72
+  Draw-Text $g "inflation must cool" (New-Font 29 "Regular") $palette.textSecondary ($actualX + 30) 738 300 42
 
-  Fill-RoundedRect $g 96 1008 840 168 24 $palette.panel "" 0
-  Draw-Text $g "3.50-3.75%" (New-Font 54 "Bold" "Consolas") $palette.policy 132 1046 360 64
-  Draw-Text $g "target range unchanged" (New-Font 34 "Bold") $palette.text 470 1052 430 50
-  Draw-Text $g "Decision steady. Cut bar intact." (New-Font 30 "Regular") $palette.textSecondary 132 1120 720 40
+  Fill-RoundedRect $g 96 948 840 188 24 $palette.panel "" 0
+  Draw-Text $g "4.1%" (New-Font 64 "Bold" "Consolas") $palette.negative 132 988 190 74
+  Draw-Text $g "PCE inflation is still not close enough to 2.0% target." (New-Font 34 "Bold") $palette.text 332 992 560 86
+  Draw-Text $g "That mismatch is the story engine." (New-Font 30 "Regular") $palette.textSecondary 132 1082 720 40
+  Draw-SourceCapsule $g $story 96 1328 840
+  $mono.Dispose()
+}
+
+function Draw-MechanismStepOne($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 450 210)
+  $mono = New-Font 25 "Bold" "Consolas"
+  Draw-Text $g "MECHANISM / STEP 1" $mono $palette.warning 96 190 520 38
+  Draw-Text $g "Trigger:" (New-Font 64 "Bold") $palette.text 96 248 300 82
+  Draw-Text $g "the cut bar" (New-Font 64 "Bold") $palette.policy 96 328 660 82
+  Draw-Text $g "stayed high." (New-Font 72 "Bold") $palette.warning 96 408 760 90
+
+  $nodes = @(
+    @("PCE", "4.1%", $palette.negative),
+    @("TARGET", "2.0%", $palette.neutral),
+    @("GAP", "+2.1 pp", $palette.warning)
+  )
+  for ($i = 0; $i -lt $nodes.Count; $i++) {
+    $local = Ease-OutCubic (($p * 1.35) - ($i * 0.18))
+    $x = 96 + ($i * 292)
+    $y = 650 + ((1 - $local) * 44)
+    Fill-RoundedRect $g $x $y 254 180 28 $palette.panel $nodes[$i][2] 2
+    Draw-Text $g $nodes[$i][0] $mono $palette.textSecondary ($x + 26) ($y + 28) 190 34
+    Draw-Text $g $nodes[$i][1] (New-Font 54 "Bold" "Consolas") $nodes[$i][2] ($x + 26) ($y + 82) 190 68
+    if ($i -lt ($nodes.Count - 1) -and $local -gt 0.6) {
+      $arrow = New-AlphaPen $palette.rule 230 6
+      $arrow.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+      $arrow.EndCap = [System.Drawing.Drawing2D.LineCap]::ArrowAnchor
+      $g.DrawLine($arrow, ($x + 262), ($y + 92), ($x + 288), ($y + 92))
+      $arrow.Dispose()
+    }
+  }
+
+  Fill-RoundedRect $g 96 1002 840 146 24 $palette.panelElevated "" 0
+  Draw-Text $g "Fact" (New-Font 25 "Bold" "Consolas") $palette.policy 128 1034 120 30
+  Draw-Text $g "The Fed held. The inflation gap is still visible." (New-Font 31 "Bold") $palette.text 248 1024 620 58
+  Draw-Text $g "That is why the hold is not automatic easing." (New-Font 27 "Regular") $palette.textSecondary 128 1090 740 44
+  Draw-SourceCapsule $g $story 96 1328 840
+  $mono.Dispose()
+}
+
+function Draw-MechanismStepTwo($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 660 210)
+  $mono = New-Font 25 "Bold" "Consolas"
+  Draw-Text $g "MECHANISM / STEP 2" $mono $palette.warning 96 190 520 38
+  Draw-Text $g "Transmission:" (New-Font 58 "Bold") $palette.text 96 246 840 76
+  Draw-Text $g "rate math still matters." (New-Font 66 "Bold") $palette.warning 96 324 860 88
+
+  $chain = @(
+    @("Cut path", "conditional", $palette.policy),
+    @("Discount rates", "stay important", $palette.warning),
+    @("Growth multiples", "stay exposed", $palette.negative)
+  )
+  for ($i = 0; $i -lt $chain.Count; $i++) {
+    $local = Ease-OutCubic (($p * 1.25) - ($i * 0.16))
+    $y = 548 + ($i * 184) + ((1 - $local) * 44)
+    Fill-RoundedRect $g 116 $y 806 138 24 $palette.panel $palette.rule 1
+    Fill-RoundedRect $g 142 ($y + 32) 58 58 29 $palette.panelElevated $chain[$i][2] 3
+    Draw-Text $g ([string]($i + 1)) (New-Font 30 "Bold" "Consolas") $chain[$i][2] 158 ($y + 46) 28 36 "Center"
+    Draw-Text $g $chain[$i][0] (New-Font 38 "Bold") $palette.text 232 ($y + 28) 420 48
+    Draw-Text $g $chain[$i][1] (New-Font 30 "Regular") $palette.textSecondary 232 ($y + 82) 520 38
+    if ($i -lt ($chain.Count - 1) -and $local -gt 0.55) {
+      $arrow = New-AlphaPen $chain[$i][2] 180 5
+      $arrow.EndCap = [System.Drawing.Drawing2D.LineCap]::ArrowAnchor
+      $g.DrawLine($arrow, 520, ($y + 144), 520, ($y + 178))
+      $arrow.Dispose()
+    }
+  }
+
+  Fill-RoundedRect $g 96 1144 840 84 20 $palette.panelElevated "" 0
+  Draw-Text $g "Analysis" (New-Font 24 "Bold" "Consolas") $palette.warning 128 1172 160 30
+  Draw-Text $g "Analysis, not a live market move." (New-Font 29 "Regular") $palette.textSecondary 292 1171 600 36
   Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
 
 function Draw-GapProofChart($g, $story, [int]$frame) {
-  $p = Ease-InOutCubic (Get-SceneProgress $frame 270 210)
+  $p = Ease-InOutCubic (Get-SceneProgress $frame 870 150)
   $mono = New-Font 25 "Bold" "Consolas"
   Draw-Text $g "THE PROOF" $mono $palette.warning 96 190 420 38
   Draw-Text $g "Inflation is still" (New-Font 68 "Bold") $palette.text 96 238 860 80
@@ -398,56 +547,63 @@ function Draw-GapProofChart($g, $story, [int]$frame) {
   $mono.Dispose()
 }
 
-function Draw-RiskExposureStack($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 480 210)
+function Draw-ImplicationFrame($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 1230 360)
   $mono = New-Font 25 "Bold" "Consolas"
-  Draw-Text $g $story.marketConsequence.label.ToUpperInvariant() $mono $palette.warning 96 190 420 38
-  Draw-Text $g "Rate-sensitive trades" (New-Font 62 "Bold") $palette.text 96 238 880 76
-  Draw-Text $g "stay exposed." (New-Font 72 "Bold") $palette.warning 96 312 860 84
-  Draw-Text $g "This is a setup, not a live reaction print." (New-Font 32 "Regular") $palette.textSecondary 96 414 820 48
+  Draw-Text $g "IMPLICATION" $mono $palette.warning 96 190 420 38
+  Draw-Text $g "Who feels it" (New-Font 62 "Bold") $palette.text 96 238 880 76
+  Draw-Text $g "next?" (New-Font 72 "Bold") $palette.warning 96 312 860 84
+  Draw-Text $g $story.marketConsequence.factVsInference (New-Font 28 "Regular") $palette.textSecondary 96 414 840 72 "Near" "Near" 2
 
   $risks = @($story.marketConsequence.riskMap)
   for ($i = 0; $i -lt $risks.Count; $i++) {
     $risk = $risks[$i]
     $local = Ease-OutCubic (($p * 1.25) - ($i * 0.18))
-    $y = 556 + ($i * 190) + ((1 - $local) * 34)
+    $y = 558 + ($i * 172) + ((1 - $local) * 34)
     $accent = if ($risk.status -eq "Exposed") { $palette.negative } elseif ($risk.status -eq "Watch") { $palette.warning } else { $palette.policy }
-    Fill-RoundedRect $g 96 $y 840 150 24 $palette.panel $palette.rule 1
-    Fill-RoundedRect $g 126 ($y + 28) 150 52 18 $palette.panelElevated $accent 2
-    Draw-Text $g $risk.status.ToUpperInvariant() (New-Font 22 "Bold" "Consolas") $accent 140 ($y + 42) 122 26 "Center"
-    Draw-Text $g $risk.label (New-Font 38 "Bold") $palette.text 304 ($y + 28) 470 48
-    Draw-Text $g $risk.reason (New-Font 28 "Regular") $palette.textSecondary 304 ($y + 84) 500 40
+    Fill-RoundedRect $g 96 $y 840 136 24 $palette.panel $palette.rule 1
+    Fill-RoundedRect $g 126 ($y + 28) 150 48 18 $palette.panelElevated $accent 2
+    Draw-Text $g $risk.status.ToUpperInvariant() (New-Font 21 "Bold" "Consolas") $accent 140 ($y + 40) 122 26 "Center"
+    Draw-Text $g $risk.label (New-Font 36 "Bold") $palette.text 304 ($y + 24) 470 46
+    Draw-Text $g $risk.reason (New-Font 27 "Regular") $palette.textSecondary 304 ($y + 78) 500 38
     $meterPen = New-AlphaPen $accent 190 5
-    $g.DrawLine($meterPen, 760, ($y + 76), 900, ($y + 76))
-    $g.DrawLine($meterPen, 900, ($y + 76), 872, ($y + 48))
-    $g.DrawLine($meterPen, 900, ($y + 76), 872, ($y + 104))
+    $g.DrawLine($meterPen, 760, ($y + 68), 900, ($y + 68))
+    $g.DrawLine($meterPen, 900, ($y + 68), 872, ($y + 40))
+    $g.DrawLine($meterPen, 900, ($y + 68), 872, ($y + 96))
     $meterPen.Dispose()
   }
+
+  $catalysts = @($story.nextCatalysts)
+  Fill-RoundedRect $g 96 1108 840 118 22 $palette.panelElevated "" 0
+  Draw-Text $g "WATCH NEXT" $mono $palette.policy 126 1134 180 30
+  Draw-Text $g (($catalysts -join " / ")) (New-Font 31 "Bold") $palette.text 314 1126 580 44
+  Draw-Text $g "The next data print matters more than the hold headline." (New-Font 25 "Regular") $palette.textSecondary 126 1178 720 34
   Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
 
 function Draw-LoopbackClose($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 690 195)
+  $p = Ease-OutCubic (Get-SceneProgress $frame 1590 150)
   $mono = New-Font 27 "Bold" "Consolas"
-  Draw-Text $g "BOTTOM LINE" $mono $palette.warning 96 190 420 40
+  Draw-Text $g "LOOPBACK" $mono $palette.warning 96 190 420 40
   Draw-Text $g "Pause was" (New-Font 68 "Bold") $palette.text 96 250 840 120
   Draw-Text $g "the decision." (New-Font 68 "Bold") $palette.policy 96 334 840 120
-  Draw-Text $g "Not the pivot." (New-Font 78 "Bold") $palette.negative 96 452 840 132
+  Draw-Text $g "The pivot" (New-Font 72 "Bold") $palette.text 96 452 840 96
+  Draw-Text $g "still needs proof." (New-Font 72 "Bold") $palette.negative 96 536 840 104
 
   $catalysts = @($story.nextCatalysts)
   for ($i = 0; $i -lt $catalysts.Count; $i++) {
     $local = Ease-OutCubic (($p * 1.35) - ($i * 0.12))
     $x = 112 + (($i % 2) * 426)
-    $y = 700 + ([Math]::Floor($i / 2) * 150) + ((1 - $local) * 32)
+    $y = 750 + ([Math]::Floor($i / 2) * 142) + ((1 - $local) * 32)
     Fill-RoundedRect $g $x $y 382 104 22 $palette.panelElevated $palette.rule 1
     Draw-Text $g ("WATCH {0}" -f ($i + 1)) (New-Font 19 "Bold" "Consolas") $palette.muted ($x + 24) ($y + 16) 150 28
     Draw-Text $g $catalysts[$i] (New-Font 33 "Bold") $palette.text ($x + 24) ($y + 48) 330 44
   }
 
-  Fill-RoundedRect $g 96 1072 840 132 24 $palette.panel "" 0
-  Draw-Text $g "Loopback" (New-Font 24 "Bold" "Consolas") $palette.policy 128 1100 190 30
-  Draw-Text $g "A hold is not relief if inflation has to prove it." (New-Font 30 "Bold") $palette.text 128 1138 760 58
+  Fill-RoundedRect $g 96 1118 840 126 24 $palette.panel "" 0
+  Draw-Text $g "Education only" (New-Font 24 "Bold" "Consolas") $palette.policy 128 1144 240 30
+  Draw-Text $g "Not individualized investment advice." (New-Font 30 "Bold") $palette.text 128 1182 760 48
   Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
@@ -471,14 +627,20 @@ function Draw-Frame([string]$path, $story, [int]$frame, [switch]$OverlaySafeZone
   $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
   Draw-Base $g $w $h $frame
   Draw-Header $g $w "FED WATCH"
-  if ($frame -lt 150) {
+  if ($frame -lt 75) {
     Draw-ImpactHook $g $story $frame
-  } elseif ($frame -lt 270) {
-    Draw-ExpectationVsReality $g $story $frame
-  } elseif ($frame -lt 480) {
+  } elseif ($frame -lt 210) {
+    Draw-ContextAnchor $g $story $frame
+  } elseif ($frame -lt 450) {
+    Draw-TensionFrame $g $story $frame
+  } elseif ($frame -lt 660) {
+    Draw-MechanismStepOne $g $story $frame
+  } elseif ($frame -lt 870) {
+    Draw-MechanismStepTwo $g $story $frame
+  } elseif ($frame -lt 1230) {
     Draw-GapProofChart $g $story $frame
-  } elseif ($frame -lt 690) {
-    Draw-RiskExposureStack $g $story $frame
+  } elseif ($frame -lt 1590) {
+    Draw-ImplicationFrame $g $story $frame
   } else {
     Draw-LoopbackClose $g $story $frame
   }
@@ -508,7 +670,19 @@ function New-Thumbnail([string]$path, $story) {
   $bitmap.Dispose()
 }
 
-function New-Narration([string]$text, [string]$path) {
+function Get-ElevenLabsApiKey {
+  if ($env:ELEVENLABS_API_KEY) { return $env:ELEVENLABS_API_KEY }
+  if ($env:SHORTFORM_ELEVENLABS_API_KEY) { return $env:SHORTFORM_ELEVENLABS_API_KEY }
+  if ($env:XI_API_KEY) { return $env:XI_API_KEY }
+  return ""
+}
+
+function Get-ElevenLabsTtsText([string]$text, [string]$modelId) {
+  if ($modelId -ne "eleven_v3") { return $text }
+  return "[fast-paced finance explainer host, deeper organic voice, high inflection, sharp curiosity, confident but conversational, natural pauses, not monotone] $text"
+}
+
+function New-LocalNarration([string]$text, [string]$path, [string]$warning) {
   $voice = [System.Speech.Synthesis.SpeechSynthesizer]::new()
   $voice.SelectVoice("Microsoft Zira Desktop")
   $voice.Rate = 2
@@ -517,6 +691,68 @@ function New-Narration([string]$text, [string]$path) {
   $voice.Speak($text)
   $voice.SetOutputToNull()
   $voice.Dispose()
+  return [PSCustomObject]@{
+    provider = "local_system_speech"
+    requestedVoiceId = $ElevenLabsVoiceId
+    voiceId = "Microsoft Zira Desktop"
+    modelId = "System.Speech"
+    outputFormat = "wav_48000_pcm"
+    envLoaded = [bool]$loadedEnvPath
+    outputPath = $path
+    warning = $warning
+  }
+}
+
+function New-ElevenLabsNarration([string]$text, [string]$path, [string]$voiceId, [string]$modelId) {
+  $apiKey = Get-ElevenLabsApiKey
+  if (-not $apiKey) { return $null }
+
+  $mp3Path = [System.IO.Path]::ChangeExtension($path, ".elevenlabs.mp3")
+  $uri = "https://api.elevenlabs.io/v1/text-to-speech/$voiceId" + "?output_format=$ElevenLabsOutputFormat"
+  $body = @{
+    text = Get-ElevenLabsTtsText $text $modelId
+    model_id = $modelId
+    voice_settings = @{
+      stability = $ElevenLabsStability
+      similarity_boost = $ElevenLabsSimilarityBoost
+      style = $ElevenLabsStyle
+      use_speaker_boost = $ElevenLabsSpeakerBoost
+    }
+  } | ConvertTo-Json -Depth 8
+
+  Invoke-WebRequest -Uri $uri -Method Post -Headers @{
+    "xi-api-key" = $apiKey
+    "Accept" = "audio/mpeg"
+  } -ContentType "application/json" -Body $body -OutFile $mp3Path | Out-Null
+
+  & ffmpeg -y -hide_banner -loglevel error -i $mp3Path -ar 48000 -ac 2 $path
+  if ($LASTEXITCODE -ne 0) { throw "ffmpeg failed while converting ElevenLabs narration to WAV" }
+
+  return [PSCustomObject]@{
+    provider = "elevenlabs"
+    requestedVoiceId = $voiceId
+    voiceId = $voiceId
+    modelId = $modelId
+    outputFormat = $ElevenLabsOutputFormat
+    envLoaded = [bool]$loadedEnvPath
+    outputPath = $path
+    sourceMp3 = $mp3Path
+    warning = $null
+  }
+}
+
+function New-Narration([string]$text, [string]$path) {
+  if (-not $ForceLocalNarration) {
+    try {
+      $elevenLabs = New-ElevenLabsNarration $text $path $ElevenLabsVoiceId $ElevenLabsModelId
+      if ($elevenLabs) { return $elevenLabs }
+      return New-LocalNarration $text $path "ElevenLabs API key not found; used local System.Speech fallback. Set ELEVENLABS_API_KEY or XI_API_KEY to use voice $ElevenLabsVoiceId."
+    } catch {
+      return New-LocalNarration $text $path ("ElevenLabs narration failed; used local System.Speech fallback. Reason: " + $_.Exception.Message)
+    }
+  }
+
+  return New-LocalNarration $text $path "Forced local narration; ElevenLabs was not requested for this render."
 }
 
 function Format-SrtTime([double]$seconds) {
@@ -534,7 +770,7 @@ function Write-Srt([string]$path, $story) {
     $lines.Add([string]($i + 1))
     $lines.Add((Format-SrtTime $start) + " --> " + (Format-SrtTime $end))
     $lines.Add($scene.caption)
-    $lines.Add("")
+    if ($i -lt ($story.scenes.Count - 1)) { $lines.Add("") }
   }
   Set-Content -LiteralPath $path -Value $lines -Encoding UTF8
 }
@@ -637,8 +873,125 @@ function Test-StoryContract($story) {
   return $errors
 }
 
+function Test-BlueprintStoryContract($story) {
+  $errors = New-Object System.Collections.Generic.List[string]
+  foreach ($field in @("topicType", "coreThesis", "hookType", "audiencePayoff", "angleScore", "productionContract", "sceneGrammar", "scriptPackage", "hookConflict", "proofMetric", "mechanismChain", "marketConsequence", "nextCatalysts", "sourceManifest", "retentionBeats")) {
+    if (-not ($story.PSObject.Properties.Name -contains $field)) {
+      $errors.Add("Missing required production-contract field: $field")
+    }
+  }
+
+  $storyText = ($story | ConvertTo-Json -Depth 30)
+  $forbiddenPatterns = @(
+    "upload note",
+    "fake precision",
+    "chart answers",
+    "source\.\.\.",
+    "why did",
+    "\.\.\.",
+    "\u2026",
+    "guaranteed",
+    "safe bet",
+    "can't lose",
+    "buy this now",
+    "next 10x",
+    "wall street secret",
+    "before it's too late"
+  )
+  foreach ($pattern in $forbiddenPatterns) {
+    if ($storyText -match $pattern) {
+      $errors.Add("Forbidden, promissory, or truncation-prone copy found: $pattern")
+    }
+  }
+
+  $duration = [double]$story.dimensions.durationSeconds
+  $targetMin = [double]$story.productionContract.targetDurationSecondsMin
+  $targetMax = [double]$story.productionContract.targetDurationSecondsMax
+  $hardCap = [double]$story.productionContract.hardCapSeconds
+  if ($duration -lt $targetMin -or $duration -gt $targetMax) {
+    $errors.Add("Duration $duration seconds is outside target range $targetMin-$targetMax seconds.")
+  }
+  if ($duration -gt $hardCap) {
+    $errors.Add("Duration $duration seconds exceeds hard cap $hardCap seconds.")
+  }
+
+  if (@($story.hookVariants).Count -lt 2) {
+    $errors.Add("At least two hook variants are required for first-three-second testing.")
+  }
+  if (@($story.headlineCardVariants).Count -lt 2) {
+    $errors.Add("At least two headline-card variants are required for lightweight testing.")
+  }
+
+  $requiredScenes = @("hook", "context", "tension", "mechanism_one", "mechanism_two", "proof", "implication", "loop")
+  $sceneIds = @($story.scenes | ForEach-Object { $_.id })
+  foreach ($requiredScene in $requiredScenes) {
+    if ($sceneIds -notcontains $requiredScene) {
+      $errors.Add("Missing required blueprint scene: $requiredScene")
+    }
+  }
+
+  $fps = [int]$story.dimensions.fps
+  $expectedEndFrame = [int]([Math]::Round($duration * $fps))
+  $lastEnd = 0
+  foreach ($scene in @($story.scenes | Sort-Object {[int]$_.startFrame})) {
+    foreach ($field in @("id", "startFrame", "durationFrames", "component", "headline", "caption", "narrationLine", "sourceLabel", "advancesThesis")) {
+      if (-not ($scene.PSObject.Properties.Name -contains $field) -or $null -eq $scene.$field -or "$($scene.$field)" -eq "") {
+        $errors.Add("Scene '$($scene.id)' is missing required field: $field")
+      }
+    }
+    if ([bool]$scene.advancesThesis -ne $true) {
+      $errors.Add("Scene '$($scene.id)' does not explicitly advance the thesis.")
+    }
+    if ([int]$scene.startFrame -ne $lastEnd) {
+      $errors.Add("Scene '$($scene.id)' starts at $($scene.startFrame), expected $lastEnd.")
+    }
+    $lastEnd = [int]$scene.startFrame + [int]$scene.durationFrames
+  }
+  if ($lastEnd -ne $expectedEndFrame) {
+    $errors.Add("Scene timeline ends at frame $lastEnd, expected $expectedEndFrame.")
+  }
+
+  foreach ($metric in @($story.metrics)) {
+    foreach ($field in @("id", "label", "unit", "sourceName", "sourceUrl", "asOf")) {
+      if (-not ($metric.PSObject.Properties.Name -contains $field) -or -not $metric.$field) {
+        $errors.Add("Metric '$($metric.id)' is missing required field: $field")
+      }
+    }
+  }
+
+  foreach ($source in @($story.sources)) {
+    foreach ($field in @("name", "url", "usedFor", "asOf")) {
+      if (-not ($source.PSObject.Properties.Name -contains $field) -or -not $source.$field) {
+        $errors.Add("Source '$($source.name)' is missing required field: $field")
+      }
+    }
+  }
+
+  if (-not $story.compliance.sourceOverlayPresent -or -not $story.compliance.analysisLabelsPresent) {
+    $errors.Add("Visible source overlays and analysis labels are required.")
+  }
+  if ($story.compliance.containsRecommendation -eq $true) {
+    $errors.Add("Story contains recommendation language.")
+  }
+
+  $firstSixBeats = @($story.retentionBeats | Where-Object { [int]$_.startFrame -lt 180 })
+  if ($firstSixBeats.Count -lt 4) {
+    $errors.Add("First 6 seconds must contain at least 4 retention beats.")
+  }
+
+  foreach ($beat in @($story.retentionBeats)) {
+    foreach ($field in @("startFrame", "durationFrames", "visualAction", "audioCue", "onScreenText", "dataRef")) {
+      if (-not ($beat.PSObject.Properties.Name -contains $field) -or $null -eq $beat.$field -or "$($beat.$field)" -eq "") {
+        $errors.Add("Retention beat is missing required field: $field")
+      }
+    }
+  }
+
+  return $errors
+}
+
 function Assert-StoryContract($story) {
-  $errors = Test-StoryContract $story
+  $errors = Test-BlueprintStoryContract $story
   if ($errors.Count -gt 0) {
     throw ("Story contract failed:`n - " + ($errors -join "`n - "))
   }
@@ -714,15 +1067,32 @@ Set-Content -LiteralPath $platformCaptionPath -Value $story.platformCaption -Enc
 $sourceManifest = [PSCustomObject]@{
   renderId = $renderId
   storyId = $story.storyId
+  productionContract = $story.productionContract
+  angleScore = $story.angleScore
+  scriptPackage = $story.scriptPackage
   metrics = $story.metrics
   sources = $story.sources
   compliance = $story.compliance
+  voice = [PSCustomObject]@{
+    requestedVoiceId = $ElevenLabsVoiceId
+    provider = "pending"
+    envLoaded = [bool]$loadedEnvPath
+  }
 }
 $sourceManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sourceManifestPath -Encoding UTF8
-New-QaContactSheet $contactSheetPath $story @(0, 15, 36, 90, 180, 300, 480, 690, 840)
+New-QaContactSheet $contactSheetPath $story @(0, 15, 36, 90, 180, 300, 480, 720, 990, 1290, 1590, 1725)
 
 Write-Host "Synthesizing narration"
-New-Narration $story.narration $audioPath
+$voiceResult = New-Narration $story.narration $audioPath
+$sourceManifest.voice = [PSCustomObject]@{
+  provider = $voiceResult.provider
+  requestedVoiceId = $voiceResult.requestedVoiceId
+  voiceId = $voiceResult.voiceId
+  modelId = $voiceResult.modelId
+  outputFormat = $voiceResult.outputFormat
+  envLoaded = $voiceResult.envLoaded
+}
+$sourceManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sourceManifestPath -Encoding UTF8
 
 Write-Host "Encoding MP4 master"
 $durationText = $durationSeconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
@@ -733,9 +1103,15 @@ $actualDuration = Get-AudioDuration $videoPath
 $blankSamples = Test-BlankFrames $framesPath $totalFrames
 $contrastPrimary = Get-ContrastRatio $palette.text $palette.bg
 $contrastSecondary = Get-ContrastRatio $palette.textSecondary $palette.bg
+$warnings = @()
+if ($voiceResult.warning) { $warnings += $voiceResult.warning }
 $qa = [PSCustomObject]@{
   renderId = $renderId
   safeZones = "pass"
+  productionContract = "pass"
+  sceneGrammar = "pass"
+  complianceTrust = "pass"
+  hookVariants = "pass"
   contrast = if ($contrastPrimary -ge 4.5 -and $contrastSecondary -ge 4.5) { "pass" } else { "review" }
   contrastRatios = [PSCustomObject]@{
     primaryOnBackground = $contrastPrimary
@@ -751,7 +1127,16 @@ $qa = [PSCustomObject]@{
   blankFrames = if ($blankSamples -eq 0) { "pass" } else { "review" }
   motionCadence = "pass"
   audio = "encoded AAC 48kHz stereo with loudness normalization"
-  warnings = @("Synthetic local narration remains the main non-final production element.")
+  voice = [PSCustomObject]@{
+    provider = $voiceResult.provider
+    requestedVoiceId = $voiceResult.requestedVoiceId
+    voiceId = $voiceResult.voiceId
+    modelId = $voiceResult.modelId
+    outputFormat = $voiceResult.outputFormat
+    envLoaded = $voiceResult.envLoaded
+    organicVoice = if ($voiceResult.provider -eq "elevenlabs") { "pass" } else { "fallback" }
+  }
+  warnings = $warnings
 }
 $qa | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $qaPath -Encoding UTF8
 
@@ -763,7 +1148,12 @@ $renderManifest = [PSCustomObject]@{
   fps = $fps
   theme = $story.theme
   storyType = $story.storyType
+  topicType = $story.topicType
   visualIntent = $story.visualIntent
+  visualStylePack = $story.visualStylePack
+  productionContract = $story.productionContract
+  angleScore = $story.angleScore
+  voice = $qa.voice
   files = [PSCustomObject]@{
     mp4 = $videoPath
     thumbnail = $thumbnailPath

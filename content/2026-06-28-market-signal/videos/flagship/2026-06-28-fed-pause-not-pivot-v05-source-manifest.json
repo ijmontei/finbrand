@@ -1,0 +1,168 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v05",
+    "storyId":  "2026-06-28-fed-pause-not-pivot",
+    "productionContract":  {
+                               "format":  "9:16 vertical",
+                               "targetDurationSecondsMin":  55,
+                               "targetDurationSecondsMax":  70,
+                               "hardCapSeconds":  85,
+                               "defaultStructure":  "one thesis, one causal chain, one proof visual, one forward implication",
+                               "motionCadenceMaxStaticSeconds":  2.5,
+                               "selectiveCaptions":  true,
+                               "trustVisible":  true
+                           },
+    "angleScore":  {
+                       "surprise":  8,
+                       "consequence":  8,
+                       "mechanismClarity":  9,
+                       "visualProof":  9,
+                       "audiencePayoff":  8,
+                       "platformFit":  9,
+                       "total":  51,
+                       "rationale":  "A rate hold sounds dovish until the target gap explains why the cut bar stayed high."
+                   },
+    "scriptPackage":  {
+                          "narrationScript":  "Pause is not pivot. The Fed held the target range at 3.50 to 3.75 percent. The catch is that a hold can look calm while the message stays restrictive. Trigger: inflation is still too far above target for the Fed to declare victory. Transmission: if the cut path stays conditional, rate-sensitive trades still have to clear a high bar. The proof is the gap: PCE inflation is 4.1 percent versus the Fed\u0027s 2 percent target. So the next thing to watch is not only the next Fed headline. It is PCE, the 2-year yield, Fed language, and growth multiples. A pause was the decision. The pivot still needs proof. For news and education, not individualized investment advice.",
+                          "onScreenText":  [
+                                               "Pause is not pivot",
+                                               "The Fed held rates",
+                                               "The hold looked calm. The message was not.",
+                                               "Trigger -\u003e transmission -\u003e consequence",
+                                               "PCE 4.1% vs target 2.0%",
+                                               "+2.1 pp above target",
+                                               "What to watch next",
+                                               "The pivot still needs proof"
+                                           ],
+                          "shotList":  [
+                                           {
+                                               "scene":  "hook",
+                                               "asset":  "headline_card",
+                                               "motion":  "headline_slam"
+                                           },
+                                           {
+                                               "scene":  "context",
+                                               "asset":  "rate_range_card",
+                                               "motion":  "data_transition"
+                                           },
+                                           {
+                                               "scene":  "tension",
+                                               "asset":  "expectation_gap_card",
+                                               "motion":  "logic_cut"
+                                           },
+                                           {
+                                               "scene":  "mechanism_one",
+                                               "asset":  "cause_chain",
+                                               "motion":  "node_build"
+                                           },
+                                           {
+                                               "scene":  "mechanism_two",
+                                               "asset":  "transmission_chain",
+                                               "motion":  "arrow_build"
+                                           },
+                                           {
+                                               "scene":  "proof",
+                                               "asset":  "gap_chart",
+                                               "motion":  "chart_build_then_highlight"
+                                           },
+                                           {
+                                               "scene":  "implication",
+                                               "asset":  "risk_map",
+                                               "motion":  "consequence_transition"
+                                           },
+                                           {
+                                               "scene":  "loop",
+                                               "asset":  "loopback_card",
+                                               "motion":  "return_to_hook"
+                                           }
+                                       ],
+                          "sourceOverlays":  [
+                                                 {
+                                                     "scene":  "context",
+                                                     "source":  "Federal Reserve FOMC statement, 2026-06-17"
+                                                 },
+                                                 {
+                                                     "scene":  "proof",
+                                                     "source":  "BEA Personal Income and Outlays, May 2026"
+                                                 },
+                                                 {
+                                                     "scene":  "implication",
+                                                     "source":  "Analysis from sourced rate and PCE data"
+                                                 }
+                                             ],
+                          "complianceNotes":  [
+                                                  "Analysis sections are labeled.",
+                                                  "No recommendation phrasing.",
+                                                  "All numerical claims carry source metadata.",
+                                                  "Soft disclaimer appears only at the close."
+                                              ]
+                      },
+    "metrics":  [
+                    {
+                        "id":  "fed_funds_target_range",
+                        "label":  "Fed funds target range",
+                        "value":  "3.50-3.75",
+                        "displayValue":  "3.50-3.75%",
+                        "unit":  "%",
+                        "period":  "June FOMC",
+                        "prior":  "3.50-3.75",
+                        "sourceName":  "Federal Reserve",
+                        "sourceUrl":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "id":  "pce_inflation_yoy",
+                        "label":  "PCE inflation",
+                        "value":  4.1,
+                        "displayValue":  "4.1%",
+                        "unit":  "%",
+                        "period":  "May 2026 YoY",
+                        "benchmark":  2.0,
+                        "benchmarkLabel":  "Fed target",
+                        "sourceName":  "BEA",
+                        "sourceUrl":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "asOf":  "2026-06-28"
+                    },
+                    {
+                        "id":  "inflation_target_gap",
+                        "label":  "Gap to Fed target",
+                        "value":  2.1,
+                        "displayValue":  "+2.1 pp",
+                        "unit":  "percentage points",
+                        "period":  "May 2026 YoY PCE less 2.0% target",
+                        "sourceName":  "Derived from BEA and Federal Reserve target",
+                        "sourceUrl":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "sources":  [
+                    {
+                        "name":  "Federal Reserve",
+                        "url":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "usedFor":  "June FOMC target range and statement tone",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "name":  "BEA",
+                        "url":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "usedFor":  "May 2026 PCE inflation",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "compliance":  {
+                       "containsPrediction":  false,
+                       "containsRecommendation":  false,
+                       "sourceOverlayPresent":  true,
+                       "uncertaintyLanguagePresent":  true,
+                       "analysisLabelsPresent":  true,
+                       "disclaimer":  "For news and education, not individualized investment advice.",
+                       "sourceSummary":  "Sources: Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026. Verify final figures before publishing."
+                   },
+    "voice":  {
+                  "provider":  "elevenlabs",
+                  "requestedVoiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "voiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "modelId":  "eleven_v3",
+                  "outputFormat":  "mp3_44100_192",
+                  "envLoaded":  true
+              }
+}

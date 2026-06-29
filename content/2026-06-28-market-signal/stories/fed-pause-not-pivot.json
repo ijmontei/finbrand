@@ -1,19 +1,25 @@
 {
   "storyId": "2026-06-28-fed-pause-not-pivot",
-  "renderId": "2026-06-28-fed-pause-not-pivot-v04",
+  "renderId": "2026-06-28-fed-pause-not-pivot-v05",
   "createdFor": "Market Signal Studio",
   "storyType": "policy_reaction",
+  "topicType": "macro",
   "visualIntent": "target_gap",
-  "theme": "dark_market",
+  "visualStylePack": "editorial_data_board",
+  "theme": "high_retention_market",
   "title": "Pause Is Not Pivot",
+  "coreThesis": "The Fed held rates steady, but the market cannot treat that hold as a pivot while inflation is still 2.1 percentage points above target.",
   "thesis": "The Fed held rates steady, but the policy message remained restrictive because inflation is still above target.",
   "viewerQuestion": "What made the hold less dovish than markets wanted?",
+  "hookType": "paradox",
+  "hookText": "Pause is not pivot",
+  "audiencePayoff": "The viewer understands why a rate hold can still be restrictive for markets and what data would change that.",
   "asOf": "2026-06-28T10:00:00-04:00",
   "dimensions": {
     "width": 1080,
     "height": 1920,
     "fps": 30,
-    "durationSeconds": 29.5
+    "durationSeconds": 58
   },
   "safeZone": {
     "criticalXMin": 96,
@@ -22,15 +28,43 @@
     "criticalYMax": 1440,
     "dangerYMin": 1500
   },
+  "productionContract": {
+    "format": "9:16 vertical",
+    "targetDurationSecondsMin": 55,
+    "targetDurationSecondsMax": 70,
+    "hardCapSeconds": 85,
+    "defaultStructure": "one thesis, one causal chain, one proof visual, one forward implication",
+    "motionCadenceMaxStaticSeconds": 2.5,
+    "selectiveCaptions": true,
+    "trustVisible": true
+  },
+  "angleScore": {
+    "surprise": 8,
+    "consequence": 8,
+    "mechanismClarity": 9,
+    "visualProof": 9,
+    "audiencePayoff": 8,
+    "platformFit": 9,
+    "total": 51,
+    "rationale": "A rate hold sounds dovish until the target gap explains why the cut bar stayed high."
+  },
+  "hookVariants": [
+    "Pause is not pivot",
+    "The hold was not relief"
+  ],
+  "headlineCardVariants": [
+    "PAUSE IS NOT PIVOT",
+    "THE CUT BAR DID NOT FALL"
+  ],
   "hook": {
-    "type": "contradiction",
+    "type": "paradox",
     "headline": "Pause is not pivot",
     "primaryNumber": "3.50-3.75%",
     "supportingMetric": "target range unchanged"
   },
   "hookConflict": {
     "left": "PAUSE",
-    "operator": "≠",
+    "operator": "\u2260",
     "right": "PIVOT",
     "subline": "The decision held. The bar for cuts did not fall."
   },
@@ -45,10 +79,31 @@
     "gapDisplay": "+2.1 pp",
     "badge": "about 2x target"
   },
+  "mechanismChain": [
+    {
+      "label": "Trigger",
+      "headline": "Fed holds the range",
+      "detail": "Policy stays at 3.50-3.75%",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "label": "Transmission",
+      "headline": "Inflation keeps the bar high",
+      "detail": "PCE is still 4.1% vs 2.0% target",
+      "dataRef": "pce_inflation_yoy"
+    },
+    {
+      "label": "Consequence",
+      "headline": "Rate-sensitive trades stay exposed",
+      "detail": "Multiples still have to respect rate math",
+      "dataRef": "inflation_target_gap"
+    }
+  ],
   "marketConsequence": {
-    "label": "Risk Setup",
+    "label": "Analysis frame",
     "headline": "Rate-sensitive trades stay exposed",
     "subline": "Qualitative risk map, not a live market move.",
+    "factVsInference": "The rate and inflation numbers are sourced facts; the risk map is analysis.",
     "riskMap": [
       {
         "label": "Growth multiples",
@@ -80,43 +135,139 @@
   "retentionBeats": [
     {
       "startFrame": 0,
-      "durationFrames": 24,
+      "durationFrames": 18,
       "visualAction": "impact_hook",
       "audioCue": "hit",
       "onScreenText": "PAUSE",
       "dataRef": "fed_funds_target_range"
     },
     {
-      "startFrame": 24,
-      "durationFrames": 24,
+      "startFrame": 18,
+      "durationFrames": 18,
       "visualAction": "conflict_operator",
       "audioCue": "snap",
-      "onScreenText": "≠",
+      "onScreenText": "\u2260",
       "dataRef": "fed_funds_target_range"
     },
     {
-      "startFrame": 48,
-      "durationFrames": 30,
+      "startFrame": 36,
+      "durationFrames": 24,
       "visualAction": "rejected_pivot",
       "audioCue": "strike",
       "onScreenText": "PIVOT",
       "dataRef": "fed_funds_target_range"
     },
     {
-      "startFrame": 78,
-      "durationFrames": 42,
+      "startFrame": 60,
+      "durationFrames": 30,
       "visualAction": "rate_range_resolve",
       "audioCue": "resolve",
       "onScreenText": "3.50-3.75%",
       "dataRef": "fed_funds_target_range"
     },
     {
-      "startFrame": 120,
+      "startFrame": 90,
       "durationFrames": 60,
-      "visualAction": "proof_tease",
-      "audioCue": "lift",
-      "onScreenText": "+2.1 pp above target",
+      "visualAction": "context_anchor",
+      "audioCue": "logic_cut",
+      "onScreenText": "The Fed held rates",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 150,
+      "durationFrames": 60,
+      "visualAction": "context_source",
+      "audioCue": "source_tick",
+      "onScreenText": "Source-backed hold",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 210,
+      "durationFrames": 75,
+      "visualAction": "tension_reveal",
+      "audioCue": "question_turn",
+      "onScreenText": "Why this is weird",
       "dataRef": "inflation_target_gap"
+    },
+    {
+      "startFrame": 300,
+      "durationFrames": 75,
+      "visualAction": "expectation_gap",
+      "audioCue": "panel_slide",
+      "onScreenText": "Relief trade vs conditions",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 450,
+      "durationFrames": 75,
+      "visualAction": "trigger_node",
+      "audioCue": "node_pop",
+      "onScreenText": "Trigger",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 540,
+      "durationFrames": 75,
+      "visualAction": "trigger_to_bar",
+      "audioCue": "arrow_hit",
+      "onScreenText": "Bar for cuts stays high",
+      "dataRef": "pce_inflation_yoy"
+    },
+    {
+      "startFrame": 660,
+      "durationFrames": 75,
+      "visualAction": "transmission_node",
+      "audioCue": "node_pop",
+      "onScreenText": "Transmission",
+      "dataRef": "inflation_target_gap"
+    },
+    {
+      "startFrame": 750,
+      "durationFrames": 75,
+      "visualAction": "rate_math",
+      "audioCue": "click_riser",
+      "onScreenText": "Discount-rate math",
+      "dataRef": "inflation_target_gap"
+    },
+    {
+      "startFrame": 870,
+      "durationFrames": 90,
+      "visualAction": "proof_chart_build",
+      "audioCue": "chart_draw",
+      "onScreenText": "4.1% vs 2.0%",
+      "dataRef": "pce_inflation_yoy"
+    },
+    {
+      "startFrame": 1020,
+      "durationFrames": 90,
+      "visualAction": "gap_highlight",
+      "audioCue": "proof_hit",
+      "onScreenText": "+2.1 pp",
+      "dataRef": "inflation_target_gap"
+    },
+    {
+      "startFrame": 1230,
+      "durationFrames": 90,
+      "visualAction": "risk_map",
+      "audioCue": "consequence_swipe",
+      "onScreenText": "Who feels it next",
+      "dataRef": "inflation_target_gap"
+    },
+    {
+      "startFrame": 1350,
+      "durationFrames": 90,
+      "visualAction": "watch_next",
+      "audioCue": "watch_tick",
+      "onScreenText": "PCE / 2Y / Fed language",
+      "dataRef": "sourceManifest"
+    },
+    {
+      "startFrame": 1590,
+      "durationFrames": 75,
+      "visualAction": "loopback_close",
+      "audioCue": "loop_sting",
+      "onScreenText": "Pause was the decision",
+      "dataRef": "coreThesis"
     }
   ],
   "metrics": [
@@ -157,49 +308,189 @@
       "asOf": "2026-06-28"
     }
   ],
+  "sceneGrammar": {
+    "principle": "Every scene must advance the argument through hook, context, tension, mechanism, proof, implication, or loop.",
+    "transitionFamilies": [
+      "logic_cut",
+      "data_transition",
+      "consequence_transition"
+    ],
+    "droppedSceneRule": "Drop any scene that decorates without advancing the thesis."
+  },
   "scenes": [
     {
       "id": "hook",
+      "label": "Scene A: Hook card",
       "startFrame": 0,
-      "durationFrames": 150,
+      "durationFrames": 75,
       "component": "ImpactHook",
       "headline": "Pause is not pivot",
-      "caption": "The hold was not the relief trade."
+      "caption": "Pause is not pivot.",
+      "narrationLine": "Pause is not pivot.",
+      "sourceLabel": "Fed statement; BEA PCE",
+      "advancesThesis": true
     },
     {
-      "id": "decision",
-      "startFrame": 150,
-      "durationFrames": 120,
-      "component": "ExpectationVsReality",
-      "headline": "Steady decision. Harder condition.",
-      "caption": "Markets wanted relief. The Fed gave conditions."
+      "id": "context",
+      "label": "Scene B: Context anchor",
+      "startFrame": 75,
+      "durationFrames": 135,
+      "component": "ContextAnchor",
+      "headline": "The Fed held rates",
+      "caption": "The Fed held rates at 3.50 to 3.75 percent.",
+      "narrationLine": "The Fed held the target range at 3.50 to 3.75 percent.",
+      "sourceLabel": "Federal Reserve, Jun 17",
+      "advancesThesis": true
     },
     {
-      "id": "target_gap",
-      "startFrame": 270,
+      "id": "tension",
+      "label": "Scene C: Tension frame",
+      "startFrame": 210,
+      "durationFrames": 240,
+      "component": "TensionFrame",
+      "headline": "The hold looked calm. The message was not.",
+      "caption": "That matters because inflation is still 4.1 percent, not 2.",
+      "narrationLine": "The catch is that a hold can look calm while the message stays restrictive.",
+      "sourceLabel": "Fed statement; BEA PCE",
+      "advancesThesis": true
+    },
+    {
+      "id": "mechanism_one",
+      "label": "Scene D: Mechanism step one",
+      "startFrame": 450,
       "durationFrames": 210,
-      "component": "GapProofChart",
-      "headline": "Inflation is still above target.",
-      "caption": "PCE inflation: 4.1% vs 2.0% target."
+      "component": "MechanismStepOne",
+      "headline": "Trigger: the cut bar stayed high",
+      "caption": "Trigger: the hold kept policy tight.",
+      "narrationLine": "Trigger: inflation is still too far above target for the Fed to declare victory.",
+      "sourceLabel": "BEA PCE; Fed target",
+      "advancesThesis": true
     },
     {
-      "id": "impact",
-      "startFrame": 480,
+      "id": "mechanism_two",
+      "label": "Scene E: Mechanism step two",
+      "startFrame": 660,
       "durationFrames": 210,
-      "component": "RiskExposureStack",
-      "headline": "Rate-sensitive trades stay exposed.",
-      "caption": "Growth multiples still have to respect rate math."
+      "component": "MechanismStepTwo",
+      "headline": "Transmission: rate math still matters",
+      "caption": "Transmission: rate-sensitive trades still have to clear a high bar.",
+      "narrationLine": "Transmission: if the cut path stays conditional, rate-sensitive trades still have to clear a high bar.",
+      "sourceLabel": "Analysis from sourced rate and PCE data",
+      "advancesThesis": true
     },
     {
-      "id": "bottom_line",
-      "startFrame": 690,
-      "durationFrames": 195,
+      "id": "proof",
+      "label": "Scene F: Proof frame",
+      "startFrame": 870,
+      "durationFrames": 360,
+      "component": "EvidenceReveal",
+      "headline": "The proof is the gap",
+      "caption": "Proof: PCE is 2.1 percentage points above target.",
+      "narrationLine": "The proof is the gap: PCE inflation is 4.1 percent versus the Fed's 2 percent target.",
+      "sourceLabel": "BEA PCE; Federal Reserve target",
+      "advancesThesis": true
+    },
+    {
+      "id": "implication",
+      "label": "Scene G: Implication frame",
+      "startFrame": 1230,
+      "durationFrames": 360,
+      "component": "ImplicationFrame",
+      "headline": "Who feels it next",
+      "caption": "Implication: watch PCE, the 2-year yield, Fed language, and growth multiples.",
+      "narrationLine": "So the next thing to watch is not only the next Fed headline. It is PCE, the 2-year yield, Fed language, and growth multiples.",
+      "sourceLabel": "Analysis frame; sources shown",
+      "advancesThesis": true
+    },
+    {
+      "id": "loop",
+      "label": "Scene H: Loop close",
+      "startFrame": 1590,
+      "durationFrames": 150,
       "component": "LoopbackClose",
-      "headline": "Bottom line",
-      "caption": "Pause was the decision. Not the pivot."
+      "headline": "A pause needs proof",
+      "caption": "A pause was the decision. The pivot still needs proof.",
+      "narrationLine": "A pause was the decision. The pivot still needs proof. For news and education, not individualized investment advice.",
+      "sourceLabel": "Fed statement; BEA PCE",
+      "advancesThesis": true
     }
   ],
-  "narration": "Pause is not pivot. The Fed held the target range at 3.50 to 3.75 percent, but the bar for cuts did not fall. Markets wanted relief. The Fed gave conditions. The proof is inflation: PCE is 4.1 percent, still 2.1 percentage points above the 2 percent target. That keeps rate-sensitive trades exposed. Pause was the decision, not the pivot. Not investment advice.",
+  "scriptPackage": {
+    "narrationScript": "Pause is not pivot. The Fed held the target range at 3.50 to 3.75 percent. The catch is that a hold can look calm while the message stays restrictive. Trigger: inflation is still too far above target for the Fed to declare victory. Transmission: if the cut path stays conditional, rate-sensitive trades still have to clear a high bar. The proof is the gap: PCE inflation is 4.1 percent versus the Fed's 2 percent target. So the next thing to watch is not only the next Fed headline. It is PCE, the 2-year yield, Fed language, and growth multiples. A pause was the decision. The pivot still needs proof. For news and education, not individualized investment advice.",
+    "onScreenText": [
+      "Pause is not pivot",
+      "The Fed held rates",
+      "The hold looked calm. The message was not.",
+      "Trigger -> transmission -> consequence",
+      "PCE 4.1% vs target 2.0%",
+      "+2.1 pp above target",
+      "What to watch next",
+      "The pivot still needs proof"
+    ],
+    "shotList": [
+      {
+        "scene": "hook",
+        "asset": "headline_card",
+        "motion": "headline_slam"
+      },
+      {
+        "scene": "context",
+        "asset": "rate_range_card",
+        "motion": "data_transition"
+      },
+      {
+        "scene": "tension",
+        "asset": "expectation_gap_card",
+        "motion": "logic_cut"
+      },
+      {
+        "scene": "mechanism_one",
+        "asset": "cause_chain",
+        "motion": "node_build"
+      },
+      {
+        "scene": "mechanism_two",
+        "asset": "transmission_chain",
+        "motion": "arrow_build"
+      },
+      {
+        "scene": "proof",
+        "asset": "gap_chart",
+        "motion": "chart_build_then_highlight"
+      },
+      {
+        "scene": "implication",
+        "asset": "risk_map",
+        "motion": "consequence_transition"
+      },
+      {
+        "scene": "loop",
+        "asset": "loopback_card",
+        "motion": "return_to_hook"
+      }
+    ],
+    "sourceOverlays": [
+      {
+        "scene": "context",
+        "source": "Federal Reserve FOMC statement, 2026-06-17"
+      },
+      {
+        "scene": "proof",
+        "source": "BEA Personal Income and Outlays, May 2026"
+      },
+      {
+        "scene": "implication",
+        "source": "Analysis from sourced rate and PCE data"
+      }
+    ],
+    "complianceNotes": [
+      "Analysis sections are labeled.",
+      "No recommendation phrasing.",
+      "All numerical claims carry source metadata.",
+      "Soft disclaimer appears only at the close."
+    ]
+  },
+  "narration": "Pause is not pivot. The Fed held the target range at 3.50 to 3.75 percent. The catch is that a hold can look calm while the message stays restrictive. Trigger: inflation is still too far above target for the Fed to declare victory. Transmission: if the cut path stays conditional, rate-sensitive trades still have to clear a high bar. The proof is the gap: PCE inflation is 4.1 percent versus the Fed's 2 percent target. So the next thing to watch is not only the next Fed headline. It is PCE, the 2-year yield, Fed language, and growth multiples. A pause was the decision. The pivot still needs proof. For news and education, not individualized investment advice.",
   "watchNext": [
     "PCE",
     "Fed language",
@@ -221,8 +512,13 @@
     }
   ],
   "compliance": {
-    "disclaimer": "Not investment advice.",
+    "containsPrediction": false,
+    "containsRecommendation": false,
+    "sourceOverlayPresent": true,
+    "uncertaintyLanguagePresent": true,
+    "analysisLabelsPresent": true,
+    "disclaimer": "For news and education, not individualized investment advice.",
     "sourceSummary": "Sources: Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026. Verify final figures before publishing."
   },
-  "platformCaption": "Pause is not pivot. The Fed held rates, but PCE inflation at 4.1% is still +2.1 pp above the 2% target. That keeps rate-sensitive trades exposed. Not investment advice. Sources: Federal Reserve; BEA."
+  "platformCaption": "Pause is not pivot. The Fed held rates at 3.50-3.75%, but PCE inflation at 4.1% is still +2.1 pp above the 2% target. That keeps rate-sensitive trades exposed. For news and education, not individualized investment advice. Sources: Federal Reserve; BEA."
 }

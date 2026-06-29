@@ -1,0 +1,31 @@
+﻿1
+00:00:00,000 --> 00:00:02,500
+Pause is not pivot.
+
+2
+00:00:02,500 --> 00:00:07,000
+The Fed held rates at 3.50 to 3.75 percent.
+
+3
+00:00:07,000 --> 00:00:15,000
+That matters because inflation is still 4.1 percent, not 2.
+
+4
+00:00:15,000 --> 00:00:22,000
+Trigger: the hold kept policy tight.
+
+5
+00:00:22,000 --> 00:00:29,000
+Transmission: rate-sensitive trades still have to clear a high bar.
+
+6
+00:00:29,000 --> 00:00:41,000
+Proof: PCE is 2.1 percentage points above target.
+
+7
+00:00:41,000 --> 00:00:53,000
+Implication: watch PCE, the 2-year yield, Fed language, and growth multiples.
+
+8
+00:00:53,000 --> 00:00:58,000
+A pause was the decision. The pivot still needs proof.

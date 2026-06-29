@@ -1,0 +1,35 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v05",
+    "safeZones":  "pass",
+    "productionContract":  "pass",
+    "sceneGrammar":  "pass",
+    "complianceTrust":  "pass",
+    "hookVariants":  "pass",
+    "contrast":  "pass",
+    "contrastRatios":  {
+                           "primaryOnBackground":  17.88,
+                           "secondaryOnBackground":  9.13
+                       },
+    "textOverflow":  "pass",
+    "chartLabels":  "pass",
+    "sourceMetadata":  "pass",
+    "dataIntegrity":  "pass",
+    "forbiddenCopy":  "pass",
+    "ellipsis":  "pass",
+    "retentionBeats":  "pass",
+    "blankFrames":  "pass",
+    "motionCadence":  "pass",
+    "audio":  "encoded AAC 48kHz stereo with loudness normalization",
+    "voice":  {
+                  "provider":  "elevenlabs",
+                  "requestedVoiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "voiceId":  "HAM2nE4sbHnPgMji6JqB",
+                  "modelId":  "eleven_v3",
+                  "outputFormat":  "mp3_44100_192",
+                  "envLoaded":  true,
+                  "organicVoice":  "pass"
+              },
+    "warnings":  [
+
+                 ]
+}
