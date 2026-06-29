@@ -1,0 +1,22 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v04",
+    "safeZones":  "pass",
+    "contrast":  "pass",
+    "contrastRatios":  {
+                           "primaryOnBackground":  17.88,
+                           "secondaryOnBackground":  9.13
+                       },
+    "textOverflow":  "pass",
+    "chartLabels":  "pass",
+    "sourceMetadata":  "pass",
+    "dataIntegrity":  "pass",
+    "forbiddenCopy":  "pass",
+    "ellipsis":  "pass",
+    "retentionBeats":  "pass",
+    "blankFrames":  "pass",
+    "motionCadence":  "pass",
+    "audio":  "encoded AAC 48kHz stereo with loudness normalization",
+    "warnings":  [
+                     "Synthetic local narration remains the main non-final production element."
+                 ]
+}

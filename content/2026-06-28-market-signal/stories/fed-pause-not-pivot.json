@@ -1,13 +1,13 @@
 {
   "storyId": "2026-06-28-fed-pause-not-pivot",
-  "renderId": "2026-06-28-fed-pause-not-pivot-v03",
+  "renderId": "2026-06-28-fed-pause-not-pivot-v04",
   "createdFor": "Market Signal Studio",
   "storyType": "policy_reaction",
   "visualIntent": "target_gap",
   "theme": "dark_market",
   "title": "Pause Is Not Pivot",
   "thesis": "The Fed held rates steady, but the policy message remained restrictive because inflation is still above target.",
-  "viewerQuestion": "Why did a hold not equal relief?",
+  "viewerQuestion": "What made the hold less dovish than markets wanted?",
   "asOf": "2026-06-28T10:00:00-04:00",
   "dimensions": {
     "width": 1080,
@@ -24,10 +24,101 @@
   },
   "hook": {
     "type": "contradiction",
-    "headline": "The Fed paused. That was not a pivot.",
+    "headline": "Pause is not pivot",
     "primaryNumber": "3.50-3.75%",
     "supportingMetric": "target range unchanged"
   },
+  "hookConflict": {
+    "left": "PAUSE",
+    "operator": "≠",
+    "right": "PIVOT",
+    "subline": "The decision held. The bar for cuts did not fall."
+  },
+  "proofMetric": {
+    "metricId": "pce_inflation_yoy",
+    "label": "PCE inflation",
+    "actual": 4.1,
+    "target": 2.0,
+    "gap": 2.1,
+    "actualDisplay": "4.1%",
+    "targetDisplay": "2.0%",
+    "gapDisplay": "+2.1 pp",
+    "badge": "about 2x target"
+  },
+  "marketConsequence": {
+    "label": "Risk Setup",
+    "headline": "Rate-sensitive trades stay exposed",
+    "subline": "Qualitative risk map, not a live market move.",
+    "riskMap": [
+      {
+        "label": "Growth multiples",
+        "status": "Exposed",
+        "reason": "Higher discount-rate risk"
+      },
+      {
+        "label": "2Y yield",
+        "status": "Watch",
+        "reason": "Policy pricing leads"
+      },
+      {
+        "label": "CPI/PCE",
+        "status": "Catalyst",
+        "reason": "Can change the thesis"
+      }
+    ]
+  },
+  "nextCatalysts": [
+    "PCE",
+    "2Y Yield",
+    "Fed Language",
+    "Growth Multiples"
+  ],
+  "sourceManifest": {
+    "display": "Fed statement; BEA PCE",
+    "full": "Sources: Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026."
+  },
+  "retentionBeats": [
+    {
+      "startFrame": 0,
+      "durationFrames": 24,
+      "visualAction": "impact_hook",
+      "audioCue": "hit",
+      "onScreenText": "PAUSE",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 24,
+      "durationFrames": 24,
+      "visualAction": "conflict_operator",
+      "audioCue": "snap",
+      "onScreenText": "≠",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 48,
+      "durationFrames": 30,
+      "visualAction": "rejected_pivot",
+      "audioCue": "strike",
+      "onScreenText": "PIVOT",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 78,
+      "durationFrames": 42,
+      "visualAction": "rate_range_resolve",
+      "audioCue": "resolve",
+      "onScreenText": "3.50-3.75%",
+      "dataRef": "fed_funds_target_range"
+    },
+    {
+      "startFrame": 120,
+      "durationFrames": 60,
+      "visualAction": "proof_tease",
+      "audioCue": "lift",
+      "onScreenText": "+2.1 pp above target",
+      "dataRef": "inflation_target_gap"
+    }
+  ],
   "metrics": [
     {
       "id": "fed_funds_target_range",
@@ -70,47 +161,47 @@
     {
       "id": "hook",
       "startFrame": 0,
-      "durationFrames": 75,
-      "component": "HookHeadline",
-      "headline": "The Fed paused. That was not a pivot.",
+      "durationFrames": 150,
+      "component": "ImpactHook",
+      "headline": "Pause is not pivot",
       "caption": "The hold was not the relief trade."
     },
     {
       "id": "decision",
-      "startFrame": 75,
-      "durationFrames": 135,
-      "component": "RatePath",
-      "headline": "The decision was steady. The message was not soft.",
+      "startFrame": 150,
+      "durationFrames": 120,
+      "component": "ExpectationVsReality",
+      "headline": "Steady decision. Harder condition.",
       "caption": "Markets wanted relief. The Fed gave conditions."
     },
     {
       "id": "target_gap",
-      "startFrame": 210,
+      "startFrame": 270,
       "durationFrames": 210,
-      "component": "TargetGap",
-      "headline": "Inflation is still above the line that matters.",
+      "component": "GapProofChart",
+      "headline": "Inflation is still above target.",
       "caption": "PCE inflation: 4.1% vs 2.0% target."
     },
     {
       "id": "impact",
-      "startFrame": 420,
-      "durationFrames": 240,
-      "component": "ImpactTiles",
-      "headline": "That keeps rate-sensitive trades exposed.",
+      "startFrame": 480,
+      "durationFrames": 210,
+      "component": "RiskExposureStack",
+      "headline": "Rate-sensitive trades stay exposed.",
       "caption": "Growth multiples still have to respect rate math."
     },
     {
       "id": "bottom_line",
-      "startFrame": 660,
-      "durationFrames": 225,
-      "component": "WatchNext",
+      "startFrame": 690,
+      "durationFrames": 195,
+      "component": "LoopbackClose",
       "headline": "Bottom line",
-      "caption": "Inflation has to prove it."
+      "caption": "Pause was the decision. Not the pivot."
     }
   ],
-  "narration": "The Fed paused. That was not a pivot. Rates stayed at 3.50 to 3.75 percent, but the decision was not the whole message. Markets wanted relief. The Fed gave conditions. Inflation is still above the line that matters: PCE inflation at 4.1 percent versus a 2 percent target. That gap keeps rate-sensitive trades exposed. The signal is not, cuts are here. The signal is, inflation has to prove it. Not investment advice.",
+  "narration": "Pause is not pivot. The Fed held the target range at 3.50 to 3.75 percent, but the bar for cuts did not fall. Markets wanted relief. The Fed gave conditions. The proof is inflation: PCE is 4.1 percent, still 2.1 percentage points above the 2 percent target. That keeps rate-sensitive trades exposed. Pause was the decision, not the pivot. Not investment advice.",
   "watchNext": [
-    "CPI and PCE",
+    "PCE",
     "Fed language",
     "2Y yield",
     "Growth multiples"
@@ -133,5 +224,5 @@
     "disclaimer": "Not investment advice.",
     "sourceSummary": "Sources: Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026. Verify final figures before publishing."
   },
-  "platformCaption": "The Fed held rates, but the message was not easy money. The key visual: PCE inflation at 4.1% versus the Fed's 2% target. A pause is not automatically a pivot. Not investment advice. Sources: Federal Reserve; BEA."
+  "platformCaption": "Pause is not pivot. The Fed held rates, but PCE inflation at 4.1% is still +2.1 pp above the 2% target. That keeps rate-sensitive trades exposed. Not investment advice. Sources: Federal Reserve; BEA."
 }

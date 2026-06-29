@@ -1,0 +1,55 @@
+﻿{
+    "renderId":  "2026-06-28-fed-pause-not-pivot-v04",
+    "createdAt":  "2026-06-29T12:12:26.1373370+03:00",
+    "durationSeconds":  29.5,
+    "dimensions":  "1080x1920",
+    "fps":  30,
+    "theme":  "dark_market",
+    "storyType":  "policy_reaction",
+    "visualIntent":  "target_gap",
+    "files":  {
+                  "mp4":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04.mp4",
+                  "thumbnail":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-thumbnail.png",
+                  "captions":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-captions.srt",
+                  "sourceManifest":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-source-manifest.json",
+                  "qa":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-qa.json",
+                  "contactSheet":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-qa-contact-sheet.png",
+                  "platformCaption":  "C:\\Users\\Admin\\Desktop\\market-signal-studio\\content\\2026-06-28-market-signal\\videos\\flagship\\2026-06-28-fed-pause-not-pivot-v04-platform-caption.txt"
+              },
+    "sources":  [
+                    {
+                        "name":  "Federal Reserve",
+                        "url":  "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+                        "usedFor":  "June FOMC target range and statement tone",
+                        "asOf":  "2026-06-17"
+                    },
+                    {
+                        "name":  "BEA",
+                        "url":  "https://www.bea.gov/news/2026/personal-income-and-outlays-may-2026",
+                        "usedFor":  "May 2026 PCE inflation",
+                        "asOf":  "2026-06-28"
+                    }
+                ],
+    "qa":  {
+               "renderId":  "2026-06-28-fed-pause-not-pivot-v04",
+               "safeZones":  "pass",
+               "contrast":  "pass",
+               "contrastRatios":  {
+                                      "primaryOnBackground":  17.88,
+                                      "secondaryOnBackground":  9.13
+                                  },
+               "textOverflow":  "pass",
+               "chartLabels":  "pass",
+               "sourceMetadata":  "pass",
+               "dataIntegrity":  "pass",
+               "forbiddenCopy":  "pass",
+               "ellipsis":  "pass",
+               "retentionBeats":  "pass",
+               "blankFrames":  "pass",
+               "motionCadence":  "pass",
+               "audio":  "encoded AAC 48kHz stereo with loudness normalization",
+               "warnings":  [
+                                "Synthetic local narration remains the main non-final production element."
+                            ]
+           }
+}

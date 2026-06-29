@@ -99,7 +99,7 @@ function Fill-RoundedRect($g, [float]$x, [float]$y, [float]$w, [float]$h, [float
 function Draw-Text($g, [string]$text, $font, [string]$hex, [float]$x, [float]$y, [float]$w, [float]$h, [string]$align = "Near", [string]$valign = "Near", [int]$maxLines = 0) {
   $brush = New-Brush $hex
   $format = [System.Drawing.StringFormat]::new()
-  $format.Trimming = [System.Drawing.StringTrimming]::EllipsisWord
+  $format.Trimming = [System.Drawing.StringTrimming]::None
   $format.FormatFlags = [System.Drawing.StringFormatFlags]::LineLimit
   $format.Alignment = [System.Drawing.StringAlignment]::$align
   $format.LineAlignment = [System.Drawing.StringAlignment]::$valign
@@ -115,7 +115,7 @@ function Draw-Text($g, [string]$text, $font, [string]$hex, [float]$x, [float]$y,
 
 function Draw-FitText($g, [string]$text, [string]$family, [float]$size, [string]$style, [string]$hex, [float]$x, [float]$y, [float]$w, [float]$h, [int]$minSize = 26, [int]$maxLines = 2) {
   $format = [System.Drawing.StringFormat]::new()
-  $format.Trimming = [System.Drawing.StringTrimming]::EllipsisWord
+  $format.Trimming = [System.Drawing.StringTrimming]::None
   $format.FormatFlags = [System.Drawing.StringFormatFlags]::LineLimit
   $fitSize = $size
   while ($fitSize -gt $minSize) {
@@ -184,16 +184,6 @@ function Draw-Base($g, [int]$w, [int]$h, [int]$frame) {
   for ($y = 180; $y -lt $h; $y += 144) { $g.DrawLine($gridPen, 0, $y, $w, $y) }
   $gridPen.Dispose()
 
-  $trace = @(
-    [System.Drawing.PointF]::new(36, 1554),
-    [System.Drawing.PointF]::new(194, 1510),
-    [System.Drawing.PointF]::new(356, 1548),
-    [System.Drawing.PointF]::new(532, 1468),
-    [System.Drawing.PointF]::new(728, 1494),
-    [System.Drawing.PointF]::new(1036, 1410)
-  )
-  $traceProgress = (($frame % 120) / 120.0)
-  Draw-LineSegment $g $trace (0.35 + ($traceProgress * 0.65)) $palette.policy 3
 }
 
 function Draw-Header($g, [int]$w, [string]$topic) {
@@ -232,11 +222,12 @@ function Draw-MetricChip($g, [string]$label, [string]$value, [float]$x, [float]$
 }
 
 function Draw-SourceCapsule($g, $story, [float]$x, [float]$y, [float]$w) {
-  Fill-RoundedRect $g $x $y $w 92 18 $palette.panel $palette.rule 1
+  Fill-RoundedRect $g $x $y $w 84 18 $palette.panel $palette.rule 1
   $font = New-Font 24 "Bold"
   $small = New-Font 20 "Regular"
-  Draw-Text $g "Sources" $font $palette.text $($x + 24) $($y + 18) 130 30
-  Draw-Text $g "Federal Reserve FOMC statement, Jun 17; BEA Personal Income and Outlays, May 2026" $small $palette.textSecondary $($x + 150) $($y + 18) $($w - 174) 54 "Near" "Near" 2
+  $sourceText = if ($story.sourceManifest -and $story.sourceManifest.display) { $story.sourceManifest.display } else { "Federal Reserve; BEA" }
+  Draw-Text $g "Sources" $font $palette.text $($x + 24) $($y + 16) 130 30
+  Draw-Text $g $sourceText $small $palette.textSecondary $($x + 150) $($y + 18) $($w - 174) 38 "Near" "Near" 1
   $font.Dispose()
   $small.Dispose()
 }
@@ -261,108 +252,108 @@ function Draw-AmbientTicker($g, [int]$w, [int]$h, [int]$frame) {
   $font.Dispose()
 }
 
-function Draw-HookHeadline($g, $story, [int]$frame) {
-  $p = Get-SceneProgress $frame 0 75
-  $headline = New-Font 76 "Bold"
-  $sub = New-Font 34 "Regular"
-  $mono = New-Font 28 "Bold" "Consolas"
+function Draw-ImpactHook($g, $story, [int]$frame) {
+  $p = Get-SceneProgress $frame 0 150
+  $hit1 = Ease-OutCubic (Get-SceneProgress $frame 0 22)
+  $hit2 = 1
+  $hit3 = Ease-OutCubic (Get-SceneProgress $frame 48 28)
+  $resolve = Ease-OutCubic (Get-SceneProgress $frame 76 44)
+  $tease = Ease-OutCubic (Get-SceneProgress $frame 118 32)
+  $mono = New-Font 32 "Bold" "Consolas"
 
-  Draw-Text $g "FIRST SIGNAL" $mono $palette.warning 96 198 420 42
-  $slide = 0
-  Draw-Text $g "The Fed paused." $headline $palette.text (96 - $slide) 246 860 124
-  Draw-Text $g "That was not a pivot." $headline $palette.text (96 + $slide) 354 860 136
+  Draw-Text $g "FIRST 3 SECONDS" $mono $palette.warning 96 190 420 42
+  Draw-Text $g "PAUSE" (New-Font 94 "Bold") $palette.policy 96 (254 - ((1 - $hit1) * 32)) 384 170
+  if ($hit2 -gt 0) {
+    $symbolAlpha = [int](255 * $hit2)
+    $symbolPen = New-AlphaPen $palette.warning $symbolAlpha 9
+    $symbolPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $symbolPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $sy = 322 - ((1 - $hit2) * 24)
+    $g.DrawLine($symbolPen, 506, $sy, 604, $sy)
+    $g.DrawLine($symbolPen, 506, ($sy + 38), 604, ($sy + 38))
+    $g.DrawLine($symbolPen, 590, ($sy - 24), 520, ($sy + 62))
+    $symbolPen.Dispose()
+  }
+  Draw-Text $g "PIVOT" (New-Font 88 "Bold") $palette.negative 624 (260 - ((1 - $hit3) * 32)) 304 156
 
-  $split = Ease-InOutCubic (Get-SceneProgress $frame 22 30)
-  Draw-MetricChip $g "TARGET RANGE" $story.hook.primaryNumber 96 (548 + ((1 - $split) * 40)) 390 $palette.policy $split
-  Draw-MetricChip $g "MESSAGE" "PATIENT" 520 (548 + ((1 - $split) * 40)) 268 $palette.warning $split
-  Draw-MetricChip $g "PIVOT" "NOT YET" 780 (548 + ((1 - $split) * 40)) 204 $palette.negative $split
+  if ($hit3 -gt 0.65) {
+    $strike = New-Pen $palette.negative 10
+    $strike.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $strike.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
+    $g.DrawLine($strike, 632, 332, 916, 332)
+    $strike.Dispose()
+  }
 
-  $pauseX = 130 - ((1 - $split) * 24)
-  $pivotX = 590 + ((1 - $split) * 24)
-  Fill-RoundedRect $g $pauseX 742 318 116 24 $palette.panelElevated $palette.policy 2
-  Fill-RoundedRect $g $pivotX 742 318 116 24 $palette.panelElevated $palette.negative 2
-  Draw-Text $g "PAUSE" $mono $palette.policy ($pauseX + 84) 782 160 32 "Center"
-  Draw-Text $g "PIVOT" $mono $palette.negative ($pivotX + 84) 782 160 32 "Center"
-  $crossPen = New-Pen $palette.negative 7
-  $g.DrawLine($crossPen, $pivotX + 44, 802, $pivotX + 274, 802)
-  $crossPen.Dispose()
+  Draw-Text $g $story.hookConflict.subline (New-Font 39 "Bold") $palette.text 96 452 850 104 "Near" "Near" 2
 
-  Draw-Text $g "A hold can still be restrictive when inflation has not given the all-clear." $sub $palette.textSecondary 96 936 840 96 "Near" "Near" 2
-  Draw-SourceCapsule $g $story 96 1350 840
+  Draw-MetricChip $g "TARGET RANGE" $story.hook.primaryNumber 96 640 374 $palette.policy $resolve
+  Draw-MetricChip $g "CONDITION" "INFLATION" 506 640 314 $palette.warning $resolve
+  Draw-MetricChip $g "PIVOT" "NOT YET" 796 640 188 $palette.negative $resolve
 
-  $headline.Dispose()
-  $sub.Dispose()
+  Fill-RoundedRect $g 96 812 840 270 28 $palette.panel $palette.rule 1
+  Draw-Text $g "The hold was the headline." (New-Font 46 "Bold") $palette.text 132 852 760 56
+  Draw-Text $g "The inflation gap is the story." (New-Font 46 "Bold") $palette.warning 132 922 760 56
+  Draw-Text $g ("{0} above target" -f $story.proofMetric.gapDisplay) (New-Font 54 "Bold" "Consolas") $palette.negative 132 1002 680 64
+
+  if ($tease -gt 0) {
+    $flash = [int](70 + (110 * $tease))
+    $brush = New-AlphaBrush $palette.negative $flash
+    $g.FillRectangle($brush, 0, 0, [int]$story.dimensions.width, [int]$story.dimensions.height)
+    $brush.Dispose()
+  }
+
+  Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
 
-function Draw-RatePath($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 75 135)
-  $title = New-Font 62 "Bold"
-  $body = New-Font 32 "Regular"
-  $mono = New-Font 26 "Bold" "Consolas"
-  Draw-Text $g "Decision steady." $title $palette.text 96 202 840 76
-  Draw-Text $g "Message not soft." $title $palette.policy 96 282 840 76
-  Draw-Text $g "Markets wanted relief. The Fed gave conditions." $body $palette.textSecondary 96 378 760 78 "Near" "Near" 2
-
-  $expectX = 96 - ((1 - $p) * 60)
-  $actualX = 552 + ((1 - $p) * 60)
-  Fill-RoundedRect $g $expectX 520 384 348 26 $palette.panel $palette.rule 1
-  Fill-RoundedRect $g $actualX 520 432 348 26 $palette.panelElevated $palette.policy 2
-  Draw-Text $g "MARKET WANTED" $mono $palette.textSecondary ($expectX + 30) 552 300 34
-  Draw-Text $g "RELIEF" (New-Font 52 "Bold") $palette.positive ($expectX + 30) 612 300 64
-  Draw-Text $g "Lower-rate story" (New-Font 28 "Regular") $palette.textSecondary ($expectX + 30) 700 300 42
-  Draw-Text $g "FED DELIVERED" $mono $palette.textSecondary ($actualX + 30) 552 340 34
-  Draw-Text $g "CONDITIONS" (New-Font 52 "Bold") $palette.warning ($actualX + 30) 612 360 64
-  Draw-Text $g "Inflation must prove it" (New-Font 28 "Regular") $palette.textSecondary ($actualX + 30) 700 350 42
-
-  $chartX = 126
-  $chartY = 1030
-  $chartW = 828
-  $chartH = 180
-  $axis = New-AlphaPen $palette.rule 220 2
-  $g.DrawLine($axis, $chartX, $chartY + $chartH, $chartX + $chartW, $chartY + $chartH)
-  $axis.Dispose()
-  $bandBrush = New-AlphaBrush $palette.policy 70
-  $bandH = 54
-  $g.FillRectangle($bandBrush, $chartX + 90, $chartY + 54, $chartW * $p, $bandH)
-  $bandBrush.Dispose()
-  $bandPen = New-Pen $palette.policy 4
-  $g.DrawRectangle($bandPen, $chartX + 90, $chartY + 54, $chartW * $p, $bandH)
-  $bandPen.Dispose()
-  Draw-Text $g "3.50-3.75% target range unchanged" $mono $palette.policy ($chartX + 112) ($chartY + 64) 640 34
-  Draw-Text $g "Mar" $mono $palette.muted ($chartX + 70) ($chartY + 132) 80 34
-  Draw-Text $g "Apr" $mono $palette.muted ($chartX + 280) ($chartY + 132) 80 34
-  Draw-Text $g "May" $mono $palette.muted ($chartX + 490) ($chartY + 132) 80 34
-  Draw-Text $g "Jun hold" $mono $palette.warning ($chartX + 672) ($chartY + 132) 150 34
-  Draw-SourceCapsule $g $story 96 1350 840
-  $title.Dispose()
-  $body.Dispose()
-  $mono.Dispose()
-}
-
-function Draw-TargetGap($g, $story, [int]$frame) {
-  $p = Ease-InOutCubic (Get-SceneProgress $frame 210 210)
-  $title = New-Font 60 "Bold"
-  $body = New-Font 31 "Regular"
+function Draw-ExpectationVsReality($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 150 120)
   $mono = New-Font 25 "Bold" "Consolas"
-  Draw-Text $g "Inflation is still above" $title $palette.text 96 196 860 72
-  Draw-Text $g "the line that matters." $title $palette.warning 96 270 860 72
-  Draw-Text $g "The chart answers the market question: why did a hold not equal relief?" $body $palette.textSecondary 96 362 820 72 "Near" "Near" 2
+  Draw-Text $g "EXPECTATION" $mono $palette.muted 96 192 420 38
+  Draw-Text $g "Relief trade" (New-Font 68 "Bold") $palette.positive 96 240 860 82
+  Draw-Text $g "REALITY" $mono $palette.warning 96 374 420 38
+  Draw-Text $g "Conditions first" (New-Font 72 "Bold") $palette.warning 96 422 860 86
 
-  $x = 112
-  $y = 514
-  $w = 856
-  $h = 650
-  Fill-RoundedRect $g $x $y $w $h 28 $palette.panel $palette.rule 1
-  $plotX = $x + 92
-  $plotY = $y + 96
-  $plotW = $w - 164
-  $plotH = 430
+  $expectX = 96 - ((1 - $p) * 52)
+  $actualX = 548 + ((1 - $p) * 52)
+  Fill-RoundedRect $g $expectX 616 382 276 28 $palette.panel $palette.rule 1
+  Fill-RoundedRect $g $actualX 616 388 276 28 $palette.panelElevated $palette.policy 3
+  Draw-Text $g "MARKET WANTED" $mono $palette.textSecondary ($expectX + 30) 648 300 34
+  Draw-Text $g "CUTS" (New-Font 60 "Bold") $palette.positive ($expectX + 30) 700 250 72
+  Draw-Text $g "Lower-rate path" (New-Font 29 "Regular") $palette.textSecondary ($expectX + 30) 790 300 42
+  Draw-Text $g "FED DELIVERED" $mono $palette.textSecondary ($actualX + 30) 648 300 34
+  Draw-Text $g "PROOF" (New-Font 60 "Bold") $palette.warning ($actualX + 30) 700 250 72
+  Draw-Text $g "Inflation must cool" (New-Font 29 "Regular") $palette.textSecondary ($actualX + 30) 790 300 42
+
+  Fill-RoundedRect $g 96 1008 840 168 24 $palette.panel "" 0
+  Draw-Text $g "3.50-3.75%" (New-Font 54 "Bold" "Consolas") $palette.policy 132 1046 360 64
+  Draw-Text $g "target range unchanged" (New-Font 34 "Bold") $palette.text 470 1052 430 50
+  Draw-Text $g "Decision steady. Cut bar intact." (New-Font 30 "Regular") $palette.textSecondary 132 1120 720 40
+  Draw-SourceCapsule $g $story 96 1328 840
+  $mono.Dispose()
+}
+
+function Draw-GapProofChart($g, $story, [int]$frame) {
+  $p = Ease-InOutCubic (Get-SceneProgress $frame 270 210)
+  $mono = New-Font 25 "Bold" "Consolas"
+  Draw-Text $g "THE PROOF" $mono $palette.warning 96 190 420 38
+  Draw-Text $g "Inflation is still" (New-Font 68 "Bold") $palette.text 96 238 860 80
+  Draw-Text $g "above target." (New-Font 68 "Bold") $palette.negative 96 318 860 112
+
+  $x = 96
+  $y = 484
+  $w = 888
+  $h = 700
+  Fill-RoundedRect $g $x $y $w $h 30 $palette.panel $palette.rule 1
+  $plotX = $x + 104
+  $plotY = $y + 104
+  $plotW = $w - 188
+  $plotH = 420
   $grid = New-AlphaPen $palette.grid 210 2
   for ($i = 0; $i -le 5; $i++) {
     $yy = $plotY + ($plotH / 5 * $i)
     $g.DrawLine($grid, $plotX, $yy, $plotX + $plotW, $yy)
-    Draw-Text $g ("{0}%" -f (5 - $i)) $mono $palette.muted ($plotX - 70) ($yy - 15) 54 30 "Far"
+    Draw-Text $g ("{0}%" -f (5 - $i)) $mono $palette.muted ($plotX - 72) ($yy - 15) 58 30 "Far"
   }
   $grid.Dispose()
   $axis = New-AlphaPen $palette.rule 230 2
@@ -374,97 +365,91 @@ function Draw-TargetGap($g, $story, [int]$frame) {
     param([double]$v)
     return $plotY + $plotH - (($v / 5.0) * $plotH)
   }
-  $targetY = & $toY 2.0
-  $actualYFinal = & $toY 4.1
+  $target = [double]$story.proofMetric.target
+  $actual = [double]$story.proofMetric.actual
+  $targetY = & $toY $target
+  $actualYFinal = & $toY $actual
   $actualY = $targetY + (($actualYFinal - $targetY) * $p)
+  $markerX = $plotX + ($plotW * 0.62)
+
   $targetPen = New-Pen $palette.neutral 4
   $targetPen.DashStyle = [System.Drawing.Drawing2D.DashStyle]::Dash
   $g.DrawLine($targetPen, $plotX, $targetY, $plotX + $plotW, $targetY)
   $targetPen.Dispose()
-  Draw-Text $g "Fed target 2.0%" $mono $palette.neutral ($plotX + $plotW - 226) ($targetY - 44) 220 34 "Far"
+  Draw-Text $g "Fed target 2.0%" $mono $palette.neutral ($plotX + 390) ($targetY + 14) 260 34
 
-  $gapPen = New-Pen $palette.negative 10
+  $gapPen = New-Pen $palette.negative 12
   $gapPen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
   $gapPen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
-  $markerX = $plotX + $plotW * 0.58
   $g.DrawLine($gapPen, $markerX, $targetY, $markerX, $actualY)
   $gapPen.Dispose()
   $dotBrush = New-Brush $palette.negative
-  $g.FillEllipse($dotBrush, $markerX - 16, $actualY - 16, 32, 32)
+  $g.FillEllipse($dotBrush, $markerX - 20, $actualY - 20, 40, 40)
   $dotBrush.Dispose()
-  Draw-Text $g "PCE inflation" $mono $palette.textSecondary ($markerX - 118) ($actualY - 76) 236 34 "Center"
-  Draw-Text $g ("{0:N1}%" -f (2.0 + ((4.1 - 2.0) * $p))) (New-Font 54 "Bold" "Consolas") $palette.negative ($markerX - 120) ($actualY - 42) 240 72 "Center"
-  if ($p -gt 0.55) {
-    Draw-MetricChip $g "GAP TO TARGET" "+2.1 pp" 616 1084 300 $palette.warning (($p - 0.55) / 0.45)
+  Draw-Text $g "PCE inflation" $mono $palette.textSecondary ($markerX - 140) ($actualY - 82) 280 34 "Center"
+  Draw-Text $g ("{0:N1}%" -f ($target + (($actual - $target) * $p))) (New-Font 70 "Bold" "Consolas") $palette.negative ($markerX - 150) ($actualY - 50) 300 82 "Center"
+
+  if ($p -gt 0.45) {
+    $gapProgress = Ease-OutCubic (($p - 0.45) / 0.55)
+    Draw-MetricChip $g "ABOVE TARGET" $story.proofMetric.gapDisplay 126 1088 330 $palette.warning $gapProgress
+    Draw-MetricChip $g "SCALE" $story.proofMetric.badge 486 1088 420 $palette.policy $gapProgress
   }
-  Draw-SourceCapsule $g $story 96 1350 840
-  $title.Dispose()
-  $body.Dispose()
+  Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
 
-function Draw-ImpactTiles($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 420 240)
-  $title = New-Font 58 "Bold"
-  $body = New-Font 32 "Regular"
-  $mono = New-Font 23 "Bold" "Consolas"
-  Draw-Text $g "That keeps rate-sensitive" $title $palette.text 96 198 860 72
-  Draw-Text $g "trades exposed." $title $palette.warning 96 272 860 72
-  Draw-Text $g "No fake precision here: without verified live reaction data, the template shows risk chips instead of made-up numbers." $body $palette.textSecondary 96 368 850 96 "Near" "Near" 3
+function Draw-RiskExposureStack($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 480 210)
+  $mono = New-Font 25 "Bold" "Consolas"
+  Draw-Text $g $story.marketConsequence.label.ToUpperInvariant() $mono $palette.warning 96 190 420 38
+  Draw-Text $g "Rate-sensitive trades" (New-Font 62 "Bold") $palette.text 96 238 880 76
+  Draw-Text $g "stay exposed." (New-Font 72 "Bold") $palette.warning 96 312 860 84
+  Draw-Text $g "This is a setup, not a live reaction print." (New-Font 32 "Regular") $palette.textSecondary 96 414 820 48
 
-  $tiles = @(
-    @("GROWTH MULTIPLES", "Higher discount rate", "EXPOSED", $palette.negative),
-    @("2Y / RATE PATH", "Watch policy pricing", "WATCH", $palette.warning),
-    @("NEXT CPI/PCE", "Changes the thesis", "CATALYST", $palette.policy)
-  )
-  for ($i = 0; $i -lt $tiles.Count; $i++) {
+  $risks = @($story.marketConsequence.riskMap)
+  for ($i = 0; $i -lt $risks.Count; $i++) {
+    $risk = $risks[$i]
     $local = Ease-OutCubic (($p * 1.25) - ($i * 0.18))
-    $x = 96
-    $y = 548 + ($i * 214) + ((1 - $local) * 36)
-    Fill-RoundedRect $g $x $y 840 172 26 $palette.panel $palette.rule 1
-    Fill-RoundedRect $g ($x + 24) ($y + 26) 138 52 18 $palette.panelElevated $tiles[$i][3] 2
-    Draw-Text $g $tiles[$i][2] $mono $tiles[$i][3] ($x + 38) ($y + 40) 110 26 "Center"
-    Draw-Text $g $tiles[$i][0] (New-Font 34 "Bold") $palette.text ($x + 190) ($y + 28) 500 44
-    Draw-Text $g $tiles[$i][1] (New-Font 28 "Regular") $palette.textSecondary ($x + 190) ($y + 84) 500 44
-    $curve = @(
-      [System.Drawing.PointF]::new($x + 626, $y + 110),
-      [System.Drawing.PointF]::new($x + 684, $y + 84),
-      [System.Drawing.PointF]::new($x + 746, $y + 96),
-      [System.Drawing.PointF]::new($x + 810, $y + 60)
-    )
-    Draw-LineSegment $g $curve $local $tiles[$i][3] 5
+    $y = 556 + ($i * 190) + ((1 - $local) * 34)
+    $accent = if ($risk.status -eq "Exposed") { $palette.negative } elseif ($risk.status -eq "Watch") { $palette.warning } else { $palette.policy }
+    Fill-RoundedRect $g 96 $y 840 150 24 $palette.panel $palette.rule 1
+    Fill-RoundedRect $g 126 ($y + 28) 150 52 18 $palette.panelElevated $accent 2
+    Draw-Text $g $risk.status.ToUpperInvariant() (New-Font 22 "Bold" "Consolas") $accent 140 ($y + 42) 122 26 "Center"
+    Draw-Text $g $risk.label (New-Font 38 "Bold") $palette.text 304 ($y + 28) 470 48
+    Draw-Text $g $risk.reason (New-Font 28 "Regular") $palette.textSecondary 304 ($y + 84) 500 40
+    $meterPen = New-AlphaPen $accent 190 5
+    $g.DrawLine($meterPen, 760, ($y + 76), 900, ($y + 76))
+    $g.DrawLine($meterPen, 900, ($y + 76), 872, ($y + 48))
+    $g.DrawLine($meterPen, 900, ($y + 76), 872, ($y + 104))
+    $meterPen.Dispose()
   }
-  Draw-SourceCapsule $g $story 96 1350 840
-  $title.Dispose()
-  $body.Dispose()
+  Draw-SourceCapsule $g $story 96 1328 840
   $mono.Dispose()
 }
 
-function Draw-WatchNext($g, $story, [int]$frame) {
-  $p = Ease-OutCubic (Get-SceneProgress $frame 660 225)
-  $kicker = New-Font 30 "Bold" "Consolas"
-  $title = New-Font 66 "Bold"
-  $body = New-Font 39 "Regular"
-  Draw-Text $g "BOTTOM LINE" $kicker $palette.warning 96 198 420 42
-  Draw-Text $g "The signal is not" (New-Font 58 "Bold") $palette.text 96 270 850 76
-  Draw-Text $g "'cuts are here.'" (New-Font 58 "Bold") $palette.text 96 344 850 76
-  Draw-Text $g "The signal is: inflation has to prove it." $body $palette.textSecondary 96 488 820 92 "Near" "Near" 2
-  $chips = @($story.watchNext)
-  for ($i = 0; $i -lt $chips.Count; $i++) {
-    $local = Ease-OutCubic (($p * 1.35) - ($i * 0.15))
+function Draw-LoopbackClose($g, $story, [int]$frame) {
+  $p = Ease-OutCubic (Get-SceneProgress $frame 690 195)
+  $mono = New-Font 27 "Bold" "Consolas"
+  Draw-Text $g "BOTTOM LINE" $mono $palette.warning 96 190 420 40
+  Draw-Text $g "Pause was" (New-Font 68 "Bold") $palette.text 96 250 840 120
+  Draw-Text $g "the decision." (New-Font 68 "Bold") $palette.policy 96 334 840 120
+  Draw-Text $g "Not the pivot." (New-Font 78 "Bold") $palette.negative 96 452 840 132
+
+  $catalysts = @($story.nextCatalysts)
+  for ($i = 0; $i -lt $catalysts.Count; $i++) {
+    $local = Ease-OutCubic (($p * 1.35) - ($i * 0.12))
     $x = 112 + (($i % 2) * 426)
-    $y = 690 + ([Math]::Floor($i / 2) * 154) + ((1 - $local) * 28)
+    $y = 700 + ([Math]::Floor($i / 2) * 150) + ((1 - $local) * 32)
     Fill-RoundedRect $g $x $y 382 104 22 $palette.panelElevated $palette.rule 1
-    Draw-Text $g ("WATCH {0}" -f ($i + 1)) (New-Font 20 "Bold" "Consolas") $palette.muted ($x + 24) ($y + 18) 150 28
-    Draw-Text $g $chips[$i] (New-Font 34 "Bold") $palette.text ($x + 24) ($y + 48) 330 44
+    Draw-Text $g ("WATCH {0}" -f ($i + 1)) (New-Font 19 "Bold" "Consolas") $palette.muted ($x + 24) ($y + 16) 150 28
+    Draw-Text $g $catalysts[$i] (New-Font 33 "Bold") $palette.text ($x + 24) ($y + 48) 330 44
   }
-  Fill-RoundedRect $g 96 1038 840 190 26 $palette.panel $palette.rule 1
-  Draw-Text $g "Upload note" (New-Font 24 "Bold" "Consolas") $palette.policy 126 1076 220 30
-  Draw-Text $g "Use this video with the sidecar caption and source manifest. Do not present it as personalized investment advice." (New-Font 31 "Regular") $palette.textSecondary 126 1122 780 80 "Near" "Near" 2
-  Draw-SourceCapsule $g $story 96 1350 840
-  $kicker.Dispose()
-  $title.Dispose()
-  $body.Dispose()
+
+  Fill-RoundedRect $g 96 1072 840 132 24 $palette.panel "" 0
+  Draw-Text $g "Loopback" (New-Font 24 "Bold" "Consolas") $palette.policy 128 1100 190 30
+  Draw-Text $g "A hold is not relief if inflation has to prove it." (New-Font 30 "Bold") $palette.text 128 1138 760 58
+  Draw-SourceCapsule $g $story 96 1328 840
+  $mono.Dispose()
 }
 
 function Draw-SafeZoneOverlay($g, $story) {
@@ -486,18 +471,17 @@ function Draw-Frame([string]$path, $story, [int]$frame, [switch]$OverlaySafeZone
   $g.TextRenderingHint = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
   Draw-Base $g $w $h $frame
   Draw-Header $g $w "FED WATCH"
-  if ($frame -lt 75) {
-    Draw-HookHeadline $g $story $frame
-  } elseif ($frame -lt 210) {
-    Draw-RatePath $g $story $frame
-  } elseif ($frame -lt 420) {
-    Draw-TargetGap $g $story $frame
-  } elseif ($frame -lt 660) {
-    Draw-ImpactTiles $g $story $frame
+  if ($frame -lt 150) {
+    Draw-ImpactHook $g $story $frame
+  } elseif ($frame -lt 270) {
+    Draw-ExpectationVsReality $g $story $frame
+  } elseif ($frame -lt 480) {
+    Draw-GapProofChart $g $story $frame
+  } elseif ($frame -lt 690) {
+    Draw-RiskExposureStack $g $story $frame
   } else {
-    Draw-WatchNext $g $story $frame
+    Draw-LoopbackClose $g $story $frame
   }
-  Draw-AmbientTicker $g $w $h $frame
   if ($OverlaySafeZone) { Draw-SafeZoneOverlay $g $story }
   $g.Dispose()
   $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
@@ -518,8 +502,7 @@ function New-Thumbnail([string]$path, $story) {
   Draw-MetricChip $g "TARGET RANGE" $story.hook.primaryNumber 96 650 430 $palette.policy 1
   Draw-MetricChip $g "PCE VS TARGET" "+2.1 pp gap" 556 650 380 $palette.negative 1
   Draw-Text $g "The bar for cuts did not fall." (New-Font 40 "Regular") $palette.textSecondary 96 884 850 104 "Near" "Near" 2
-  Draw-SourceCapsule $g $story 96 1350 840
-  Draw-AmbientTicker $g $w $h 36
+  Draw-SourceCapsule $g $story 96 1328 840
   $g.Dispose()
   $bitmap.Save($path, [System.Drawing.Imaging.ImageFormat]::Png)
   $bitmap.Dispose()
@@ -597,6 +580,70 @@ function Test-BlankFrames([string]$framesDir, [int]$totalFrames) {
   return $nearBlank
 }
 
+function Test-StoryContract($story) {
+  $errors = New-Object System.Collections.Generic.List[string]
+  foreach ($field in @("hookConflict", "proofMetric", "marketConsequence", "nextCatalysts", "sourceManifest", "retentionBeats")) {
+    if (-not ($story.PSObject.Properties.Name -contains $field)) {
+      $errors.Add("Missing required high-retention field: $field")
+    }
+  }
+
+  $storyText = ($story | ConvertTo-Json -Depth 30)
+  $forbiddenPatterns = @(
+    "template",
+    "upload note",
+    "fake precision",
+    "chart answers",
+    "source\.\.\.",
+    "why did",
+    "\.\.\.",
+    "…"
+  )
+  foreach ($pattern in $forbiddenPatterns) {
+    if ($storyText -match $pattern) {
+      $errors.Add("Forbidden or truncation-prone copy found: $pattern")
+    }
+  }
+
+  foreach ($metric in @($story.metrics)) {
+    foreach ($field in @("id", "label", "unit", "sourceName", "sourceUrl", "asOf")) {
+      if (-not ($metric.PSObject.Properties.Name -contains $field) -or -not $metric.$field) {
+        $errors.Add("Metric '$($metric.id)' is missing required field: $field")
+      }
+    }
+  }
+
+  foreach ($source in @($story.sources)) {
+    foreach ($field in @("name", "url", "usedFor", "asOf")) {
+      if (-not ($source.PSObject.Properties.Name -contains $field) -or -not $source.$field) {
+        $errors.Add("Source '$($source.name)' is missing required field: $field")
+      }
+    }
+  }
+
+  $firstSixBeats = @($story.retentionBeats | Where-Object { [int]$_.startFrame -lt 180 })
+  if ($firstSixBeats.Count -lt 4) {
+    $errors.Add("First 6 seconds must contain at least 4 retention beats.")
+  }
+
+  foreach ($beat in @($story.retentionBeats)) {
+    foreach ($field in @("startFrame", "durationFrames", "visualAction", "audioCue", "onScreenText", "dataRef")) {
+      if (-not ($beat.PSObject.Properties.Name -contains $field) -or $null -eq $beat.$field -or "$($beat.$field)" -eq "") {
+        $errors.Add("Retention beat is missing required field: $field")
+      }
+    }
+  }
+
+  return $errors
+}
+
+function Assert-StoryContract($story) {
+  $errors = Test-StoryContract $story
+  if ($errors.Count -gt 0) {
+    throw ("Story contract failed:`n - " + ($errors -join "`n - "))
+  }
+}
+
 function New-QaContactSheet([string]$path, $story, [int[]]$frames) {
   $thumbW = 360
   $thumbH = 640
@@ -629,7 +676,7 @@ function Update-PrimaryManifest([string]$manifestPath, [double]$duration) {
   }
   foreach ($item in $manifest) {
     if ($item.type -eq "short" -and [int]$item.number -eq 1) {
-      $item | Add-Member -NotePropertyName "style" -NotePropertyValue "motion-first-dark-market" -Force
+      $item | Add-Member -NotePropertyName "style" -NotePropertyValue "high-retention-creator-market" -Force
       $item | Add-Member -NotePropertyName "duration_sec" -NotePropertyValue ([Math]::Round($duration, 1)) -Force
       $item | Add-Member -NotePropertyName "visualIntent" -NotePropertyValue "target_gap" -Force
       $item | Add-Member -NotePropertyName "qa" -NotePropertyValue "pass" -Force
@@ -642,6 +689,7 @@ $renderId = $story.renderId
 $fps = [int]$story.dimensions.fps
 $durationSeconds = [double]$story.dimensions.durationSeconds
 $totalFrames = [int]([Math]::Round($durationSeconds * $fps))
+Assert-StoryContract $story
 $videoPath = Join-Path $outputPath "$renderId.mp4"
 $thumbnailPath = Join-Path $outputPath "$renderId-thumbnail.png"
 $captionPath = Join-Path $outputPath "$renderId-captions.srt"
@@ -671,14 +719,14 @@ $sourceManifest = [PSCustomObject]@{
   compliance = $story.compliance
 }
 $sourceManifest | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $sourceManifestPath -Encoding UTF8
-New-QaContactSheet $contactSheetPath $story @(15, 92, 255, 500, 760)
+New-QaContactSheet $contactSheetPath $story @(0, 15, 36, 90, 180, 300, 480, 690, 840)
 
 Write-Host "Synthesizing narration"
 New-Narration $story.narration $audioPath
 
 Write-Host "Encoding MP4 master"
 $durationText = $durationSeconds.ToString([System.Globalization.CultureInfo]::InvariantCulture)
-& ffmpeg -y -hide_banner -loglevel error -framerate $fps -i (Join-Path $framesPath "frame_%04d.png") -i $audioPath -t $durationText -c:v libx264 -profile:v high -pix_fmt yuv420p -b:v 10M -minrate 10M -maxrate 10M -bufsize 10M -x264-params "nal-hrd=cbr:filler=1:force-cfr=1" -af "loudnorm=I=-14:TP=-1:LRA=11,apad=pad_dur=2" -shortest -c:a aac -b:a 192k -ar 48000 -ac 2 $videoPath
+& ffmpeg -y -hide_banner -loglevel error -framerate $fps -i (Join-Path $framesPath "frame_%04d.png") -i $audioPath -t $durationText -c:v libx264 -profile:v high -pix_fmt yuv420p -b:v 10M -minrate 10M -maxrate 10M -bufsize 10M -x264-params "nal-hrd=cbr:filler=1:force-cfr=1" -af "loudnorm=I=-14:TP=-1:LRA=11,apad=pad_dur=10" -c:a aac -b:a 192k -ar 48000 -ac 2 $videoPath
 if ($LASTEXITCODE -ne 0) { throw "ffmpeg failed while encoding $videoPath" }
 
 $actualDuration = Get-AudioDuration $videoPath
@@ -697,6 +745,9 @@ $qa = [PSCustomObject]@{
   chartLabels = "pass"
   sourceMetadata = "pass"
   dataIntegrity = "pass"
+  forbiddenCopy = "pass"
+  ellipsis = "pass"
+  retentionBeats = "pass"
   blankFrames = if ($blankSamples -eq 0) { "pass" } else { "review" }
   motionCadence = "pass"
   audio = "encoded AAC 48kHz stereo with loudness normalization"

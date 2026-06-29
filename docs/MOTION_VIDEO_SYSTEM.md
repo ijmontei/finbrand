@@ -1,13 +1,13 @@
 # Motion-First Video System
 
-This repo now includes a motion-first flagship template for source-backed market explainers.
+This repo now includes a high-retention flagship template for source-backed market explainers.
 
 ## Current Flagship Template
 
-Template: Fed / policy reaction  
-Story: `2026-06-28-fed-pause-not-pivot-v03`  
-Visual intent: `target_gap`  
-Theme: `dark_market`
+- Template: Fed / policy reaction
+- Story: `2026-06-28-fed-pause-not-pivot-v04`
+- Visual intent: `target_gap`
+- Theme: `high_retention_market`
 
 The template is generated from:
 
@@ -38,17 +38,16 @@ It also replaces `videos/01-the-fed-did-not-blink.mp4` with the flagship render 
 
 Implemented components:
 
-- `BrandHeader`
-- `TopicPill`
-- `HookHeadline`
-- `BigNumber` / metric chips
-- `RatePath`
-- `TargetGap`
-- `ImpactTiles`
-- `WatchNext`
+- `ImpactHook`
+- `ExpectationVsReality`
+- `GapProofChart`
+- `RiskExposureStack`
+- `CatalystGrid`
+- `LoopbackClose`
 - `SourceCapsule`
 - `SafeZoneOverlay`
-- `MarketTicker`
+- `ForbiddenCopyValidator`
+- `EllipsisValidator`
 
 The current renderer draws frames directly with .NET `System.Drawing`, then encodes with FFmpeg. The structure is intentionally compatible with a future Remotion/React migration: story data, scenes, metrics, source metadata, timing, and QA artifacts are already separated from the renderer.
 
@@ -62,6 +61,9 @@ Current automated QA writes:
 - Chart-label status.
 - Source metadata status.
 - Data-integrity status.
+- Forbidden-copy status.
+- Ellipsis status.
+- Retention-beat status.
 - Blank-frame status.
 - Motion-cadence status.
 - Audio encoding status.

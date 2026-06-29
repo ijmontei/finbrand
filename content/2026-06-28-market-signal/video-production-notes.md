@@ -7,7 +7,7 @@ This package includes professional editorial MP4 drafts in `videos/`:
 - Ten vertical short-form videos at 1080x1920.
 - One horizontal long-form video draft at 1280x720.
 - `video_manifest.json` with titles, paths, style labels, and durations.
-- A motion-first Fed flagship package in `videos/flagship/`.
+- A high-retention Fed flagship package in `videos/flagship/`.
 
 Each short now follows a stronger consumer-facing financial explainer structure:
 
@@ -43,13 +43,13 @@ The renderer uses:
 
 No external video service is required for these drafts.
 
-The motion-first Fed renderer additionally exports a thumbnail, SRT captions, platform caption draft, source manifest, render manifest, QA JSON, and a safe-zone contact sheet.
+The high-retention Fed renderer additionally exports a thumbnail, SRT captions, platform caption draft, source manifest, render manifest, QA JSON, and a safe-zone contact sheet.
 
 ## Editorial Critique
 
 What is working:
 
-- The Fed example is now rebuilt as a dark-mode, motion-first flagship template.
+- The Fed example is now rebuilt as a retention-first flagship template with a conflict hook, target-gap proof chart, risk map, catalysts, and loopback close.
 - The videos are no longer static generic cards; each one opens with a large thesis frame.
 - The visual system now feels closer to a clean financial explainer format.
 - Re-created charts make the evidence more legible for normal consumers.
@@ -59,7 +59,7 @@ What is working:
 What still needs improvement before final publishing:
 
 - Replace local synthetic narration with a recorded voice or higher-quality licensed TTS.
-- Extend the motion-first renderer from the Fed template to the remaining nine shorts.
+- Extend the high-retention renderer from the Fed template to the remaining nine shorts.
 - Add timed burned-in captions or per-beat kinetic text for mobile retention.
 - Add source lower-thirds or QR/source cards for platform trust.
 - Add licensed or owned photographic/video footage if the final channel wants real-world B-roll.
@@ -69,7 +69,7 @@ What still needs improvement before final publishing:
 
 Start with either:
 
-- `videos/flagship/2026-06-28-fed-pause-not-pivot-v03.mp4`
+- `videos/flagship/2026-06-28-fed-pause-not-pivot-v04.mp4`
 - `03-core-cpi-looked-better-energy-did-not.mp4`
 - `05-ai-demand-is-real-the-multiple-is-the-question.mp4`
 
